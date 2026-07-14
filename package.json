@@ -1,0 +1,14 @@
+{
+  "name": "rental-investment-portal",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test scripts/",
+    "refresh": "node scripts/refresh.mjs"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "playwright": "^1.61.1"
+  }
+}

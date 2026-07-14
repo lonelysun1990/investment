@@ -1,0 +1,17 @@
+{
+  "vision_llm": {
+    "base_url": "https://api.openai.com/v1",
+    "api_key": "sk-REPLACE-ME",
+    "model": "gpt-4o"
+  },
+  "deals": {
+    "legacy": {
+      "dealId": "d4407d10-0c15-4e74-beb6-82466ac289ba",
+      "portalName": "The Legacy Apartment"
+    },
+    "mcneil": {
+      "dealId": "f8929e29-285b-4904-b4e9-5b41b035535b",
+      "portalName": "McNeil Star Apartments"
+    }
+  }
+}
