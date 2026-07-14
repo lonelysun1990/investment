@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { extractNarrative, extractPnlTable, extractLegacyMonth } from "./extract-legacy.mjs";
+import { readFile, rm } from "node:fs/promises";
+import { extractNarrative, extractPnlTable, extractLegacyMonth, runLegacyExtraction } from "./extract-legacy.mjs";
 
 const FIXTURE = "scripts/__fixtures__/legacy/2026-05-investor-update.pdf";
 
@@ -105,4 +106,17 @@ test("extractLegacyMonth assembles the full canonical record with a working visi
   assert.equal(record.netIncome, -9347.72);
   assert.equal(record.extraction.method, "vision_llm");
   assert.equal(record.extraction.confidence, "high");
+});
+
+test("runLegacyExtraction scans a raw dir and writes merged JSON output", async () => {
+  const outputPath = "scripts/__fixtures__/tmp-legacy-output.json";
+  const result = await runLegacyExtraction(
+    null,
+    "scripts/__fixtures__/raw-legacy",
+    outputPath
+  );
+  assert.deepEqual(result.monthsProcessed, ["2026-05"]);
+  const written = JSON.parse(await readFile(outputPath, "utf8"));
+  assert.equal(written["2026-05"].occupancyPct, 74);
+  await rm(outputPath);
 });

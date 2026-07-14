@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { extractMcneilPnl } from "./extract-mcneil.mjs";
+import { readFile, rm } from "node:fs/promises";
+import { extractMcneilPnl, runMcneilExtraction } from "./extract-mcneil.mjs";
 
 const FIXTURE = "scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf";
 
@@ -48,4 +49,14 @@ test("includes itemized expense categories with their own labels", async () => {
   assert.ok("Administration Expen" in jan.expense);
   assert.ok("Salaries & Wages" in jan.expense);
   assert.equal(jan.expense["Administration Expen"], 515.05);
+});
+
+test("runMcneilExtraction scans a raw dir, merges PDF + rent roll, writes JSON", async () => {
+  const outputPath = "scripts/__fixtures__/tmp-mcneil-output.json";
+  const result = await runMcneilExtraction("scripts/__fixtures__/raw-mcneil", outputPath);
+  assert.ok(result.monthsProcessed.includes("2026-06"));
+  const written = JSON.parse(await readFile(outputPath, "utf8"));
+  assert.equal(written["2026-06"].netIncome, 4640.0);
+  assert.ok("occupancyPct" in written["2026-06"], "rent roll occupancy should be merged into the June record");
+  await rm(outputPath);
 });

@@ -84,3 +84,66 @@ export async function extractMcneilPnl(pdfPath) {
 
   return months;
 }
+
+import { readdir } from "node:fs/promises";
+import { loadRecords, saveRecords, mergeRecord } from "./lib/record-store.mjs";
+import { extractRentRoll } from "./extract-mcneil-rentroll.mjs";
+
+export async function runMcneilExtraction(rawDir, outputPath) {
+  let monthDirs;
+  try {
+    monthDirs = (await readdir(rawDir, { withFileTypes: true }))
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name)
+      .sort();
+  } catch (err) {
+    if (err.code === "ENOENT") return { monthsProcessed: [] };
+    throw err;
+  }
+
+  let records = await loadRecords(outputPath);
+  const monthsProcessed = [];
+
+  for (const monthDir of monthDirs) {
+    const monthPath = path.join(rawDir, monthDir);
+    const files = await readdir(monthPath);
+    const pdfFile = files.find((f) => f.toLowerCase().includes("cashflow") && f.endsWith(".pdf"));
+    const xlsxFile = files.find((f) => f.endsWith(".xlsx"));
+    if (!pdfFile) continue;
+
+    const pnlByMonth = await extractMcneilPnl(path.join(monthPath, pdfFile));
+    let rentRoll = null;
+    if (xlsxFile) {
+      rentRoll = await extractRentRoll(path.join(monthPath, xlsxFile));
+    }
+
+    for (const [month, pnl] of pnlByMonth) {
+      const existing = records[month] ?? {};
+      const merged = {
+        ...pnl,
+        month,
+        sourceFile: path.join(monthPath, pdfFile),
+        extraction: { method: "deterministic", confidence: "high" },
+      };
+      if (rentRoll && month === monthDir) {
+        merged.occupancyPct = rentRoll.occupancyPct;
+        merged.rentRoll = rentRoll;
+      } else if (existing.occupancyPct !== undefined) {
+        merged.occupancyPct = existing.occupancyPct;
+        merged.rentRoll = existing.rentRoll;
+      }
+      records = mergeRecord(records, month, merged);
+      if (!monthsProcessed.includes(month)) monthsProcessed.push(month);
+    }
+  }
+
+  await saveRecords(outputPath, records);
+  return { monthsProcessed };
+}
+
+import path from "node:path";
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const result = await runMcneilExtraction("data/raw/mcneil", "data/mcneil.json");
+  console.log(`Processed months: ${result.monthsProcessed.join(", ") || "(none)"}`);
+}

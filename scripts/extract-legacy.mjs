@@ -107,3 +107,49 @@ export async function extractLegacyMonth(config, pdfPath, month, opts = {}) {
     extraction: { method, confidence },
   };
 }
+
+import { readdir } from "node:fs/promises";
+import { loadRecords, saveRecords, mergeRecord } from "./lib/record-store.mjs";
+
+export async function runLegacyExtraction(config, rawDir, outputPath) {
+  let monthDirs;
+  try {
+    monthDirs = (await readdir(rawDir, { withFileTypes: true }))
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name)
+      .sort();
+  } catch (err) {
+    if (err.code === "ENOENT") return { monthsProcessed: [] };
+    throw err;
+  }
+
+  let records = await loadRecords(outputPath);
+  const monthsProcessed = [];
+
+  for (const month of monthDirs) {
+    const monthPath = path.join(rawDir, month);
+    const files = (await readdir(monthPath)).filter((f) => f.endsWith(".pdf"));
+    if (files.length === 0) continue;
+    const pdfPath = path.join(monthPath, files[0]);
+    const record = await extractLegacyMonth(config, pdfPath, month);
+    records = mergeRecord(records, month, record);
+    monthsProcessed.push(month);
+  }
+
+  await saveRecords(outputPath, records);
+  return { monthsProcessed };
+}
+
+import { readFile as readFileForConfig } from "node:fs/promises";
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  let config = null;
+  try {
+    const raw = await readFileForConfig("config.json", "utf8");
+    config = JSON.parse(raw).vision_llm ?? null;
+  } catch {
+    console.warn("extract-legacy: no config.json / vision_llm block found; page-4 P&L table will be skipped.");
+  }
+  const result = await runLegacyExtraction(config, "data/raw/legacy", "data/legacy.json");
+  console.log(`Processed months: ${result.monthsProcessed.join(", ") || "(none)"}`);
+}
