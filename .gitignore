@@ -1,5 +1,6 @@
 node_modules/
 config.json
 data/raw/
+dashboard/data.js
 *.log
 .DS_Store
