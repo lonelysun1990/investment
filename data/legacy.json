@@ -1,0 +1,19 @@
+{
+  "2026-05": {
+    "month": "2026-05",
+    "occupancyPct": 74,
+    "preLeasedPct": 90,
+    "income": null,
+    "expense": null,
+    "noi": null,
+    "debtService": null,
+    "capitalImprovements": null,
+    "netIncome": null,
+    "narrative": "Operations Overview\n\n We ended May with occupancy at 74%.\n\n Our PM team is currently processing two evictions.\n\n 8 leases are up for renewal in the coming weeks, and all 8 want to stay, with a $50/mo. rent increase on their renewals.\n\n Leasing activity has increased in the recent weeks, with multiple showings and applications. Most leads continue to come through Facebook\n Marketplace.\n\n As of today, we are pre-leased to 90% occupancy.\n\n\n\n\nFinancial Overview\n\n\n Net Rental Income for May was $18,449. Total revenue for the month was $16,837, which netted to an NOI of $2,527.",
+    "sourceFile": "scripts/__fixtures__/raw-legacy/2026-05/report.pdf",
+    "extraction": {
+      "method": "unavailable",
+      "confidence": null
+    }
+  }
+}
