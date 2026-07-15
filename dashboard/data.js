@@ -162,234 +162,6 @@ export const LEGACY = {
   }
 };
 export const MCNEIL = {
-  "2025-07": {
-    "income": {
-      "rental": 0,
-      "other": 0,
-      "total": 0
-    },
-    "expense": {
-      "total": 0,
-      "Other Income - Fees": 0,
-      "Other Income - Con": 0,
-      "Other Income - Utili": 0,
-      "Administration Expen": 0,
-      "Marketing": 0,
-      "Salaries & Wages": 0,
-      "Contract Services": 0,
-      "Plumbing": 0,
-      "Building Maintenan": 0,
-      "Electrical Expense": 0,
-      "A/C Expense": 0,
-      "Repair/Maintenance E": 0,
-      "Make Ready Expense": 0,
-      "Utility Expenses": 0,
-      "Management Fees": 0,
-      "Fixed Expenses": 0,
-      "Other Non-Operating": 0,
-      "Appliances (CapEx)": 0
-    },
-    "noi": 0,
-    "debtService": 0,
-    "capitalImprovements": 0,
-    "netIncome": 0,
-    "month": "2025-07",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-08": {
-    "income": {
-      "rental": 0,
-      "other": 0,
-      "total": 0
-    },
-    "expense": {
-      "total": 0,
-      "Other Income - Fees": 0,
-      "Other Income - Con": 0,
-      "Other Income - Utili": 0,
-      "Administration Expen": 0,
-      "Marketing": 0,
-      "Salaries & Wages": 0,
-      "Contract Services": 0,
-      "Plumbing": 0,
-      "Building Maintenan": 0,
-      "Electrical Expense": 0,
-      "A/C Expense": 0,
-      "Repair/Maintenance E": 0,
-      "Make Ready Expense": 0,
-      "Utility Expenses": 0,
-      "Management Fees": 0,
-      "Fixed Expenses": 0,
-      "Other Non-Operating": 0,
-      "Appliances (CapEx)": 0
-    },
-    "noi": 0,
-    "debtService": 0,
-    "capitalImprovements": 0,
-    "netIncome": 0,
-    "month": "2025-08",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-09": {
-    "income": {
-      "rental": 0,
-      "other": 0,
-      "total": 0
-    },
-    "expense": {
-      "total": 0,
-      "Other Income - Fees": 0,
-      "Other Income - Con": 0,
-      "Other Income - Utili": 0,
-      "Administration Expen": 0,
-      "Marketing": 0,
-      "Salaries & Wages": 0,
-      "Contract Services": 0,
-      "Plumbing": 0,
-      "Building Maintenan": 0,
-      "Electrical Expense": 0,
-      "A/C Expense": 0,
-      "Repair/Maintenance E": 0,
-      "Make Ready Expense": 0,
-      "Utility Expenses": 0,
-      "Management Fees": 0,
-      "Fixed Expenses": 0,
-      "Other Non-Operating": 0,
-      "Appliances (CapEx)": 0
-    },
-    "noi": 0,
-    "debtService": 0,
-    "capitalImprovements": 0,
-    "netIncome": 0,
-    "month": "2025-09",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-10": {
-    "income": {
-      "rental": 0,
-      "other": 0,
-      "total": 0
-    },
-    "expense": {
-      "total": 0,
-      "Other Income - Fees": 0,
-      "Other Income - Con": 0,
-      "Other Income - Utili": 0,
-      "Administration Expen": 0,
-      "Marketing": 0,
-      "Salaries & Wages": 0,
-      "Contract Services": 0,
-      "Plumbing": 0,
-      "Building Maintenan": 0,
-      "Electrical Expense": 0,
-      "A/C Expense": 0,
-      "Repair/Maintenance E": 0,
-      "Make Ready Expense": 0,
-      "Utility Expenses": 0,
-      "Management Fees": 0,
-      "Fixed Expenses": 0,
-      "Other Non-Operating": 0,
-      "Appliances (CapEx)": 0
-    },
-    "noi": 0,
-    "debtService": 0,
-    "capitalImprovements": 0,
-    "netIncome": 0,
-    "month": "2025-10",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-11": {
-    "income": {
-      "rental": 0,
-      "other": 0,
-      "total": 0
-    },
-    "expense": {
-      "total": 0,
-      "Other Income - Fees": 0,
-      "Other Income - Con": 0,
-      "Other Income - Utili": 0,
-      "Administration Expen": 0,
-      "Marketing": 0,
-      "Salaries & Wages": 0,
-      "Contract Services": 0,
-      "Plumbing": 0,
-      "Building Maintenan": 0,
-      "Electrical Expense": 0,
-      "A/C Expense": 0,
-      "Repair/Maintenance E": 0,
-      "Make Ready Expense": 0,
-      "Utility Expenses": 0,
-      "Management Fees": 0,
-      "Fixed Expenses": 0,
-      "Other Non-Operating": 0,
-      "Appliances (CapEx)": 0
-    },
-    "noi": 0,
-    "debtService": 0,
-    "capitalImprovements": 0,
-    "netIncome": 0,
-    "month": "2025-11",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-12": {
-    "income": {
-      "rental": 0,
-      "other": 0,
-      "total": 0
-    },
-    "expense": {
-      "total": 0,
-      "Other Income - Fees": 0,
-      "Other Income - Con": 0,
-      "Other Income - Utili": 0,
-      "Administration Expen": 0,
-      "Marketing": 0,
-      "Salaries & Wages": 0,
-      "Contract Services": 0,
-      "Plumbing": 0,
-      "Building Maintenan": 0,
-      "Electrical Expense": 0,
-      "A/C Expense": 0,
-      "Repair/Maintenance E": 0,
-      "Make Ready Expense": 0,
-      "Utility Expenses": 0,
-      "Management Fees": 0,
-      "Fixed Expenses": 0,
-      "Other Non-Operating": 0,
-      "Appliances (CapEx)": 0
-    },
-    "noi": 0,
-    "debtService": 0,
-    "capitalImprovements": 0,
-    "netIncome": 0,
-    "month": "2025-12",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
   "2026-01": {
     "income": {
       "rental": 21769.68,
@@ -422,7 +194,7 @@ export const MCNEIL = {
     "capitalImprovements": 8244.34,
     "netIncome": -6671.87,
     "month": "2026-01",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -460,7 +232,7 @@ export const MCNEIL = {
     "capitalImprovements": 8200.92,
     "netIncome": 1470.14,
     "month": "2026-02",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -498,7 +270,7 @@ export const MCNEIL = {
     "capitalImprovements": 7537.71,
     "netIncome": 3277.46,
     "month": "2026-03",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -536,7 +308,7 @@ export const MCNEIL = {
     "capitalImprovements": 3299,
     "netIncome": -3476.17,
     "month": "2026-04",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -574,7 +346,7 @@ export const MCNEIL = {
     "capitalImprovements": 10113.5,
     "netIncome": -7202.81,
     "month": "2026-05",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -612,7 +384,7 @@ export const MCNEIL = {
     "capitalImprovements": 4161.71,
     "netIncome": 4640,
     "month": "2026-06",
-    "sourceFile": "scripts/__fixtures__/raw-mcneil/2026-06/cashflow.pdf",
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -672,12 +444,6 @@ export const DERIVED = {
     "larryNetIncomeShare": 0,
     "distributionMismatch": false,
     "months": [
-      "2025-07",
-      "2025-08",
-      "2025-09",
-      "2025-10",
-      "2025-11",
-      "2025-12",
       "2026-01",
       "2026-02",
       "2026-03",

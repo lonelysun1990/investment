@@ -201,9 +201,9 @@ function investorCashFlowCard(dealSlug, records) {
   }
 
   const distRows = distData.length === 0
-    ? `<tr><td colspan="4">No distributions recorded yet.</td></tr>`
+    ? `<tr><td colspan="3">No distributions recorded yet.</td></tr>`
     : distData.map((d) => {
-        const yourShare = Math.round((d.amount * ownershipPct) / 100) * 100 / 100;
+        const yourShare = Math.round(d.amount * ownershipPct) / 100;
         return `<tr>
           <td>${d.date}</td>
           <td>${money(d.amount ?? 0)}</td>
