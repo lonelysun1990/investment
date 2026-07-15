@@ -1,0 +1,10 @@
+{
+  "legacy": {
+    "totalRaise": 1200000,
+    "larryInvestment": 50000
+  },
+  "mcneil": {
+    "totalRaise": 1300000,
+    "larryInvestment": 50000
+  }
+}

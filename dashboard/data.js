@@ -416,17 +416,46 @@ export const PORTFOLIO = {
     "mcneil": 50000
   }
 };
-export const DISTRIBUTIONS = {};
-export const CAPITAL = {};
+export const DISTRIBUTIONS = {
+  "legacy": [],
+  "mcneil": [
+    {
+      "date": "2025-Q3",
+      "amount": 699.99
+    },
+    {
+      "date": "2025-Q4",
+      "amount": 648.14
+    },
+    {
+      "date": "2026-Q1",
+      "amount": 648.14
+    },
+    {
+      "date": "2026-Q2",
+      "amount": 648.14
+    }
+  ]
+};
+export const CAPITAL = {
+  "legacy": {
+    "totalRaise": 1200000,
+    "larryInvestment": 50000
+  },
+  "mcneil": {
+    "totalRaise": 1300000,
+    "larryInvestment": 50000
+  }
+};
 export const DERIVED = {
   "legacy": {
-    "ownershipPct": null,
+    "ownershipPct": 4.17,
     "larryInvestment": 50000,
-    "totalRaise": null,
+    "totalRaise": 1200000,
     "totalDistributed": 0,
     "larryDistributed": 0,
-    "larryNetIncomeShare": 0,
-    "distributionMismatch": false,
+    "larryNetIncomeShare": -705.96,
+    "distributionMismatch": true,
     "months": [
       "2026-01",
       "2026-02",
@@ -436,13 +465,13 @@ export const DERIVED = {
     ]
   },
   "mcneil": {
-    "ownershipPct": null,
+    "ownershipPct": 3.85,
     "larryInvestment": 50000,
-    "totalRaise": null,
-    "totalDistributed": 0,
-    "larryDistributed": 0,
-    "larryNetIncomeShare": 0,
-    "distributionMismatch": false,
+    "totalRaise": 1300000,
+    "totalDistributed": 2644.41,
+    "larryDistributed": 101.71,
+    "larryNetIncomeShare": -306.28,
+    "distributionMismatch": true,
     "months": [
       "2026-01",
       "2026-02",
