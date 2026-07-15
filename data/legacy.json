@@ -1,19 +1,162 @@
 {
+  "2026-01": {
+    "month": "2026-01",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 21255,
+      "other": 6499.17,
+      "total": 27754.17
+    },
+    "expense": {
+      "Administration Expense": 3138.63,
+      "Marketing": 0,
+      "Salaries & Wages": 2845,
+      "Contract Services": 0,
+      "Repair/Maintenance Expenses": 632.58,
+      "Make Ready Expense": 0,
+      "Utility Expenses": 12707.44,
+      "Management Fees": 567.7,
+      "Fixed Expenses": 5326.66,
+      "total": 25218.01
+    },
+    "noi": 2536.16,
+    "debtService": 6750.25,
+    "capitalImprovements": 8491.57,
+    "netIncome": -12705.66,
+    "narrative": null,
+    "sourceFile": "data/raw/legacy/2026-05/report.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2026-02": {
+    "month": "2026-02",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 15173.41,
+      "other": 7270.65,
+      "total": 22444.06
+    },
+    "expense": {
+      "Administration Expense": 692,
+      "Marketing": 50.32,
+      "Salaries & Wages": 2157.8,
+      "Contract Services": 0,
+      "Repair/Maintenance Expenses": 0,
+      "Make Ready Expense": 0,
+      "Utility Expenses": 8784.38,
+      "Management Fees": 625.85,
+      "Fixed Expenses": 5326.66,
+      "total": 17637.01
+    },
+    "noi": 4807.05,
+    "debtService": 6750.25,
+    "capitalImprovements": 1753.71,
+    "netIncome": -3696.91,
+    "narrative": null,
+    "sourceFile": "data/raw/legacy/2026-05/report.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2026-03": {
+    "month": "2026-03",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 22814.35,
+      "other": 4692.41,
+      "total": 27506.76
+    },
+    "expense": {
+      "Administration Expense": 610.35,
+      "Marketing": 120,
+      "Salaries & Wages": 3454.42,
+      "Contract Services": 117.4,
+      "Repair/Maintenance Expenses": 674.83,
+      "Make Ready Expense": 0,
+      "Utility Expenses": 6906.57,
+      "Management Fees": 671.6,
+      "Fixed Expenses": 5326.66,
+      "total": 18146.28
+    },
+    "noi": 9309.48,
+    "debtService": 6097,
+    "capitalImprovements": 119.51,
+    "netIncome": 3143.97,
+    "narrative": null,
+    "sourceFile": "data/raw/legacy/2026-05/report.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2026-04": {
+    "month": "2026-04",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 21135.35,
+      "other": 1861.51,
+      "total": 22996.86
+    },
+    "expense": {
+      "Administration Expense": 518.44,
+      "Marketing": 0,
+      "Salaries & Wages": 2363.28,
+      "Contract Services": 0,
+      "Repair/Maintenance Expenses": 149.24,
+      "Make Ready Expense": 264.45,
+      "Utility Expenses": 4917.96,
+      "Management Fees": 999.52,
+      "Fixed Expenses": 5326.66,
+      "total": 14275.1
+    },
+    "noi": 8721.76,
+    "debtService": 6750.25,
+    "capitalImprovements": 2349.94,
+    "netIncome": -877.58,
+    "narrative": null,
+    "sourceFile": "data/raw/legacy/2026-05/report.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
   "2026-05": {
     "month": "2026-05",
     "occupancyPct": 74,
     "preLeasedPct": 90,
-    "income": null,
-    "expense": null,
-    "noi": null,
-    "debtService": null,
-    "capitalImprovements": null,
-    "netIncome": null,
+    "income": {
+      "rental": 18448.91,
+      "other": -1612.28,
+      "total": 16836.63
+    },
+    "expense": {
+      "Administration Expense": 266.31,
+      "Marketing": 0,
+      "Salaries & Wages": 1481.64,
+      "Contract Services": 0,
+      "Repair/Maintenance Expenses": 603.85,
+      "Make Ready Expense": 323.96,
+      "Utility Expenses": 5635.64,
+      "Management Fees": 671.53,
+      "Fixed Expenses": 5326.66,
+      "total": 14309.59
+    },
+    "noi": 2527.04,
+    "debtService": 6532.5,
+    "capitalImprovements": 2367.29,
+    "netIncome": -2806.75,
     "narrative": "Operations Overview\n\n We ended May with occupancy at 74%.\n\n Our PM team is currently processing two evictions.\n\n 8 leases are up for renewal in the coming weeks, and all 8 want to stay, with a $50/mo. rent increase on their renewals.\n\n Leasing activity has increased in the recent weeks, with multiple showings and applications. Most leads continue to come through Facebook\n Marketplace.\n\n As of today, we are pre-leased to 90% occupancy.\n\n\n\n\nFinancial Overview\n\n\n Net Rental Income for May was $18,449. Total revenue for the month was $16,837, which netted to an NOI of $2,527.",
-    "sourceFile": "scripts/__fixtures__/raw-legacy/2026-05/report.pdf",
+    "sourceFile": "data/raw/legacy/2026-05/report.pdf",
     "extraction": {
-      "method": "unavailable",
-      "confidence": null
+      "method": "vision_llm",
+      "confidence": "high"
     }
   }
 }

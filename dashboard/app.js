@@ -1,4 +1,4 @@
-import { LEGACY, MCNEIL, PROJECTIONS, PORTFOLIO } from "./data.js";
+import { LEGACY, MCNEIL, PROJECTIONS, PORTFOLIO, DISTRIBUTIONS, CAPITAL, DERIVED } from "./data.js";
 
 const root = document.getElementById("view-root");
 const navButtons = document.querySelectorAll("#nav button");
@@ -189,11 +189,49 @@ function actualVsProjectionTable(dealSlug, records) {
 // ── Investor cash flow (view 7) ──
 
 function investorCashFlowCard(dealSlug, records) {
-  const invested = PORTFOLIO.perDeal[dealSlug] ?? 0;
-  return `<div class="card"><h2>Your cash flow ($${invested.toLocaleString()} invested)</h2>
-    <p>Distribution history is tracked on the deal's portal page, not in
-    these monthly operating reports. This dashboard does not yet extract
-    it \u2014 see the project's open follow-up work.</p></div>`;
+  const distData = DISTRIBUTIONS[dealSlug] ?? [];
+  const capData = CAPITAL[dealSlug] ?? {};
+  const derived = DERIVED[dealSlug] ?? {};
+  const ownershipPct = derived.ownershipPct;
+
+  if (!ownershipPct) {
+    return `<div class="card"><h2>Your cash flow ($${(PORTFOLIO.perDeal[dealSlug] ?? 0).toLocaleString()} invested)</h2>
+      <p>Ownership percentage unknown — run <code>npm run refresh</code> after logging into the portal to scrape
+      total capital raise, or set it manually in <code>data/capital.json</code>.</p></div>`;
+  }
+
+  const distRows = distData.length === 0
+    ? `<tr><td colspan="4">No distributions recorded yet.</td></tr>`
+    : distData.map((d) => {
+        const yourShare = Math.round((d.amount * ownershipPct) / 100) * 100 / 100;
+        return `<tr>
+          <td>${d.date}</td>
+          <td>${money(d.amount ?? 0)}</td>
+          <td>${money(yourShare)}</td>
+        </tr>`;
+      }).join("");
+
+  const mismatchWarning = derived.distributionMismatch
+    ? `<p class="flag-low-confidence">Calculated proportional net income (${money(derived.larryNetIncomeShare)}) differs from actual distributions (${money(derived.larryDistributed)}). This is normal when capex or reserves are involved — investigate if the gap widens over time.</p>`
+    : "";
+
+  return `<div class="card">
+    <h2>Your cash flow</h2>
+    <div class="stat-grid">
+      ${statCard("Amount invested", money(PORTFOLIO.perDeal[dealSlug] ?? 0))}
+      ${statCard("Ownership", ownershipPct + "%")}
+      ${statCard("Total capital raise", capData.totalRaise ? money(capData.totalRaise) : "\u2014")}
+      ${statCard("Distributions received", money(derived.larryDistributed), derived.larryDistributed > 0 ? "positive" : "")}
+      ${statCard("Prop. net income", money(derived.larryNetIncomeShare), derived.larryNetIncomeShare < 0 ? "negative" : "positive")}
+    </div>
+    ${distData.length > 0 ? `
+    <h3>Distribution history</h3>
+    <div style="overflow-x:auto"><table>
+      <tr><th>Period</th><th>Total property</th><th>Your share</th></tr>
+      ${distRows}
+    </table></div>` : ""}
+    ${mismatchWarning}
+  </div>`;
 }
 
 // ── renderDealView (views 1-7) ──
