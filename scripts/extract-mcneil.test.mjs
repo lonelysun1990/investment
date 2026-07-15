@@ -7,7 +7,7 @@ const FIXTURE = "scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf";
 
 test("returns one entry per real month column, excluding the Total column", async () => {
   const result = await extractMcneilPnl(FIXTURE);
-  assert.equal(result.size, 12);
+  assert.equal(result.size, 6);
   assert.ok(result.has("2026-06"));
   assert.ok(!result.has("Total"));
 });
@@ -35,12 +35,18 @@ test("parses a loss month correctly (May 2026, negative net income)", async () =
   assert.equal(may.netIncome, -7202.81);
 });
 
-test("correctly represents pre-acquisition months as zero, not missing", async () => {
+test("excludes pre-operation zero-only months from the result map", async () => {
   const result = await extractMcneilPnl(FIXTURE);
-  const jul2025 = result.get("2025-07");
-  assert.ok(jul2025, "2025-07 column must still be present in the map");
-  assert.equal(jul2025.income.total, 0);
-  assert.equal(jul2025.netIncome, 0);
+  // Jul 2025 has all zeros in the fixture PDF — should be excluded
+  assert.ok(!result.has("2025-07"), "2025-07 should be excluded (all zeros, pre-operation)");
+  assert.ok(!result.has("2025-08"));
+  assert.ok(!result.has("2025-09"));
+  assert.ok(!result.has("2025-10"));
+  assert.ok(!result.has("2025-11"));
+  assert.ok(!result.has("2025-12"));
+  // Jan 2026 onward has real data — should be included
+  assert.ok(result.has("2026-01"));
+  assert.equal(result.size, 6); // Jan-Jun 2026 only
 });
 
 test("includes itemized expense categories with their own labels", async () => {

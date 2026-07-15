@@ -82,6 +82,18 @@ export async function extractMcneilPnl(pdfPath) {
     if (row.label === "NET INCOME") reachedNetIncome = true;
   }
 
+  for (const [key, rec] of months) {
+    const allZero =
+      rec.income.rental === 0 &&
+      rec.income.other === 0 &&
+      rec.income.total === 0 &&
+      Object.values(rec.expense).every((v) => v === 0) &&
+      rec.noi === 0 &&
+      rec.debtService === 0 &&
+      rec.capitalImprovements === 0 &&
+      rec.netIncome === 0;
+    if (allZero) months.delete(key);
+  }
   return months;
 }
 
