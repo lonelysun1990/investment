@@ -38,30 +38,59 @@ test("preLeasedPct is null when the report has no pre-leased line", async () => 
 });
 
 const EXPECTED_TABLE = {
-  income: { rental: 18448.91, other: -1612.28, total: 16836.63 },
-  expense: {
-    "Administration Expense": 266.31,
-    Marketing: 0,
-    "Salaries & Wages": 1481.64,
-    "Contract Services": 0,
-    "Repair/Maintenance Expenses": 603.85,
-    "Make Ready Expense": 323.96,
-    "Utility Expenses": 5635.64,
-    "Management Fees": 671.53,
-    "Fixed Expenses": 5326.66,
-    total: 14309.59,
+  months: {
+    "2026-01": {
+      income: { rental: 18448.91, other: 0, total: 18448.91 },
+      expense: { "Administration Expense": 266.31, Marketing: 0, "Salaries & Wages": 1481.64, "Contract Services": 0, "Repair/Maintenance Expenses": 603.85, "Make Ready Expense": 323.96, "Utility Expenses": 5635.64, "Management Fees": 671.53, "Fixed Expenses": 5326.66, total: 14309.59 },
+      noi: 4139.32,
+      debtService: 6532.5,
+      otherNonOperating: 2375,
+      capitalImprovements: 2967.26,
+      netIncome: -7735.44,
+    },
+    "2026-02": {
+      income: { rental: 18448.91, other: 0, total: 18448.91 },
+      expense: { "Administration Expense": 266.31, Marketing: 0, "Salaries & Wages": 1481.64, "Contract Services": 0, "Repair/Maintenance Expenses": 603.85, "Make Ready Expense": 323.96, "Utility Expenses": 5635.64, "Management Fees": 671.53, "Fixed Expenses": 5326.66, total: 14309.59 },
+      noi: 4139.32,
+      debtService: 6532.5,
+      otherNonOperating: 2375,
+      capitalImprovements: 2967.26,
+      netIncome: -7735.44,
+    },
+    "2026-03": {
+      income: { rental: 18448.91, other: 0, total: 18448.91 },
+      expense: { "Administration Expense": 266.31, Marketing: 0, "Salaries & Wages": 1481.64, "Contract Services": 0, "Repair/Maintenance Expenses": 603.85, "Make Ready Expense": 323.96, "Utility Expenses": 5635.64, "Management Fees": 671.53, "Fixed Expenses": 5326.66, total: 14309.59 },
+      noi: 4139.32,
+      debtService: 6532.5,
+      otherNonOperating: 2375,
+      capitalImprovements: 2967.26,
+      netIncome: -7735.44,
+    },
+    "2026-04": {
+      income: { rental: 18448.91, other: 0, total: 18448.91 },
+      expense: { "Administration Expense": 266.31, Marketing: 0, "Salaries & Wages": 1481.64, "Contract Services": 0, "Repair/Maintenance Expenses": 603.85, "Make Ready Expense": 323.96, "Utility Expenses": 5635.64, "Management Fees": 671.53, "Fixed Expenses": 5326.66, total: 14309.59 },
+      noi: 4139.32,
+      debtService: 6532.5,
+      otherNonOperating: 2375,
+      capitalImprovements: 2967.26,
+      netIncome: -7735.44,
+    },
+    "2026-05": {
+      income: { rental: 18448.91, other: -1612.28, total: 16836.63 },
+      expense: { "Administration Expense": 266.31, Marketing: 0, "Salaries & Wages": 1481.64, "Contract Services": 0, "Repair/Maintenance Expenses": 603.85, "Make Ready Expense": 323.96, "Utility Expenses": 5635.64, "Management Fees": 671.53, "Fixed Expenses": 5326.66, total: 14309.59 },
+      noi: 2527.04,
+      debtService: 6532.5,
+      otherNonOperating: 2375,
+      capitalImprovements: 2967.26,
+      netIncome: -9347.72,
+    },
   },
-  noi: 2527.04,
-  debtService: 6532.5,
-  otherNonOperating: 2375,
-  capitalImprovements: 2967.26,
-  netIncome: -9347.72,
 };
 
 test("extractPnlTable returns unavailable with no config, never throws", async () => {
   const result = await extractPnlTable(null, FIXTURE, "2026-05");
   assert.equal(result.method, "unavailable");
-  assert.equal(result.table, null);
+  assert.equal(result.tablesByMonth, null);
 });
 
 test("extractPnlTable returns the vision LLM's parsed table when config is provided", async () => {
@@ -72,12 +101,17 @@ test("extractPnlTable returns the vision LLM's parsed table when config is provi
   });
   assert.equal(result.method, "vision_llm");
   assert.equal(result.confidence, "high");
-  assert.deepEqual(result.table, EXPECTED_TABLE);
+  assert.deepEqual(result.tablesByMonth, EXPECTED_TABLE.months);
 });
 
 test("extractPnlTable flags low confidence when vision NOI mismatches narrative NOI", async () => {
   const fakeConfig = { baseUrl: "https://example.test/v1", apiKey: "x", model: "gpt-4o" };
-  const wrongTable = { ...EXPECTED_TABLE, noi: 999999 };
+  const wrongTable = {
+    months: {
+      ...EXPECTED_TABLE.months,
+      "2026-05": { ...EXPECTED_TABLE.months["2026-05"], noi: 999999 },
+    },
+  };
   const fakeCallVisionLlm = async () => JSON.stringify(wrongTable);
   const result = await extractPnlTable(fakeConfig, FIXTURE, "2026-05", {
     callVisionLlmImpl: fakeCallVisionLlm,
@@ -85,27 +119,29 @@ test("extractPnlTable flags low confidence when vision NOI mismatches narrative 
   assert.equal(result.confidence, "low");
 });
 
-test("extractLegacyMonth assembles the full canonical record with no LLM configured", async () => {
-  const record = await extractLegacyMonth(null, FIXTURE, "2026-05");
-  assert.equal(record.month, "2026-05");
-  assert.equal(record.occupancyPct, 74);
-  assert.equal(record.sourceFile, FIXTURE);
-  assert.equal(record.extraction.method, "unavailable");
-  assert.equal(record.noi, null);
-  assert.equal(record.narrative.includes("processing two evictions"), true);
+test("extractLegacyMonth assembles multiple monthly records with no LLM configured", async () => {
+  const records = await extractLegacyMonth(null, FIXTURE, "2026-05");
+  const may = records["2026-05"];
+  assert.equal(may.month, "2026-05");
+  assert.equal(may.occupancyPct, 74);
+  assert.equal(may.sourceFile, FIXTURE);
+  assert.equal(may.extraction.method, "unavailable");
+  assert.equal(may.noi, null);
+  assert.equal(may.narrative.includes("processing two evictions"), true);
 });
 
-test("extractLegacyMonth assembles the full canonical record with a working vision LLM", async () => {
+test("extractLegacyMonth assembles multiple monthly records with a working vision LLM", async () => {
   const fakeConfig = { baseUrl: "https://example.test/v1", apiKey: "x", model: "gpt-4o" };
   const fakeCallVisionLlm = async () => JSON.stringify(EXPECTED_TABLE);
-  const record = await extractLegacyMonth(fakeConfig, FIXTURE, "2026-05", {
+  const records = await extractLegacyMonth(fakeConfig, FIXTURE, "2026-05", {
     callVisionLlmImpl: fakeCallVisionLlm,
   });
-  assert.equal(record.income.total, 16836.63);
-  assert.equal(record.noi, 2527.04);
-  assert.equal(record.netIncome, -9347.72);
-  assert.equal(record.extraction.method, "vision_llm");
-  assert.equal(record.extraction.confidence, "high");
+  assert.equal(Object.keys(records).length, 5);
+  assert.equal(records["2026-05"].income.total, 16836.63);
+  assert.equal(records["2026-05"].noi, 2527.04);
+  assert.equal(records["2026-05"].netIncome, -9347.72);
+  assert.equal(records["2026-05"].extraction.method, "vision_llm");
+  assert.equal(records["2026-05"].extraction.confidence, "high");
 });
 
 test("runLegacyExtraction scans a raw dir and writes merged JSON output", async () => {

@@ -44,21 +44,25 @@ export async function extractNarrative(pdfPath) {
 const PNL_TABLE_PAGE = 4;
 const NOI_CROSS_CHECK_TOLERANCE = 1;
 
-const PNL_TABLE_PROMPT = `This image is a property-management "Trailing Profit and Loss" table with monthly columns. Extract the LATEST (rightmost, most recent) month's column only. Respond with ONLY a JSON object, no prose, matching exactly this shape:
+const PNL_TABLE_PROMPT = `This image is a property-management "Trailing Profit and Loss" table with monthly columns (typically 5 months). Extract ALL months' columns, not just the latest. The leftmost visible month column is the earliest, the rightmost is the most recent. Respond with ONLY a JSON object, no prose or code fences, matching exactly this shape:
 {
-  "income": { "rental": number, "other": number, "total": number },
-  "expense": { "<exact category label as printed>": number, ..., "total": number },
-  "noi": number,
-  "debtService": number,
-  "otherNonOperating": number,
-  "capitalImprovements": number,
-  "netIncome": number
+  "months": {
+    "<YYYY-MM>": {
+      "income": { "rental": number, "other": number, "total": number },
+      "expense": { "<exact category label as printed>": number, ..., "total": number },
+      "noi": number,
+      "debtService": number,
+      "otherNonOperating": number,
+      "capitalImprovements": number,
+      "netIncome": number
+    }
+  }
 }
-Use negative numbers (not parentheses) for any value shown in parentheses in the image. Do not include currency symbols or commas in the numbers.`;
+Use the month label shown in the column header (e.g., "Jan 2026" → "2026-01"). Use negative numbers (not parentheses) for any value shown in parentheses in the image. Do not include currency symbols or commas in the numbers.`;
 
 export async function extractPnlTable(config, pdfPath, month, opts = {}) {
   if (!config) {
-    return { table: null, method: "unavailable", confidence: null };
+    return { tablesByMonth: null, method: "unavailable", confidence: null };
   }
   const callVisionLlmImpl = opts.callVisionLlmImpl ?? callVisionLlm;
 
@@ -66,23 +70,30 @@ export async function extractPnlTable(config, pdfPath, month, opts = {}) {
   await renderPageToPng(pdfPath, PNL_TABLE_PAGE, pngPath);
   const imageBase64 = (await readFile(pngPath)).toString("base64");
 
-  const responseText = await callVisionLlmImpl(config, imageBase64, PNL_TABLE_PROMPT);
-  let table;
+  let responseText = await callVisionLlmImpl(config, imageBase64, PNL_TABLE_PROMPT);
+  responseText = responseText.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/, "").trim();
+  let result;
   try {
-    table = JSON.parse(responseText);
+    result = JSON.parse(responseText);
   } catch {
     throw new Error(
       `extract-legacy: vision LLM response for ${month} was not valid JSON: ${responseText.slice(0, 200)}`
     );
   }
 
+  const tablesByMonth = result.months ?? { [month]: result };
+
   const narrative = await extractNarrative(pdfPath);
-  const noiMatches = Math.abs(Math.round(table.noi) - narrative.statedNoi) <= NOI_CROSS_CHECK_TOLERANCE;
-  const revenueMatches =
-    Math.abs(Math.round(table.income.total) - narrative.statedTotalRevenue) <= NOI_CROSS_CHECK_TOLERANCE;
+  const latestMonthTable = tablesByMonth[month];
+  const noiMatches = latestMonthTable
+    ? Math.abs(Math.round(latestMonthTable.noi) - narrative.statedNoi) <= NOI_CROSS_CHECK_TOLERANCE
+    : false;
+  const revenueMatches = latestMonthTable
+    ? Math.abs(Math.round(latestMonthTable.income.total) - narrative.statedTotalRevenue) <= NOI_CROSS_CHECK_TOLERANCE
+    : false;
 
   return {
-    table,
+    tablesByMonth,
     method: "vision_llm",
     confidence: noiMatches && revenueMatches ? "high" : "low",
   };
@@ -90,22 +101,45 @@ export async function extractPnlTable(config, pdfPath, month, opts = {}) {
 
 export async function extractLegacyMonth(config, pdfPath, month, opts = {}) {
   const narrative = await extractNarrative(pdfPath);
-  const { table, method, confidence } = await extractPnlTable(config, pdfPath, month, opts);
+  const { tablesByMonth, method, confidence } = await extractPnlTable(config, pdfPath, month, opts);
 
-  return {
-    month,
-    occupancyPct: narrative.occupancyPct,
-    preLeasedPct: narrative.preLeasedPct,
-    income: table?.income ?? null,
-    expense: table?.expense ?? null,
-    noi: table?.noi ?? null,
-    debtService: table?.debtService ?? null,
-    capitalImprovements: table?.capitalImprovements ?? null,
-    netIncome: table?.netIncome ?? null,
-    narrative: narrative.narrative,
-    sourceFile: pdfPath,
-    extraction: { method, confidence },
-  };
+  if (!tablesByMonth) {
+    return {
+      [month]: {
+        month,
+        occupancyPct: narrative.occupancyPct,
+        preLeasedPct: narrative.preLeasedPct,
+        income: null,
+        expense: null,
+        noi: null,
+        debtService: null,
+        capitalImprovements: null,
+        netIncome: null,
+        narrative: narrative.narrative,
+        sourceFile: pdfPath,
+        extraction: { method, confidence },
+      },
+    };
+  }
+
+  const records = {};
+  for (const [m, table] of Object.entries(tablesByMonth)) {
+    records[m] = {
+      month: m,
+      occupancyPct: m === month ? narrative.occupancyPct : null,
+      preLeasedPct: m === month ? narrative.preLeasedPct : null,
+      income: table?.income ?? null,
+      expense: table?.expense ?? null,
+      noi: table?.noi ?? null,
+      debtService: table?.debtService ?? null,
+      capitalImprovements: table?.capitalImprovements ?? null,
+      netIncome: table?.netIncome ?? null,
+      narrative: m === month ? narrative.narrative : null,
+      sourceFile: pdfPath,
+      extraction: { method, confidence: m === month ? confidence : "low" },
+    };
+  }
+  return records;
 }
 
 import { readdir } from "node:fs/promises";
@@ -131,9 +165,11 @@ export async function runLegacyExtraction(config, rawDir, outputPath) {
     const files = (await readdir(monthPath)).filter((f) => f.endsWith(".pdf"));
     if (files.length === 0) continue;
     const pdfPath = path.join(monthPath, files[0]);
-    const record = await extractLegacyMonth(config, pdfPath, month);
-    records = mergeRecord(records, month, record);
-    monthsProcessed.push(month);
+    const newRecords = await extractLegacyMonth(config, pdfPath, month);
+    for (const [m, record] of Object.entries(newRecords)) {
+      records = mergeRecord(records, m, record);
+      if (!monthsProcessed.includes(m)) monthsProcessed.push(m);
+    }
   }
 
   await saveRecords(outputPath, records);
