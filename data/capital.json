@@ -1,10 +1,10 @@
 {
   "legacy": {
-    "totalRaise": 1200000,
+    "ownershipPct": 3.181818181818182,
     "larryInvestment": 50000
   },
   "mcneil": {
-    "totalRaise": 1300000,
+    "ownershipPct": 2.592592592592592,
     "larryInvestment": 50000
   }
 }

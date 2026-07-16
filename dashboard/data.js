@@ -444,22 +444,22 @@ export const DISTRIBUTIONS = {
 };
 export const CAPITAL = {
   "legacy": {
-    "totalRaise": 1200000,
+    "ownershipPct": 3.181818181818182,
     "larryInvestment": 50000
   },
   "mcneil": {
-    "totalRaise": 1300000,
+    "ownershipPct": 2.592592592592592,
     "larryInvestment": 50000
   }
 };
 export const DERIVED = {
   "legacy": {
-    "ownershipPct": 4.17,
+    "ownershipPct": 3.18,
     "larryInvestment": 50000,
-    "totalRaise": 1200000,
-    "totalPropertyDistributed": 8765.04,
+    "totalRaise": 1571429,
+    "totalPropertyDistributed": 11478.03,
     "larryDistributed": 365.21,
-    "larryNetIncomeShare": -705.96,
+    "larryNetIncomeShare": -539.09,
     "distributionMismatch": true,
     "months": [
       "2026-01",
@@ -470,12 +470,12 @@ export const DERIVED = {
     ]
   },
   "mcneil": {
-    "ownershipPct": 3.85,
+    "ownershipPct": 2.59,
     "larryInvestment": 50000,
-    "totalRaise": 1300000,
-    "totalPropertyDistributed": 68754.66,
+    "totalRaise": 1928571,
+    "totalPropertyDistributed": 101998.67,
     "larryDistributed": 2644.41,
-    "larryNetIncomeShare": -306.28,
+    "larryNetIncomeShare": -206.45,
     "distributionMismatch": true,
     "months": [
       "2026-01",

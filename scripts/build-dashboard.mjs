@@ -22,9 +22,11 @@ async function loadJsonSafe(filePath) {
 
 function computeDerived(records, distributions, capital) {
   const months = Object.keys(records).sort();
-  const ownershipPct = capital.totalRaise
-    ? (capital.larryInvestment ?? 50000) / capital.totalRaise
-    : null;
+  const ownershipPct = capital.ownershipPct
+    ? capital.ownershipPct / 100
+    : capital.totalRaise
+      ? (capital.larryInvestment ?? 50000) / capital.totalRaise
+      : null;
 
   const totalNetIncome = Object.values(records).reduce(
     (sum, r) => sum + (r.netIncome ?? 0), 0
@@ -43,7 +45,7 @@ function computeDerived(records, distributions, capital) {
   return {
     ownershipPct: ownershipPct ? Math.round(ownershipPct * 10000) / 100 : null,
     larryInvestment: capital.larryInvestment ?? 50000,
-    totalRaise: capital.totalRaise ?? null,
+    totalRaise: capital.totalRaise ?? (ownershipPct ? Math.round((capital.larryInvestment ?? 50000) / ownershipPct) : null),
     totalPropertyDistributed,
     larryDistributed: Math.round(larryDistributed * 100) / 100,
     larryNetIncomeShare: Math.round(larryNetIncomeShare * 100) / 100,
