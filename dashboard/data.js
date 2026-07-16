@@ -417,7 +417,12 @@ export const PORTFOLIO = {
   }
 };
 export const DISTRIBUTIONS = {
-  "legacy": [],
+  "legacy": [
+    {
+      "date": "2026-Q2",
+      "amount": 365.21
+    }
+  ],
   "mcneil": [
     {
       "date": "2025-Q3",
@@ -452,8 +457,8 @@ export const DERIVED = {
     "ownershipPct": 4.17,
     "larryInvestment": 50000,
     "totalRaise": 1200000,
-    "totalPropertyDistributed": 0,
-    "larryDistributed": 0,
+    "totalPropertyDistributed": 8765.04,
+    "larryDistributed": 365.21,
     "larryNetIncomeShare": -705.96,
     "distributionMismatch": true,
     "months": [

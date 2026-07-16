@@ -1,5 +1,10 @@
 {
-  "legacy": [],
+  "legacy": [
+    {
+      "date": "2026-Q2",
+      "amount": 365.21
+    }
+  ],
   "mcneil": [
     {
       "date": "2025-Q3",
