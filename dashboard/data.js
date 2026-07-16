@@ -29,7 +29,7 @@ export const LEGACY = {
     "sourceFile": "data/raw/legacy/2026-05/report.pdf",
     "extraction": {
       "method": "vision_llm",
-      "confidence": "low"
+      "confidence": "high"
     }
   },
   "2026-02": {
@@ -61,7 +61,7 @@ export const LEGACY = {
     "sourceFile": "data/raw/legacy/2026-05/report.pdf",
     "extraction": {
       "method": "vision_llm",
-      "confidence": "low"
+      "confidence": "high"
     }
   },
   "2026-03": {
@@ -93,7 +93,7 @@ export const LEGACY = {
     "sourceFile": "data/raw/legacy/2026-05/report.pdf",
     "extraction": {
       "method": "vision_llm",
-      "confidence": "low"
+      "confidence": "high"
     }
   },
   "2026-04": {
@@ -125,7 +125,7 @@ export const LEGACY = {
     "sourceFile": "data/raw/legacy/2026-05/report.pdf",
     "extraction": {
       "method": "vision_llm",
-      "confidence": "low"
+      "confidence": "high"
     }
   },
   "2026-05": {
@@ -169,7 +169,7 @@ export const MCNEIL = {
       "total": 23524.53
     },
     "expense": {
-      "total": 0,
+      "total": 20710.81,
       "Other Income - Fees": 738.22,
       "Other Income - Con": 150.19,
       "Other Income - Utili": 866.44,
@@ -207,7 +207,7 @@ export const MCNEIL = {
       "total": 26270.74
     },
     "expense": {
-      "total": 0,
+      "total": 14450.23,
       "Other Income - Fees": 362.5,
       "Other Income - Con": 165.43,
       "Other Income - Utili": 965.81,
@@ -245,7 +245,7 @@ export const MCNEIL = {
       "total": 27044.16
     },
     "expense": {
-      "total": 0,
+      "total": 15816.46,
       "Other Income - Fees": 925.5,
       "Other Income - Con": 166,
       "Other Income - Utili": 1057.66,
@@ -283,7 +283,7 @@ export const MCNEIL = {
       "total": 19428.24
     },
     "expense": {
-      "total": 0,
+      "total": 15381.38,
       "Other Income - Fees": -401.23,
       "Other Income - Con": 115.15,
       "Other Income - Utili": 735.32,
@@ -321,7 +321,7 @@ export const MCNEIL = {
       "total": 24054.14
     },
     "expense": {
-      "total": 0,
+      "total": 18736.15,
       "Other Income - Fees": 255.49,
       "Other Income - Con": 164,
       "Other Income - Utili": 886.65,
@@ -359,7 +359,7 @@ export const MCNEIL = {
       "total": 28319.66
     },
     "expense": {
-      "total": 0,
+      "total": 20473.08,
       "Other Income - Fees": 1263.49,
       "Other Income - Con": 188,
       "Other Income - Utili": 960.17,
@@ -452,7 +452,7 @@ export const DERIVED = {
     "ownershipPct": 4.17,
     "larryInvestment": 50000,
     "totalRaise": 1200000,
-    "totalDistributed": 0,
+    "totalPropertyDistributed": 0,
     "larryDistributed": 0,
     "larryNetIncomeShare": -705.96,
     "distributionMismatch": true,
@@ -468,8 +468,8 @@ export const DERIVED = {
     "ownershipPct": 3.85,
     "larryInvestment": 50000,
     "totalRaise": 1300000,
-    "totalDistributed": 2644.41,
-    "larryDistributed": 101.71,
+    "totalPropertyDistributed": 68754.66,
+    "larryDistributed": 2644.41,
     "larryNetIncomeShare": -306.28,
     "distributionMismatch": true,
     "months": [

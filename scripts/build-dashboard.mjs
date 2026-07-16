@@ -30,18 +30,21 @@ function computeDerived(records, distributions, capital) {
     (sum, r) => sum + (r.netIncome ?? 0), 0
   );
 
-  const totalDistributed = (distributions ?? []).reduce(
+  const larrySumDistributed = (distributions ?? []).reduce(
     (sum, d) => sum + (d.amount ?? 0), 0
   );
 
-  const larryDistributed = totalDistributed * (ownershipPct ?? 0);
+  const larryDistributed = larrySumDistributed;
+  const totalPropertyDistributed = ownershipPct
+    ? Math.round((larryDistributed / ownershipPct) * 100) / 100
+    : 0;
   const larryNetIncomeShare = totalNetIncome * (ownershipPct ?? 0);
 
   return {
     ownershipPct: ownershipPct ? Math.round(ownershipPct * 10000) / 100 : null,
     larryInvestment: capital.larryInvestment ?? 50000,
     totalRaise: capital.totalRaise ?? null,
-    totalDistributed,
+    totalPropertyDistributed,
     larryDistributed: Math.round(larryDistributed * 100) / 100,
     larryNetIncomeShare: Math.round(larryNetIncomeShare * 100) / 100,
     distributionMismatch:

@@ -28,7 +28,7 @@
     "sourceFile": "data/raw/legacy/2026-05/report.pdf",
     "extraction": {
       "method": "vision_llm",
-      "confidence": "low"
+      "confidence": "high"
     }
   },
   "2026-02": {
@@ -60,7 +60,7 @@
     "sourceFile": "data/raw/legacy/2026-05/report.pdf",
     "extraction": {
       "method": "vision_llm",
-      "confidence": "low"
+      "confidence": "high"
     }
   },
   "2026-03": {
@@ -92,7 +92,7 @@
     "sourceFile": "data/raw/legacy/2026-05/report.pdf",
     "extraction": {
       "method": "vision_llm",
-      "confidence": "low"
+      "confidence": "high"
     }
   },
   "2026-04": {
@@ -124,7 +124,7 @@
     "sourceFile": "data/raw/legacy/2026-05/report.pdf",
     "extraction": {
       "method": "vision_llm",
-      "confidence": "low"
+      "confidence": "high"
     }
   },
   "2026-05": {

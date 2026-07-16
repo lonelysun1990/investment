@@ -136,7 +136,7 @@ export async function extractLegacyMonth(config, pdfPath, month, opts = {}) {
       netIncome: table?.netIncome ?? null,
       narrative: m === month ? narrative.narrative : null,
       sourceFile: pdfPath,
-      extraction: { method, confidence: m === month ? confidence : "low" },
+      extraction: { method, confidence },
     };
   }
   return records;

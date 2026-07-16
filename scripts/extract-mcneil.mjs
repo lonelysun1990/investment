@@ -82,6 +82,13 @@ export async function extractMcneilPnl(pdfPath) {
     if (row.label === "NET INCOME") reachedNetIncome = true;
   }
 
+  for (const [, rec] of months) {
+    const expenseTotal = Object.entries(rec.expense)
+      .filter(([k]) => k !== "total")
+      .reduce((sum, [, v]) => sum + v, 0);
+    rec.expense.total = Math.round(expenseTotal * 100) / 100;
+  }
+
   for (const [key, rec] of months) {
     const allZero =
       rec.income.rental === 0 &&

@@ -107,8 +107,8 @@ test("computeDerived calculates ownershipPct and larry share when capital data i
   assert.equal(imported.DERIVED.legacy.ownershipPct, 25);
   assert.equal(imported.DERIVED.legacy.larryInvestment, 50000);
   assert.equal(imported.DERIVED.legacy.totalRaise, 200000);
-  assert.equal(imported.DERIVED.legacy.totalDistributed, 1000);
-  assert.equal(imported.DERIVED.legacy.larryDistributed, 250);
+  assert.equal(imported.DERIVED.legacy.totalPropertyDistributed, 4000);
+  assert.equal(imported.DERIVED.legacy.larryDistributed, 1000);
   assert.equal(imported.DERIVED.legacy.larryNetIncomeShare, -2336.93);
   assert.equal(imported.DERIVED.legacy.distributionMismatch, true);
 
