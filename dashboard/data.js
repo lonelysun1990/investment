@@ -425,6 +425,18 @@ export const DISTRIBUTIONS = {
   ],
   "mcneil": [
     {
+      "date": "2024-Q4",
+      "amount": 518.51
+    },
+    {
+      "date": "2025-Q1",
+      "amount": 570.37
+    },
+    {
+      "date": "2025-Q2",
+      "amount": 648.14
+    },
+    {
       "date": "2025-Q3",
       "amount": 699.99
     },
@@ -473,8 +485,8 @@ export const DERIVED = {
     "ownershipPct": 2.59,
     "larryInvestment": 50000,
     "totalRaise": 1928571,
-    "totalPropertyDistributed": 101998.67,
-    "larryDistributed": 2644.41,
+    "totalPropertyDistributed": 168998.01,
+    "larryDistributed": 4381.43,
     "larryNetIncomeShare": -206.45,
     "distributionMismatch": true,
     "months": [
