@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile, rm } from "node:fs/promises";
-import { extractMcneilPnl, extractMcneilDistributions, runMcneilExtraction } from "./extract-mcneil.mjs";
+import { extractMcneilPnl, extractMcneilDistributions, extractMcneilBatch, runMcneilExtraction } from "./extract-mcneil.mjs";
 
 const FIXTURE = "scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf";
 
@@ -77,12 +77,43 @@ test("extractMcneilDistributions does not double-count the 'Total Member's Distr
   assert.equal(result.get("2026-01"), 118999.45);
 });
 
-test("runMcneilExtraction scans a raw dir, merges PDF + rent roll, writes JSON", async () => {
-  const outputPath = "scripts/__fixtures__/tmp-mcneil-output.json";
-  const result = await runMcneilExtraction("scripts/__fixtures__/raw-mcneil", outputPath);
-  assert.ok(result.monthsProcessed.includes("2026-06"));
+test("extractMcneilBatch attaches occupancy only to the month the rent roll's as-of date falls in", async () => {
+  const { loadManifest } = await import("./lib/archive-store.mjs");
+  const manifest = await loadManifest("scripts/__fixtures__/raw-mcneil/2026-06");
+  const months = await extractMcneilBatch("scripts/__fixtures__/raw-mcneil/2026-06", manifest);
+  assert.equal(months.get("2026-06").occupancyPct, 84.4);
+  assert.equal(months.get("2026-05").occupancyPct, undefined);
+});
+
+test("runMcneilExtraction folds batches so an earlier batch's occupancy survives a later batch that lacks a rent roll", async () => {
+  const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-fold-raw";
+  const outputPath = "scripts/__fixtures__/tmp-mcneil-fold-output.json";
+  await rm(TMP_RAW, { recursive: true, force: true });
+  await rm(outputPath, { force: true });
+
+  const { mkdir, copyFile } = await import("node:fs/promises");
+  const { saveManifest } = await import("./lib/archive-store.mjs");
+
+  await mkdir(`${TMP_RAW}/2026-05`, { recursive: true });
+  await copyFile("scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf", `${TMP_RAW}/2026-05/cashflow-t12.pdf`);
+  await copyFile("scripts/__fixtures__/mcneil/2026-06-rent-roll.xlsx", `${TMP_RAW}/2026-05/rentroll.xlsx`);
+  await saveManifest(`${TMP_RAW}/2026-05`, {
+    files: [
+      { docType: "cashflow-t12", fileName: "cashflow-t12.pdf", contentHash: "a" },
+      { docType: "rentroll", fileName: "rentroll.xlsx", contentHash: "b" },
+    ],
+  });
+
+  await mkdir(`${TMP_RAW}/2026-06`, { recursive: true });
+  await copyFile("scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf", `${TMP_RAW}/2026-06/cashflow-t12.pdf`);
+  await saveManifest(`${TMP_RAW}/2026-06`, {
+    files: [{ docType: "cashflow-t12", fileName: "cashflow-t12.pdf", contentHash: "c" }],
+  });
+
+  await runMcneilExtraction(TMP_RAW, outputPath);
   const written = JSON.parse(await readFile(outputPath, "utf8"));
-  assert.equal(written["2026-06"].netIncome, 4640.0);
-  assert.ok("occupancyPct" in written["2026-06"], "rent roll occupancy should be merged into the June record");
-  await rm(outputPath);
+  assert.equal(written["2026-06"].occupancyPct, 84.4, "occupancy from the 2026-05 batch's rent roll should survive into 2026-06");
+
+  await rm(TMP_RAW, { recursive: true, force: true });
+  await rm(outputPath, { force: true });
 });

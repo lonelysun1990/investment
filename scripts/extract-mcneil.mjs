@@ -135,63 +135,42 @@ export async function extractMcneilDistributions(pdfPath, labelPattern) {
   return result;
 }
 
-import { readdir } from "node:fs/promises";
-import { loadRecords, saveRecords, mergeRecord } from "./lib/record-store.mjs";
+import path from "node:path";
 import { extractRentRoll } from "./extract-mcneil-rentroll.mjs";
+import { runGenericExtraction } from "./lib/run-extraction.mjs";
 
-export async function runMcneilExtraction(rawDir, outputPath) {
-  let monthDirs;
-  try {
-    monthDirs = (await readdir(rawDir, { withFileTypes: true }))
-      .filter((d) => d.isDirectory())
-      .map((d) => d.name)
-      .sort();
-  } catch (err) {
-    if (err.code === "ENOENT") return { monthsProcessed: [] };
-    throw err;
-  }
+export async function extractMcneilBatch(batchDir, manifest) {
+  const pdfEntry = manifest.files.find((f) => f.docType === "cashflow-t12");
+  const months = new Map();
+  if (!pdfEntry) return months;
 
-  let records = await loadRecords(outputPath);
-  const monthsProcessed = [];
+  const pdfPath = path.join(batchDir, pdfEntry.fileName);
+  const pnlByMonth = await extractMcneilPnl(pdfPath);
+  const distributionByMonth = await extractMcneilDistributions(pdfPath, /Member's Distribution/i);
 
-  for (const monthDir of monthDirs) {
-    const monthPath = path.join(rawDir, monthDir);
-    const files = await readdir(monthPath);
-    const pdfFile = files.find((f) => f.toLowerCase().includes("cashflow") && f.endsWith(".pdf"));
-    const xlsxFile = files.find((f) => f.endsWith(".xlsx"));
-    if (!pdfFile) continue;
+  const rentrollEntry = manifest.files.find((f) => f.docType === "rentroll");
+  const rentRoll = rentrollEntry ? await extractRentRoll(path.join(batchDir, rentrollEntry.fileName)) : null;
 
-    const pnlByMonth = await extractMcneilPnl(path.join(monthPath, pdfFile));
-    let rentRoll = null;
-    if (xlsxFile) {
-      rentRoll = await extractRentRoll(path.join(monthPath, xlsxFile));
+  for (const [month, pnl] of pnlByMonth) {
+    const record = {
+      ...pnl,
+      month,
+      distribution: distributionByMonth.get(month) ?? 0,
+      sourceFile: pdfPath,
+      extraction: { method: "deterministic", confidence: "high" },
+    };
+    if (rentRoll && rentRoll.asOfDate?.startsWith(month)) {
+      record.occupancyPct = rentRoll.occupancyPct;
+      record.rentRoll = rentRoll;
     }
-
-    for (const [month, pnl] of pnlByMonth) {
-      const existing = records[month] ?? {};
-      const merged = {
-        ...pnl,
-        month,
-        sourceFile: path.join(monthPath, pdfFile),
-        extraction: { method: "deterministic", confidence: "high" },
-      };
-      if (rentRoll && month === monthDir) {
-        merged.occupancyPct = rentRoll.occupancyPct;
-        merged.rentRoll = rentRoll;
-      } else if (existing.occupancyPct !== undefined) {
-        merged.occupancyPct = existing.occupancyPct;
-        merged.rentRoll = existing.rentRoll;
-      }
-      records = mergeRecord(records, month, merged);
-      if (!monthsProcessed.includes(month)) monthsProcessed.push(month);
-    }
+    months.set(month, record);
   }
-
-  await saveRecords(outputPath, records);
-  return { monthsProcessed };
+  return months;
 }
 
-import path from "node:path";
+export async function runMcneilExtraction(rawDir, outputPath) {
+  return runGenericExtraction(rawDir, outputPath, extractMcneilBatch);
+}
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const result = await runMcneilExtraction("data/raw/mcneil", "data/mcneil.json");
