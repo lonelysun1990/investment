@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { findTotalRaise } from "./offering-doc.mjs";
+import { findTotalRaise, extractTextFromPdf } from "./offering-doc.mjs";
 
 test("finds the largest dollar amount on a line matching the label pattern", () => {
   const text = "Summary of Terms\nTotal Offering Amount: $1,930,000\nMinimum Investment: $50,000\n";
@@ -24,4 +24,14 @@ test("picks the largest amount on the matching line when several numbers appear"
   const text = "Total Offering Amount: $1,930,000 (50 units at $38,600)\n";
   const result = findTotalRaise(text, /Total Offering Amount/i);
   assert.equal(result, 1930000);
+});
+
+test("throws an error including the pdf path when pdftotext fails", async () => {
+  const nonexistentPath = "/tmp/nonexistent-file-12345.pdf";
+  await assert.rejects(
+    () => extractTextFromPdf(nonexistentPath),
+    (err) => {
+      return err.message.includes("offering-doc:") && err.message.includes(nonexistentPath);
+    }
+  );
 });

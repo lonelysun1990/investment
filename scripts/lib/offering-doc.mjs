@@ -5,8 +5,14 @@ import { parseMoney } from "./money.mjs";
 const execFileAsync = promisify(execFile);
 
 export async function extractTextFromPdf(pdfPath) {
-  const { stdout } = await execFileAsync("pdftotext", ["-layout", pdfPath, "-"]);
-  return stdout;
+  try {
+    const { stdout } = await execFileAsync("pdftotext", ["-layout", pdfPath, "-"]);
+    return stdout;
+  } catch (err) {
+    throw new Error(
+      `offering-doc: pdftotext failed for ${pdfPath}: ${err.message}`
+    );
+  }
 }
 
 export function findTotalRaise(text, labelPattern) {
