@@ -414,7 +414,15 @@ export const MCNEIL = {
       "total": 23857.87
     },
     "expense": {
-      "total": 9830.34
+      "total": 9368.24,
+      "General and Administrative": 166.25,
+      "Advertising and marketing": 32.69,
+      "Employee Expense": 2306,
+      "Repair/Maint Expense": 112.33,
+      "Make Ready Expense": 0,
+      "Utility Expense": 1399.58,
+      "Fixed Expenses": 3957.86,
+      "Management Fees": 1393.53
     },
     "noi": 14027.53,
     "debtService": 5010.81,
@@ -434,7 +442,15 @@ export const MCNEIL = {
       "total": 23759.62
     },
     "expense": {
-      "total": 12056.04
+      "total": 11844.95,
+      "General and Administrative": 239.82,
+      "Advertising and marketing": 449.22,
+      "Employee Expense": 1405,
+      "Repair/Maint Expense": 2014.78,
+      "Make Ready Expense": 899.23,
+      "Utility Expense": 1803.78,
+      "Fixed Expenses": 3957.89,
+      "Management Fees": 1075.23
     },
     "noi": 11703.58,
     "debtService": 5010.81,
@@ -454,7 +470,15 @@ export const MCNEIL = {
       "total": 24787.33
     },
     "expense": {
-      "total": 18969.4
+      "total": 18706.32,
+      "General and Administrative": 396.59,
+      "Advertising and marketing": 0,
+      "Employee Expense": 1365,
+      "Repair/Maint Expense": 2087.92,
+      "Make Ready Expense": 7540.31,
+      "Utility Expense": 2261.01,
+      "Fixed Expenses": 3957.89,
+      "Management Fees": 1097.6
     },
     "noi": 5817.93,
     "debtService": 4525.89,
@@ -474,7 +498,15 @@ export const MCNEIL = {
       "total": 28240.58
     },
     "expense": {
-      "total": 14186.81
+      "total": 13334.91,
+      "General and Administrative": 595.74,
+      "Advertising and marketing": 0,
+      "Employee Expense": 1820,
+      "Repair/Maint Expense": 1546.29,
+      "Make Ready Expense": 2289.01,
+      "Utility Expense": 1997.85,
+      "Fixed Expenses": 3957.89,
+      "Management Fees": 1128.13
     },
     "noi": 14053.77,
     "debtService": 5010.81,
@@ -494,7 +526,15 @@ export const MCNEIL = {
       "total": 28617.68
     },
     "expense": {
-      "total": 16291.94
+      "total": 15780.85,
+      "General and Administrative": 128.53,
+      "Advertising and marketing": 0,
+      "Employee Expense": 1285,
+      "Repair/Maint Expense": 1817.95,
+      "Make Ready Expense": 579,
+      "Utility Expense": 2335.44,
+      "Fixed Expenses": 8407.89,
+      "Management Fees": 1227.04
     },
     "noi": 12325.74,
     "debtService": 4849.17,
@@ -514,7 +554,15 @@ export const MCNEIL = {
       "total": 29389.09
     },
     "expense": {
-      "total": 9552.85
+      "total": 9041.76,
+      "General and Administrative": 341.06,
+      "Advertising and marketing": 0,
+      "Employee Expense": 1350,
+      "Repair/Maint Expense": 12.98,
+      "Make Ready Expense": 0,
+      "Utility Expense": 2156.06,
+      "Fixed Expenses": 3957.89,
+      "Management Fees": 1223.77
     },
     "noi": 19836.24,
     "debtService": 5010.81,
@@ -534,7 +582,15 @@ export const MCNEIL = {
       "total": 30931.97
     },
     "expense": {
-      "total": 12037.24
+      "total": 11276.15,
+      "General and Administrative": 393.68,
+      "Advertising and marketing": 61.44,
+      "Employee Expense": 1660,
+      "Repair/Maint Expense": 160.41,
+      "Make Ready Expense": 379.36,
+      "Utility Expense": 2388.56,
+      "Fixed Expenses": 5849.87,
+      "Management Fees": 382.83
     },
     "noi": 18894.73,
     "debtService": 4849.17,
@@ -554,7 +610,15 @@ export const MCNEIL = {
       "total": 27145.39
     },
     "expense": {
-      "total": 13459.98
+      "total": 12948.89,
+      "General and Administrative": 727.93,
+      "Advertising and marketing": 0,
+      "Employee Expense": 1945,
+      "Repair/Maint Expense": 1764.93,
+      "Make Ready Expense": 1530.14,
+      "Utility Expense": 1834.82,
+      "Fixed Expenses": 3957.89,
+      "Management Fees": 1188.18
     },
     "noi": 13685.41,
     "debtService": 5010.81,
@@ -574,7 +638,15 @@ export const MCNEIL = {
       "total": 22699
     },
     "expense": {
-      "total": 13061.49
+      "total": 12455.25,
+      "General and Administrative": 1190.62,
+      "Advertising and marketing": 50,
+      "Employee Expense": 1925,
+      "Repair/Maint Expense": 87.57,
+      "Make Ready Expense": 1676.58,
+      "Utility Expense": 2304.63,
+      "Fixed Expenses": 4014.77,
+      "Management Fees": 1206.08
     },
     "noi": 9637.51,
     "debtService": 5010.81,
@@ -594,7 +666,15 @@ export const MCNEIL = {
       "total": 24435.85
     },
     "expense": {
-      "total": 17385.68
+      "total": 16709.59,
+      "General and Administrative": 469.33,
+      "Advertising and marketing": 1285.82,
+      "Employee Expense": 2055,
+      "Repair/Maint Expense": 2021.05,
+      "Make Ready Expense": 4412.1,
+      "Utility Expense": 1886.08,
+      "Fixed Expenses": 3358.84,
+      "Management Fees": 1221.37
     },
     "noi": 7050.17,
     "debtService": 5515.84,
@@ -614,7 +694,15 @@ export const MCNEIL = {
       "total": 26064.09
     },
     "expense": {
-      "total": 15693.43
+      "total": 14222.34,
+      "General and Administrative": 143.73,
+      "Advertising and marketing": 0,
+      "Employee Expense": 2070,
+      "Repair/Maint Expense": 1260.83,
+      "Make Ready Expense": 4113.65,
+      "Utility Expense": 1790.81,
+      "Fixed Expenses": 3694.84,
+      "Management Fees": 1148.48
     },
     "noi": 10370.66,
     "debtService": 5677.48,
@@ -634,7 +722,15 @@ export const MCNEIL = {
       "total": 25021.41
     },
     "expense": {
-      "total": 20445.22
+      "total": 19965.22,
+      "General and Administrative": 425.93,
+      "Advertising and marketing": 0,
+      "Employee Expense": 2730,
+      "Repair/Maint Expense": 730.01,
+      "Make Ready Expense": 123.12,
+      "Utility Expense": 2165.66,
+      "Fixed Expenses": 12355.93,
+      "Management Fees": 1434.57
     },
     "noi": 4576.19,
     "debtService": 5515.84,
