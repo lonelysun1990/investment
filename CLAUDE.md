@@ -53,3 +53,27 @@ engineering team has already flagged real violations of it (direct REST
 calls in commit `d3611da`, a GraphQL `getChangelog` call in `02e0b09`,
 and several uncommitted one-off scripts that hit `/transactions`,
 `/metrics`, and intercepted network traffic directly).
+
+# Development workflow (standing rule)
+
+Every new feature or fix, regardless of size, follows the same protocol:
+
+1. **Brainstorm → spec → plan.** Use the `superpowers:brainstorming` skill
+   to turn the request into an approved design spec under
+   `docs/superpowers/specs/`, then `superpowers:writing-plans` to turn the
+   spec into a task-by-task implementation plan under
+   `docs/superpowers/plans/`.
+2. **Isolated worktree before any implementation.** Before dispatching the
+   first implementer, set up an isolated git worktree (`superpowers:using-
+   git-worktrees` — prefer a native worktree tool like `EnterWorktree` over
+   the manual git fallback). Never implement directly on `main` without the
+   user explicitly declining isolation for that specific piece of work.
+3. **Subagent-driven execution.** Use `superpowers:subagent-driven-
+   development` (or `superpowers:executing-plans` for a parallel session):
+   fresh implementer subagent per task, task-level review (spec compliance
+   + code quality) after each, broad whole-branch review at the end.
+4. **Finish the branch deliberately** (`superpowers:finishing-a-
+   development-branch`) rather than leaving worktrees or branches dangling.
+
+This applies to every feature in this repo, not just the one that prompted
+writing it down.
