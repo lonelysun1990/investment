@@ -30,6 +30,12 @@ test("returns unknown for unrecognized content", () => {
   assert.equal(classifyDoc({ filename: "random.pdf", text: "Just some text" }), "unknown");
 });
 
+test("classifies an offering memorandum that also mentions balance sheet/cash flow as offering-doc, not the generic type", () => {
+  const text =
+    "McNeil Star Apartments Private Placement Memorandum\n\nExhibit C: Balance Sheet and Twelve Month Cash Flow Statement";
+  assert.equal(classifyDoc({ filename: "offering.pdf", text }), "offering-doc");
+});
+
 test("distributionLabel matches the exact 'Member's Distribution' row label, not its Total subtotal", () => {
   assert.ok(distributionLabel.test("Member's Distribution"));
   assert.ok(!distributionLabel.test("Total Member's Contribut"));

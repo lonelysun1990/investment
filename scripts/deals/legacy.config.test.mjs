@@ -16,6 +16,12 @@ test("returns unknown for unrecognized content", () => {
   assert.equal(classifyDoc({ filename: "random.pdf", text: "Just some text" }), "unknown");
 });
 
+test("classifies an offering memorandum that also mentions a monthly update as offering-doc, not monthly-update", () => {
+  const text =
+    "The Legacy Apartment Private Placement Memorandum\n\nTable of Contents\n...\nExhibit B: The Legacy Apartment May Update";
+  assert.equal(classifyDoc({ filename: "offering.pdf", text }), "offering-doc");
+});
+
 test("has no distribution label yet, since Legacy's reports don't itemize one", () => {
   assert.equal(distributionLabel, null);
 });

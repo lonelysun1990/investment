@@ -1,8 +1,8 @@
 export const dealSlug = "legacy";
 
 export function classifyDoc({ filename, text }) {
-  if (/update\.pdf$/i.test(filename) || /\w+ Update\b/i.test(text)) return "monthly-update";
   if (/subscription agreement|offering memorandum|private placement/i.test(text)) return "offering-doc";
+  if (/update\.pdf$/i.test(filename) || /\w+ Update\b/i.test(text)) return "monthly-update";
   return "unknown";
 }
 
