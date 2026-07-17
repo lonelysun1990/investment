@@ -41,3 +41,11 @@ test("foldMonths folds three batches in order, each contributing new months", ()
   assert.equal(result.get("2025-01").noi, 15);
   assert.equal(result.get("2025-02").noi, 20);
 });
+
+test("isBlank treats an empty object as blank (no data reported)", () => {
+  assert.equal(isBlank({}), true);
+});
+
+test("isBlank treats an empty array as blank (no data reported)", () => {
+  assert.equal(isBlank([]), true);
+});
