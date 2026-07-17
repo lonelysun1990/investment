@@ -54,3 +54,29 @@ test("loadManifest returns an empty files array when no manifest exists yet", as
   const manifest = await loadManifest("scripts/__fixtures__/tmp-archive-store-nonexistent");
   assert.deepEqual(manifest, { files: [] });
 });
+
+test("archiveFile with same fileName but different content replaces manifest entry", async () => {
+  await rm(TMP_DIR, { recursive: true, force: true });
+  // First call: archive version-1
+  const result1 = await archiveFile(TMP_DIR, "2026-01", "cashflow-t12", "pdf", Buffer.from("version-1"), {});
+  assert.equal(result1.written, true);
+  const manifest1 = await loadManifest(`${TMP_DIR}/2026-01`);
+  assert.equal(manifest1.files.length, 1);
+  const hash1 = hashContent(Buffer.from("version-1"));
+  assert.equal(manifest1.files[0].contentHash, hash1);
+
+  // Second call: same fileName, different content (version-2)
+  const result2 = await archiveFile(TMP_DIR, "2026-01", "cashflow-t12", "pdf", Buffer.from("version-2"), {});
+  assert.equal(result2.written, true);
+
+  // Verify manifest has exactly ONE entry, with version-2's hash
+  const manifest2 = await loadManifest(`${TMP_DIR}/2026-01`);
+  assert.equal(manifest2.files.length, 1, "Should have exactly one manifest entry after overwrite");
+  const hash2 = hashContent(Buffer.from("version-2"));
+  assert.equal(manifest2.files[0].contentHash, hash2, "Should contain version-2's hash, not version-1's");
+
+  // Verify file on disk contains version-2
+  const written = await readFile(`${TMP_DIR}/2026-01/cashflow-t12.pdf`, "utf8");
+  assert.equal(written, "version-2");
+  await rm(TMP_DIR, { recursive: true, force: true });
+});

@@ -38,6 +38,8 @@ export async function findDuplicateHash(dealRawDir, contentHash) {
   return null;
 }
 
+// archiveFile must only be called sequentially (never concurrently) for the same batch directory.
+// All current callers in this plan use `for`...`await`, not `Promise.all`.
 export async function archiveFile(dealRawDir, batchKey, docType, ext, buffer, meta = {}) {
   const contentHash = hashContent(buffer);
   const duplicateOf = await findDuplicateHash(dealRawDir, contentHash);
@@ -50,6 +52,8 @@ export async function archiveFile(dealRawDir, batchKey, docType, ext, buffer, me
   await writeFile(path.join(batchDir, fileName), buffer);
 
   const manifest = await loadManifest(batchDir);
+  // Remove any existing entry with the same fileName to prevent stale manifest entries on overwrite
+  manifest.files = manifest.files.filter((f) => f.fileName !== fileName);
   manifest.files.push({
     docType,
     fileName,
