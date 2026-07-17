@@ -1543,13 +1543,18 @@ Write these into `data/raw/mcneil-migrated/<batch>/offering-doc.pdf` and `data/r
 
 Expected: `data/raw/mcneil-migrated/` and `data/raw/legacy-migrated/` each contain an `offering-doc.pdf` in some batch folder.
 
-- [ ] **Step 4: Swap in the migrated archives**
+- [ ] **Step 4: Swap in the migrated archives (non-destructively)**
+
+`data/raw/` is gitignored — the original PDFs/XLSX files under `data/raw/mcneil` and `data/raw/legacy` have no backup anywhere (not in git, not pushed). Rename, don't delete, so a migration bug can't cause permanent data loss:
 
 ```bash
-rm -rf data/raw/mcneil data/raw/legacy
+mv data/raw/mcneil data/raw/mcneil.pre-migration-backup
+mv data/raw/legacy data/raw/legacy.pre-migration-backup
 mv data/raw/mcneil-migrated data/raw/mcneil
 mv data/raw/legacy-migrated data/raw/legacy
 ```
+
+Only delete `data/raw/mcneil.pre-migration-backup` and `data/raw/legacy.pre-migration-backup` after Task 13's full end-to-end verification passes — add this as the first step of Task 13, not here.
 
 - [ ] **Step 5: Re-derive capital.json**
 
@@ -1633,7 +1638,13 @@ Open `dashboard/index.html` directly in a browser. Confirm:
 - "Total capital raise" is no longer blank for either deal.
 - The distribution history section shows both a "my distribution" and a "total distribution" number, not a back-calculated one.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Delete the pre-migration backups now that Steps 2-4 have verified the new archive end to end**
+
+```bash
+rm -rf data/raw/mcneil.pre-migration-backup data/raw/legacy.pre-migration-backup
+```
+
+- [ ] **Step 6: Commit**
 
 ```bash
 git add -A
