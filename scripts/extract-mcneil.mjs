@@ -30,18 +30,21 @@ function splitRow(line) {
   return { label, values };
 }
 
-export async function extractMcneilPnl(pdfPath) {
-  const text = await fullText(pdfPath);
-  const lines = text.split("\n");
-
-  const headerLine = lines.find((l) => /^Account\s+\w{3} \d{4}/.test(l.trim()));
+export function parseMonthHeader(text) {
+  const headerLine = text.split("\n").find((l) => /^Account\s+\w{3} \d{4}/.test(l.trim()));
   if (!headerLine) throw new Error("extract-mcneil: could not find table header row");
   const monthLabels = headerLine
     .replace(/^Account/, "")
     .trim()
     .split(/\s{2,}/)
     .filter(Boolean);
-  const monthKeys = monthLabels.slice(0, -1).map(toMonthKey);
+  return monthLabels.slice(0, -1).map(toMonthKey);
+}
+
+export async function extractMcneilPnl(pdfPath) {
+  const text = await fullText(pdfPath);
+  const lines = text.split("\n");
+  const monthKeys = parseMonthHeader(text);
 
   const months = new Map();
   for (const key of monthKeys) {
@@ -102,6 +105,34 @@ export async function extractMcneilPnl(pdfPath) {
     if (allZero) months.delete(key);
   }
   return months;
+}
+
+export async function extractMcneilDistributions(pdfPath, labelPattern) {
+  const text = await fullText(pdfPath);
+  const monthKeys = parseMonthHeader(text);
+  const result = new Map(monthKeys.map((key) => [key, 0]));
+
+  for (const rawLine of text.split("\n")) {
+    let row;
+    try {
+      row = splitRow(rawLine);
+    } catch {
+      // pdftotext occasionally collapses the space between two adjacent
+      // wide dollar values (e.g. large negative amounts in unrelated
+      // sections), which splitRow cannot parse. Skip those rows — they
+      // are never the distribution row we're looking for.
+      continue;
+    }
+    if (!row) continue;
+    if (row.label.startsWith("Total ")) continue;
+    if (!labelPattern.test(row.label)) continue;
+    const perMonth = row.values.slice(0, monthKeys.length);
+    if (perMonth.length !== monthKeys.length) continue;
+    monthKeys.forEach((key, i) => {
+      result.set(key, result.get(key) + Math.abs(perMonth[i]));
+    });
+  }
+  return result;
 }
 
 import { readdir } from "node:fs/promises";

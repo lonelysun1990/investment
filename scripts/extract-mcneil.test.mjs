@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile, rm } from "node:fs/promises";
-import { extractMcneilPnl, runMcneilExtraction } from "./extract-mcneil.mjs";
+import { extractMcneilPnl, extractMcneilDistributions, runMcneilExtraction } from "./extract-mcneil.mjs";
 
 const FIXTURE = "scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf";
 
@@ -55,6 +55,26 @@ test("includes itemized expense categories with their own labels", async () => {
   assert.ok("Administration Expen" in jan.expense);
   assert.ok("Salaries & Wages" in jan.expense);
   assert.equal(jan.expense["Administration Expen"], 515.05);
+});
+
+test("extracts the Member's Distribution line across all 12 header months", async () => {
+  const result = await extractMcneilDistributions(FIXTURE, /Member's Distribution/i);
+  assert.equal(result.size, 12);
+  // NOTE: verified against the fixture by character-position alignment with the
+  // "Account ... Jul 2025 ... Jun 2026 Total" header row directly above this line
+  // (pdftotext -layout, row starting "Member's Distribution"). The (118,999.45) token
+  // sits under the "Jan 2026" column and (24,999.86) sits under "Apr 2026" — NOT
+  // Jul 2025 / Oct 2025 as an earlier draft of this test assumed.
+  assert.equal(result.get("2026-01"), 118999.45);
+  assert.equal(result.get("2026-04"), 24999.86);
+  assert.equal(result.get("2025-08"), 0);
+  assert.equal(result.get("2026-06"), 0);
+});
+
+test("extractMcneilDistributions does not double-count the 'Total Member's Distributi' subtotal row", async () => {
+  const result = await extractMcneilDistributions(FIXTURE, /Member's Distribution/i);
+  // If the truncated "Total Member's Distributi" row were matched too, Jan 2026 would double to 237,998.90
+  assert.equal(result.get("2026-01"), 118999.45);
 });
 
 test("runMcneilExtraction scans a raw dir, merges PDF + rent roll, writes JSON", async () => {
