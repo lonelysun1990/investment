@@ -406,6 +406,246 @@ export const MCNEIL = {
       "avgActualRent": 983.89,
       "lossToLeaseTotal": 465
     }
+  },
+  "2025-01": {
+    "income": {
+      "rental": 23080,
+      "other": 777.87,
+      "total": 23857.87
+    },
+    "expense": {
+      "total": 9830.34
+    },
+    "noi": 14027.53,
+    "debtService": 5010.81,
+    "capitalImprovements": 0,
+    "netIncome": 9016.72,
+    "month": "2025-01",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
+  },
+  "2025-02": {
+    "income": {
+      "rental": 23060,
+      "other": 699.62,
+      "total": 23759.62
+    },
+    "expense": {
+      "total": 12056.04
+    },
+    "noi": 11703.58,
+    "debtService": 5010.81,
+    "capitalImprovements": 13880,
+    "netIncome": -7187.23,
+    "month": "2025-02",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
+  },
+  "2025-03": {
+    "income": {
+      "rental": 24017.29,
+      "other": 770.04,
+      "total": 24787.33
+    },
+    "expense": {
+      "total": 18969.4
+    },
+    "noi": 5817.93,
+    "debtService": 4525.89,
+    "capitalImprovements": 0,
+    "netIncome": 1292.04,
+    "month": "2025-03",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
+  },
+  "2025-04": {
+    "income": {
+      "rental": 25881.13,
+      "other": 2359.45,
+      "total": 28240.58
+    },
+    "expense": {
+      "total": 14186.81
+    },
+    "noi": 14053.77,
+    "debtService": 5010.81,
+    "capitalImprovements": 0,
+    "netIncome": 9042.96,
+    "month": "2025-04",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
+  },
+  "2025-05": {
+    "income": {
+      "rental": 27330,
+      "other": 1287.68,
+      "total": 28617.68
+    },
+    "expense": {
+      "total": 16291.94
+    },
+    "noi": 12325.74,
+    "debtService": 4849.17,
+    "capitalImprovements": 3700,
+    "netIncome": 3776.57,
+    "month": "2025-05",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
+  },
+  "2025-06": {
+    "income": {
+      "rental": 27765,
+      "other": 1624.09,
+      "total": 29389.09
+    },
+    "expense": {
+      "total": 9552.85
+    },
+    "noi": 19836.24,
+    "debtService": 5010.81,
+    "capitalImprovements": 3317.12,
+    "netIncome": 11508.31,
+    "month": "2025-06",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
+  },
+  "2025-07": {
+    "income": {
+      "rental": 28105,
+      "other": 2826.97,
+      "total": 30931.97
+    },
+    "expense": {
+      "total": 12037.24
+    },
+    "noi": 18894.73,
+    "debtService": 4849.17,
+    "capitalImprovements": 10029.31,
+    "netIncome": 4016.25,
+    "month": "2025-07",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
+  },
+  "2025-08": {
+    "income": {
+      "rental": 25940,
+      "other": 1205.39,
+      "total": 27145.39
+    },
+    "expense": {
+      "total": 13459.98
+    },
+    "noi": 13685.41,
+    "debtService": 5010.81,
+    "capitalImprovements": 3151.14,
+    "netIncome": 5523.46,
+    "month": "2025-08",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
+  },
+  "2025-09": {
+    "income": {
+      "rental": 22660,
+      "other": 39,
+      "total": 22699
+    },
+    "expense": {
+      "total": 13061.49
+    },
+    "noi": 9637.51,
+    "debtService": 5010.81,
+    "capitalImprovements": 2225,
+    "netIncome": 2401.7,
+    "month": "2025-09",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
+  },
+  "2025-10": {
+    "income": {
+      "rental": 22970.43,
+      "other": 1465.42,
+      "total": 24435.85
+    },
+    "expense": {
+      "total": 17385.68
+    },
+    "noi": 7050.17,
+    "debtService": 5515.84,
+    "capitalImprovements": 1990.99,
+    "netIncome": -456.66,
+    "month": "2025-10",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
+  },
+  "2025-11": {
+    "income": {
+      "rental": 23958.33,
+      "other": 2105.76,
+      "total": 26064.09
+    },
+    "expense": {
+      "total": 15693.43
+    },
+    "noi": 10370.66,
+    "debtService": 5677.48,
+    "capitalImprovements": 8262.46,
+    "netIncome": -3569.28,
+    "month": "2025-11",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
+  },
+  "2025-12": {
+    "income": {
+      "rental": 23624.25,
+      "other": 1397.16,
+      "total": 25021.41
+    },
+    "expense": {
+      "total": 20445.22
+    },
+    "noi": 4576.19,
+    "debtService": 5515.84,
+    "capitalImprovements": 585.91,
+    "netIncome": -1525.56,
+    "month": "2025-12",
+    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "high"
+    }
   }
 };
 export const PROJECTIONS = {};
@@ -487,9 +727,21 @@ export const DERIVED = {
     "totalRaise": 1928571,
     "totalPropertyDistributed": 168998.01,
     "larryDistributed": 4381.43,
-    "larryNetIncomeShare": -206.45,
+    "larryNetIncomeShare": 670.86,
     "distributionMismatch": true,
     "months": [
+      "2025-01",
+      "2025-02",
+      "2025-03",
+      "2025-04",
+      "2025-05",
+      "2025-06",
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
       "2026-01",
       "2026-02",
       "2026-03",
