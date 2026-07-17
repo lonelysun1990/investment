@@ -587,7 +587,15 @@
       "total": 6646.25
     },
     "expense": {
-      "total": 3029.81
+      "total": 3029.81,
+      "General and Administrative": 162.34,
+      "Advertising and marketing": 0,
+      "Employee Expense": 0,
+      "Repair/Maint Expense": 75.1,
+      "Make Ready Expense": 0,
+      "Utility Expense": 0,
+      "Fixed Expenses": 2792.37,
+      "Management Fees": 0
     },
     "noi": 3616.44,
     "debtService": 0,
@@ -607,7 +615,15 @@
       "total": 21771
     },
     "expense": {
-      "total": 10354.63
+      "total": 9899.09,
+      "General and Administrative": 1577.14,
+      "Advertising and marketing": 898.35,
+      "Employee Expense": 2015,
+      "Repair/Maint Expense": 1053.19,
+      "Make Ready Expense": 472.12,
+      "Utility Expense": 464.81,
+      "Fixed Expenses": 2792.29,
+      "Management Fees": 626.19
     },
     "noi": 11416.37,
     "debtService": 0,
@@ -627,7 +643,15 @@
       "total": 21128.87
     },
     "expense": {
-      "total": 12188.99
+      "total": 11749.15,
+      "General and Administrative": 265.82,
+      "Advertising and marketing": 0,
+      "Employee Expense": 3180,
+      "Repair/Maint Expense": 446.79,
+      "Make Ready Expense": 1068.01,
+      "Utility Expense": 3370.05,
+      "Fixed Expenses": 2792.29,
+      "Management Fees": 626.19
     },
     "noi": 8939.88,
     "debtService": 5010.81,
@@ -647,7 +671,15 @@
       "total": 23843.75
     },
     "expense": {
-      "total": 17291.51
+      "total": 17291.51,
+      "General and Administrative": 536.79,
+      "Advertising and marketing": 0,
+      "Employee Expense": 4890,
+      "Repair/Maint Expense": 797.22,
+      "Make Ready Expense": 948.35,
+      "Utility Expense": 6670.56,
+      "Fixed Expenses": 2792.29,
+      "Management Fees": 656.3
     },
     "noi": 6552.24,
     "debtService": 4849.17,
