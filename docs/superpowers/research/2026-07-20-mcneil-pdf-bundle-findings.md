@@ -1,0 +1,137 @@
+# McNeil PDF Bundle & Capital-Raise Findings
+
+**Purpose:** Ground-truth evidence gathered by manually reading the raw CashFlowPortal
+PDFs (per user instruction: discover manually first, write pipeline code second).
+This document is the source of truth for the upcoming brainstorm/spec/plan — every
+requirement in the spec and every test fixture in the plan should trace back to a
+fact recorded here, not to a paraphrase of it. Update this file (not just the spec)
+if further manual investigation turns up something new.
+
+## 1. Raw archive was never synced to the real checkout
+
+- The main checkout's `data/raw/` (gitignored) still has the pre-migration structure:
+  `legacy/2026-05/`, `mcneil/2025-05/`, `mcneil/2025-08/`, `mcneil/2025-09/`,
+  `mcneil/2025-10/`, `mcneil/2025-11/`, `mcneil/2025-12/`, `mcneil/2026-06/` — no
+  `manifest.json` files, no batch-vintage layout.
+- The correct migrated archive only ever existed inside this worktree's local
+  filesystem: `.claude/worktrees/multi-property-data-pipeline/data/raw/{legacy,mcneil}/<batch-YYYY-MM>/*.pdf` +
+  `manifest.json` + `_seen.json`.
+- Root cause: `data/raw/` is gitignored, so no PR ever carried the migrated archive
+  back to the main checkout. Nothing about the pipeline code is wrong here — this is
+  a pure process gap. **Any fix must not rely on gitignoring the raw archive**, or it
+  will silently rot again the same way.
+
+## 2. McNeil sponsor bundles multiple reports into one PDF
+
+Confirmed via `pdfinfo` + `pdftotext -f <n> -l <n>` page-by-page dumps, in the
+worktree's `data/raw/mcneil/`:
+
+### `2025-10/balance-sheet.pdf` — 13 pages, real filename as harvested
+| Pages | Content |
+|---|---|
+| 1–2 | Balance Sheet, September 2025 |
+| 3–9 | **Trailing Profit And Loss Detail**, September 2025, printed 10/2/2025 11:18:31 PM. Columns: `Oct 2024 \| Nov 2024 \| Dec 2024 \| Jan 2025 \| Feb 2025 \| Mar 2025 \| Apr 2025 \| May 2025 \| Jun 2025 \| Jul 2025 \| Aug 2025 \| Sep 2025 \| Adjusted \| Total \| Variance`. Itemized rows: Gross Potential Rent, Loss to Old Lease, Bad Debt, Vacancy Loss, Rent Concessions, etc. |
+| 10–11 | **Rent Roll Summary**, as of 9/30/2025. Per-unit rows (sample: units 101–106). Columns: `Unit, Type, Sq. Feet, Residents, Status, Market Rent, Rent, Other Charges, Credits, Total, Move In, Lease Start, Lease End, Move Out, Surety Bonds, Deposits, Balance`. Status values seen: `Vacant Unit`, `C` (current/occupied). |
+| 12 | Aged Receivables Summary, 9/30/2025 |
+| 13 | Cash Flow Statement Detail, September 2025 |
+
+### `2026-01/balance-sheet.pdf` — 13 pages, same bundle pattern
+| Pages | Content |
+|---|---|
+| 1–2 | Balance Sheet, December 2025 |
+| 3–9 | **Trailing Profit And Loss Detail**, December 2025, printed 1/19/2026 10:36:32 AM. Columns: `Jan 2025 \| Feb 2025 \| Mar 2025 \| Apr 2025 \| May 2025 \| Jun 2025 \| Jul 2025 \| Aug 2025 \| Sep 2025 \| Oct 2025 \| Nov 2025 \| Dec 2025 \| Adjusted \| Total \| Variance`. |
+| 10–11 | **Rent Roll Summary**, as of 12/31/2025. Same column layout as above. |
+| 12 | Aged Receivables Summary, 12/31/2025 |
+| 13 | Cash Flow Statement Detail, December 2025 |
+
+These two bundles together cover the entire Jan 2025–Dec 2025 gap (overlapping on
+Jan–Sep 2025, which is useful for cross-checking one extractor against the other).
+
+### Files confirmed NOT bundled (single-report, already handled correctly)
+- `2025-01/balance-sheet.pdf` — 1 page, standalone, December 2024 balance sheet.
+- `2025-01/cashflow-t12.pdf` — 3 pages, "Twelve Month Profit and Loss, January 2024 - December 2024", already extracted correctly.
+- `2026-06/cashflow-t12.pdf` — 6 pages, "Twelve Month Cash Flow Statement Expanded Detail, June 2026", already extracted correctly.
+
+### Root cause of the bug
+`scripts/deals/mcneil.config.mjs`'s `classifyDoc()` reads only enough of the file to
+find a title match (`/balance sheet/i` etc.) and assigns ONE docType to the WHOLE
+file. For these two files, page 1 says "Balance Sheet", so the entire 13-page file
+was filed as `balance-sheet` and pages 3–13 (P&L + occupancy + receivables + cash
+flow) were never looked at by any extractor. **This is the direct, verified answer to
+the user's question "what caused the occupancy issue, is it a data-source problem":**
+it is not a missing-source problem — the source data exists and is downloaded — it's
+a per-file (not per-section) classification bug.
+
+### Implication for occupancy chart
+Real rent-roll occupancy snapshots exist for: 9/30/2025, 12/31/2025 (both newly
+found, buried in the bundles above), and 6/30/2026 (already extracted from a
+non-bundled file elsewhere in the pipeline — the one point currently on the chart).
+**There is no rent roll for every single month** — only these three dates have one in
+the documents gathered so far. A correct fix produces 3 occupancy points, not 12; if
+the user wants monthly occupancy, that requires either a different report that isn't
+currently in the harvested set, or accepting sparse/interpolated points — flag this
+back to the user during brainstorming rather than assuming full monthly coverage is
+achievable from documents in hand.
+
+## 3. Total capital raise: three conflicting figures, none yet fully authoritative
+
+| Figure | Source document | Status |
+|---|---|---|
+| $1,500,000 | PPM, "Sources of Funds" table, equity line | Document itself calls this an estimate "subject to material change" |
+| **$1,300,000** | Investment Deck (`Documents` tab, row "Investment Deck (PDF)"), "ACQUSITION SUMMARY" table, row "Total Member Capital Needed to Close" | Self-consistent with the SAME deck's own stated ownership %: deck states "% of Overall Membership Ownership for $ Invested: 3.8%" for a $50,000 investment; $50,000 / $1,300,000 = 3.846% ≈ 3.8% — internal agreement within one document |
+| ~$1,928,571 | Implied by reconciling the real (DOM-scraped) 2026-Q2 distribution: $648.14 of $24,999.86 total ≈ 2.593% ownership, back-solved against $50,000 | This is the actual observed cash distribution ratio, but derived, not stated in any document |
+
+Current best evidence points to **$1,300,000** as the figure to use in
+`data/capital.json`, because it's the only figure that is both (a) stated directly in
+a document and (b) internally corroborated by a second, independent number in that
+same document (the 3.8% ownership figure). It still does not match the ~2.59%
+actually observed in real distributions — that discrepancy should be preserved and
+surfaced in the dashboard (the existing `capitalRaiseMismatch`-style flagging
+mechanism), not silently resolved by picking a number and hiding the tension.
+
+Source file for re-verification: `/tmp/cfp-investment-deck/mcneil-investment-deck.pdf`
+(35 pages, downloaded via compliant click+download from McNeil's Documents tab,
+dealId `f8929e29-285b-4904-b4e9-5b41b035535b`; row index 4, "Investment Deck (PDF)").
+Text dump at `/tmp/investment-deck.txt` (regenerate with `pdftotext -layout` if
+these temp files are gone — they are not committed anywhere).
+
+## 4. 2024 monthly data — user's "all zero" claim only partially matches current state
+
+Current `data/mcneil.json` (main checkout) has 2024-09 through 2024-12 present, with
+non-zero `netIncome` and `income.total` (e.g. 2024-09 netIncome $3,616.44, income.total
+$6,646.25) — **not literally all-zero**. What IS zero for these months: the
+`income.rental` / `income.other` line-item breakdown, because the only source
+document for this period was an aggregate-only FY2024 T12 report (`TOTAL
+INCOME`/`TOTAL EXPENSE` lines only, no rental-vs-other split). The newly-discovered
+Trailing P&L Detail bundle (`2025-10/balance-sheet.pdf`, pages 3–9) covers Oct–Dec
+2024 too, WITH itemized rows (Gross Potential Rent, etc.) — extracting from this
+bundle should let the rental/other split be filled in for Oct–Dec 2024, not just
+2025. Sep 2024 is not covered by any bundle found so far (both bundles start at Oct
+2024) — flag this gap explicitly rather than assuming it's fixed.
+
+## 5. Legacy — confirmed NOT affected
+
+`data/raw/legacy/2026-05/monthly-update.pdf` is 7 pages (not 4, as previously
+assumed): title, property info, Operations Overview narrative (occupancy narrative
+source, already extracted), embedded P&L table image (page 4, already handled via
+vision-LLM extraction), Renovation/Capital Items narrative, Dallas Market Update,
+National Market Update. Pages 5–7 confirmed to contain no additional financial
+tables. No bundling bug for Legacy — this is a McNeil-sponsor-specific behavior.
+
+## 6. Open questions to carry into brainstorming (not yet resolved)
+
+- Should `classifyDoc` move from "one docType per file" to "per-page/per-section
+  classification within a file," or should harvesting split multi-report PDFs into
+  per-section sub-documents at download time (so the raw archive itself stores one
+  report per file)? Both fix the bug; they trade off differently against "raw PDFs
+  should look like what CashFlowPortal actually sent" (mentioned as a value by the
+  user re: keeping a trace).
+- Rent Roll Summary pages are PDF text tables, not XLSX — the existing
+  `extractRentRoll` (in `scripts/extract-mcneil-rentroll.mjs`) only parses XLSX. A new
+  parser is needed for this PDF table format; it should NOT replace the existing XLSX
+  path, both formats occur.
+- Whether the Trailing P&L Detail header format matches either of
+  `parseMonthHeader`'s two existing layout variants in `scripts/extract-mcneil.mjs`,
+  or needs a third — not yet checked line-by-line against those functions.
+- Final decision on $1,300,000 vs. keeping the mismatch-flagging approach — worth
+  confirming with the user during brainstorming rather than deciding unilaterally.
