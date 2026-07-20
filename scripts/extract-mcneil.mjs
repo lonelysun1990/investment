@@ -142,7 +142,21 @@ import { runGenericExtraction } from "./lib/run-extraction.mjs";
 export async function extractMcneilBatch(batchDir, manifest) {
   const pdfEntry = manifest.files.find((f) => f.docType === "cashflow-t12");
   const months = new Map();
-  if (!pdfEntry) return months;
+  if (!pdfEntry) {
+    const rentrollOnlyEntry = manifest.files.find((f) => f.docType === "rentroll");
+    if (!rentrollOnlyEntry) return months;
+
+    const rentRollOnly = await extractRentRoll(path.join(batchDir, rentrollOnlyEntry.fileName));
+    if (rentRollOnly.asOfDate) {
+      const month = rentRollOnly.asOfDate.slice(0, 7);
+      months.set(month, {
+        month,
+        occupancyPct: rentRollOnly.occupancyPct,
+        rentRoll: rentRollOnly,
+      });
+    }
+    return months;
+  }
 
   const pdfPath = path.join(batchDir, pdfEntry.fileName);
   const pnlByMonth = await extractMcneilPnl(pdfPath);

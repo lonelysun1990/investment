@@ -85,6 +85,31 @@ test("extractMcneilBatch attaches occupancy only to the month the rent roll's as
   assert.equal(months.get("2026-05").occupancyPct, undefined);
 });
 
+test("extractMcneilBatch emits an occupancy-only record when the batch has a rentroll but no cashflow-t12 PDF", async () => {
+  const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-rentroll-only";
+  await rm(TMP_RAW, { recursive: true, force: true });
+
+  const { mkdir, copyFile } = await import("node:fs/promises");
+  const { saveManifest, loadManifest } = await import("./lib/archive-store.mjs");
+
+  await mkdir(`${TMP_RAW}/2026-06`, { recursive: true });
+  await copyFile("scripts/__fixtures__/mcneil/2026-06-rent-roll.xlsx", `${TMP_RAW}/2026-06/rentroll.xlsx`);
+  await saveManifest(`${TMP_RAW}/2026-06`, {
+    files: [{ docType: "rentroll", fileName: "rentroll.xlsx", contentHash: "d" }],
+  });
+
+  const manifest = await loadManifest(`${TMP_RAW}/2026-06`);
+  const months = await extractMcneilBatch(`${TMP_RAW}/2026-06`, manifest);
+
+  assert.equal(months.size, 1);
+  const june = months.get("2026-06");
+  assert.ok(june, "expected a 2026-06 record from the rentroll-only batch");
+  assert.equal(june.occupancyPct, 84.4);
+  assert.ok(june.rentRoll, "expected the record to include the full rentRoll object");
+
+  await rm(TMP_RAW, { recursive: true, force: true });
+});
+
 test("runMcneilExtraction folds batches so an earlier batch's occupancy survives a later batch that lacks a rent roll", async () => {
   const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-fold-raw";
   const outputPath = "scripts/__fixtures__/tmp-mcneil-fold-output.json";
