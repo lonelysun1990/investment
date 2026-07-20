@@ -2,37 +2,45 @@
   "legacy": [
     {
       "date": "2026-Q2",
-      "amount": 365.21
+      "myDistribution": 365.21,
+      "totalDistribution": null
     }
   ],
   "mcneil": [
     {
       "date": "2024-Q4",
-      "amount": 518.51
+      "myDistribution": 518.51,
+      "totalDistribution": 0
     },
     {
       "date": "2025-Q1",
-      "amount": 570.37
+      "myDistribution": 570.37,
+      "totalDistribution": null
     },
     {
       "date": "2025-Q2",
-      "amount": 648.14
+      "myDistribution": 648.14,
+      "totalDistribution": null
     },
     {
       "date": "2025-Q3",
-      "amount": 699.99
+      "myDistribution": 699.99,
+      "totalDistribution": null
     },
     {
       "date": "2025-Q4",
-      "amount": 648.14
+      "myDistribution": 648.14,
+      "totalDistribution": null
     },
     {
       "date": "2026-Q1",
-      "amount": 648.14
+      "myDistribution": 648.14,
+      "totalDistribution": 118999.45
     },
     {
       "date": "2026-Q2",
-      "amount": 648.14
+      "myDistribution": 648.14,
+      "totalDistribution": 24999.86
     }
   ]
 }

@@ -1,10 +1,12 @@
 {
   "legacy": {
-    "ownershipPct": 3.181818181818182,
-    "larryInvestment": 50000
+    "totalRaise": 1100000,
+    "larryInvestment": 50000,
+    "totalRaiseSource": "The Legacy Apartment Investor Summary.pdf, 'Total Capital Raise (rounded up)' -- an actual/current figure, not a projection"
   },
   "mcneil": {
-    "ownershipPct": 2.592592592592592,
-    "larryInvestment": 50000
+    "totalRaise": 1500000,
+    "larryInvestment": 50000,
+    "totalRaiseSource": "McNeil Star Apartment LLC - PPM.pdf, Sources of Funds table ('Equity from the proceeds of this Offering') -- the PPM itself states these figures are estimates subject to material change, not a confirmed final closing amount"
   }
 }
