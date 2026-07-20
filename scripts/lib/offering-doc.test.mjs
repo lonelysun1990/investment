@@ -26,6 +26,15 @@ test("picks the largest amount on the matching line when several numbers appear"
   assert.equal(result, 1930000);
 });
 
+test("finds the real McNeil PPM's equity line even though the grand total line also contains 'Total'", () => {
+  const text =
+    " Debt                                                                        $1,198,000\n" +
+    " Equity (from the proceeds of this Offering)                                 $1,500,000\n" +
+    "                                                Total                        $2,698,000\n";
+  const result = findTotalRaise(text, /Equity.*proceeds of this Offering/i);
+  assert.equal(result, 1500000);
+});
+
 test("throws an error including the pdf path when pdftotext fails", async () => {
   const nonexistentPath = "/tmp/nonexistent-file-12345.pdf";
   await assert.rejects(

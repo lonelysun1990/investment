@@ -188,6 +188,7 @@ export async function extractMcneilDistributions(pdfPath, labelPattern) {
 import path from "node:path";
 import { extractRentRoll } from "./extract-mcneil-rentroll.mjs";
 import { runGenericExtraction } from "./lib/run-extraction.mjs";
+import { distributionLabel } from "./deals/mcneil.config.mjs";
 
 export async function extractMcneilBatch(batchDir, manifest) {
   const pdfEntry = manifest.files.find((f) => f.docType === "cashflow-t12");
@@ -210,7 +211,7 @@ export async function extractMcneilBatch(batchDir, manifest) {
 
   const pdfPath = path.join(batchDir, pdfEntry.fileName);
   const pnlByMonth = await extractMcneilPnl(pdfPath);
-  const distributionByMonth = await extractMcneilDistributions(pdfPath, /Member's Distribution/i);
+  const distributionByMonth = await extractMcneilDistributions(pdfPath, distributionLabel);
 
   const rentrollEntry = manifest.files.find((f) => f.docType === "rentroll");
   const rentRoll = rentrollEntry ? await extractRentRoll(path.join(batchDir, rentrollEntry.fileName)) : null;

@@ -45,3 +45,12 @@ test("totalRaiseLabel matches common offering-amount phrasing", () => {
   assert.ok(totalRaiseLabel.test("Total Offering Amount: $1,930,000"));
   assert.ok(totalRaiseLabel.test("Total Capital Raised 1,300,000"));
 });
+
+test("totalRaiseLabel matches the real McNeil PPM's Sources of Funds equity line", () => {
+  assert.ok(totalRaiseLabel.test("Equity (from the proceeds of this Offering)                                 $1,500,000"));
+});
+
+test("totalRaiseLabel does not match a bare grand-total line that isn't specifically about the offering amount", () => {
+  assert.ok(!totalRaiseLabel.test("Total"));
+  assert.ok(!totalRaiseLabel.test("                                                Total                        $2,698,000"));
+});

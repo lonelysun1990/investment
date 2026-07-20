@@ -9,5 +9,5 @@ export function classifyDoc({ filename, text }) {
 }
 
 export const distributionLabel = /^Member's Distribution$/i;
-export const totalRaiseLabel = /Total (Offering Amount|Capital Rais(?:e|ed))/i;
+export const totalRaiseLabel = /Total (Offering Amount|Capital Rais(?:e|ed))|Equity.*proceeds of this Offering/i;
 export const occupancySource = "rentroll";
