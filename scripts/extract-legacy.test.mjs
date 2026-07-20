@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile, rm } from "node:fs/promises";
-import { extractNarrative, extractPnlTable, extractLegacyMonth, runLegacyExtraction } from "./extract-legacy.mjs";
+import { extractNarrative, extractPnlTable, extractLegacyMonth, extractLegacyBatch, runLegacyExtraction } from "./extract-legacy.mjs";
 
 const FIXTURE = "scripts/__fixtures__/legacy/2026-05-investor-update.pdf";
 
@@ -144,15 +144,18 @@ test("extractLegacyMonth assembles multiple monthly records with a working visio
   assert.equal(records["2026-05"].extraction.confidence, "high");
 });
 
-test("runLegacyExtraction scans a raw dir and writes merged JSON output", async () => {
+test("extractLegacyBatch reads the monthly-update doc via manifest and returns records keyed by month", async () => {
+  const { loadManifest } = await import("./lib/archive-store.mjs");
+  const manifest = await loadManifest("scripts/__fixtures__/raw-legacy/2026-05");
+  const records = await extractLegacyBatch("scripts/__fixtures__/raw-legacy/2026-05", manifest, null);
+  assert.ok(records.has("2026-05"));
+  assert.equal(records.get("2026-05").occupancyPct, 74);
+});
+
+test("runLegacyExtraction produces the same May 2026 occupancy via the batch-based path", async () => {
   const outputPath = "scripts/__fixtures__/tmp-legacy-output.json";
-  const result = await runLegacyExtraction(
-    null,
-    "scripts/__fixtures__/raw-legacy",
-    outputPath
-  );
-  assert.deepEqual(result.monthsProcessed, ["2026-05"]);
+  await runLegacyExtraction(null, "scripts/__fixtures__/raw-legacy", outputPath);
   const written = JSON.parse(await readFile(outputPath, "utf8"));
   assert.equal(written["2026-05"].occupancyPct, 74);
-  await rm(outputPath);
+  await rm(outputPath, { force: true });
 });
