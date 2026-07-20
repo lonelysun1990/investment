@@ -27,7 +27,8 @@ async function main() {
   const page = ctx.pages().find((p) => p.url().includes("cashflowportal")) ?? ctx.pages()[0];
 
   for (const [slug, deal] of Object.entries(config.deals)) {
-    await harvestDeal(page, deal.dealId, slug, path.join(resolveArchiveRoot(), slug));
+    const dealConfig = await import(`./deals/${slug}.config.mjs`);
+    await harvestDeal(page, deal.dealId, slug, path.join(resolveArchiveRoot(), slug), dealConfig);
   }
 
   const legacyResult = await runLegacyExtraction(config.vision_llm ?? null, path.join(resolveArchiveRoot(), "legacy"), "data/legacy.json");
