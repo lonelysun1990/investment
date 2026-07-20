@@ -65,6 +65,21 @@ physical directory — the main checkout's `data/raw/`. This is the same
 `finishing-a-development-branch` skill already uses for `MAIN_ROOT`, so it's
 consistent with an existing convention rather than a new one.
 
+**Fold classification into harvest, not just migration (findings §7):** discovered
+while writing the implementation plan — `harvestDeal()` currently downloads
+attachments straight into `data/raw/<deal>/<month>/<original-name>` with no
+`classifyDoc()`/`archiveFile()` call and no manifest, and `refresh.mjs` runs
+extraction against that same directory with no migration step in between. The
+batch-vintage manifest archive in this worktree exists only because
+`migrate-raw-archive.mjs` was run by hand once; a normal `npm run refresh` going
+forward would not reproduce it. Fix: `harvestDeal()` calls the new bundle-aware
+`classifyDoc()` and `archiveFile()` itself, per downloaded attachment, using the
+same content-derived `resolveBatchDate()` batch key `migrate-raw-archive.mjs`
+already uses (not `harvestDeal()`'s current email-subject-month key). This makes a
+normal refresh produce the manifest-based archive directly — no separate migration
+step needed going forward. `migrate-raw-archive.mjs` remains only as a one-time
+historical-backfill tool for pre-existing unmigrated snapshots.
+
 **Wipe-then-rebuild:** before this fix is exercised for real, the main checkout's
 existing `data/raw/` (the stale pre-migration structure — `legacy/2026-05/`,
 `mcneil/2025-05/`, `mcneil/2025-08/`, etc., no manifests) is deleted entirely, then

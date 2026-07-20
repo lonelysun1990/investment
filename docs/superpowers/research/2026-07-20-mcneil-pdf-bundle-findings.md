@@ -135,3 +135,32 @@ tables. No bundling bug for Legacy — this is a McNeil-sponsor-specific behavio
   or needs a third — not yet checked line-by-line against those functions.
 - Final decision on $1,300,000 vs. keeping the mismatch-flagging approach — worth
   confirming with the user during brainstorming rather than deciding unilaterally.
+
+## 7. harvest.mjs never classifies or archives (discovered while writing the plan)
+
+`harvestDeal()` (in `scripts/harvest.mjs`) downloads email attachments straight into
+`data/raw/<deal>/<month>/<sanitized-original-name>` — no `classifyDoc()` call, no
+`archiveFile()` call, no `manifest.json` written. `archiveFile` is only ever called
+from `migrate-raw-archive.mjs` (grep-confirmed across `scripts/`).
+
+`refresh.mjs` (the `npm run refresh` entrypoint) calls `harvestDeal()` and then
+immediately calls `runMcneilExtraction("data/raw/mcneil", ...)` on the *same*
+directory, with no migration step in between. `extractMcneilBatch` requires a
+`manifest.json` per batch folder (via `loadManifest`, which returns `{files: []}`
+when one is missing) — so any month `harvestDeal()` downloads via a normal
+`npm run refresh` is invisible to extraction until someone manually re-runs
+`migrate-raw-archive.mjs`.
+
+**Implication:** the batch-vintage, manifest-based archive currently in this
+worktree was produced by a one-off manual `migrate-raw-archive.mjs` run (Task
+11/12 of this session), not by the live pipeline. This is a second, independent
+mechanism (besides the worktree/main-checkout desync in §1) by which `data/raw/`
+can end up inconsistent — live harvesting and manual migration both write into the
+same `data/raw/<deal>/` tree using different folder-keying and file-naming schemes.
+
+**Decision (confirmed with user):** fold classification+archiving directly into
+`harvestDeal()` — it calls the new bundle-aware `classifyDoc()` and `archiveFile()`
+itself at download time, using the same content-derived `resolveBatchDate()` batch
+key that `migrate-raw-archive.mjs` already uses (not the cruder email-subject-month
+key `harvestDeal()` currently uses for its folder name). `migrate-raw-archive.mjs`
+becomes a one-time historical-backfill tool only, not part of the live refresh path.
