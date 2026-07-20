@@ -150,6 +150,34 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
   return { newMonths };
 }
 
+export async function harvestStaticDocument(page, dealId, docLabel, docType, rawDir, batchKey = "offering") {
+  await page.goto(`${PORTAL_BASE}/app/documents/${dealId}?tab=documents`, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
+  await page.waitForTimeout(2500);
+
+  const rows = page.locator("tbody tr");
+  const count = await rows.count();
+  for (let i = 0; i < count; i++) {
+    const row = rows.nth(i);
+    const rowText = await row.innerText();
+    if (!rowText.includes(docLabel)) continue;
+
+    const [download] = await Promise.all([
+      page.waitForEvent("download", { timeout: 30000 }),
+      row.locator("button").nth(2).click(),
+    ]);
+    const tmpPath = await download.path();
+    const buffer = await readFile(tmpPath);
+    const result = await archiveFile(rawDir, batchKey, docType, "pdf", buffer, {
+      sourceEmailSubject: docLabel,
+    });
+    return { found: true, ...result };
+  }
+  return { found: false };
+}
+
 export async function scrapeDistributions(page, dealId) {
   await page.goto(`${PORTAL_BASE}/app/deals/${dealId}`, { waitUntil: "domcontentloaded", timeout: 60000 });
   await page.waitForTimeout(2500);
