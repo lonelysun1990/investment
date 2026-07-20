@@ -20,10 +20,11 @@ export async function planMigration(oldRawDir, dealConfig) {
       const filePath = path.join(dirPath, file.name);
       const buffer = await readFile(filePath);
       const ext = path.extname(file.name).replace(".", "");
-      const text = ext === "pdf" ? await extractTextFromPdf(filePath).catch(() => "") : "";
+      const text = ext.toLowerCase() === "pdf" ? await extractTextFromPdf(filePath).catch(() => "") : "";
       const docType = dealConfig.classifyDoc({ filename: file.name, text });
-      const { batchKey } = resolveBatchDate({ text, harvestedAt: `${monthDir}-01T00:00:00.000Z` });
-      plan.push({ oldPath: filePath, batchKey, docType, ext, buffer });
+      const harvestedAt = `${monthDir}-01T00:00:00.000Z`;
+      const { batchKey, source } = resolveBatchDate({ text, harvestedAt });
+      plan.push({ oldPath: filePath, batchKey, docType, ext, buffer, source, harvestedAt });
     }
   }
   return plan;
@@ -34,7 +35,8 @@ export async function runMigration(oldRawDir, newRawDir, dealConfig) {
   const results = [];
   for (const entry of plan) {
     const result = await archiveFile(newRawDir, entry.batchKey, entry.docType, entry.ext, entry.buffer, {
-      batchDateSource: "content",
+      batchDateSource: entry.source,
+      harvestedAt: entry.harvestedAt,
     });
     results.push({ ...entry, ...result });
   }
