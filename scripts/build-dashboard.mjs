@@ -46,8 +46,27 @@ function computeDerived(records, distributions, capital) {
   const larryDistributed = larrySumDistributed;
   const larryNetIncomeShare = totalNetIncome * (ownershipPct ?? 0);
 
+  const roundedOwnershipPct = ownershipPct
+    ? Math.round(ownershipPct * 10000) / 100
+    : null;
+
+  const impliedOwnershipByQuarter = (distributions ?? [])
+    .filter(
+      (d) => d.myDistribution != null && d.totalDistribution != null && d.totalDistribution !== 0
+    )
+    .map((d) => ({
+      date: d.date,
+      impliedOwnershipPct: Math.round((d.myDistribution / d.totalDistribution) * 10000) / 100,
+    }));
+
+  const capitalRaiseMismatch =
+    roundedOwnershipPct != null &&
+    impliedOwnershipByQuarter.some(
+      (entry) => Math.abs(entry.impliedOwnershipPct - roundedOwnershipPct) > 0.3
+    );
+
   return {
-    ownershipPct: ownershipPct ? Math.round(ownershipPct * 10000) / 100 : null,
+    ownershipPct: roundedOwnershipPct,
     larryInvestment: capital.larryInvestment ?? 50000,
     totalRaise: capital.totalRaise ?? null,
     totalPropertyDistributed,
@@ -55,6 +74,8 @@ function computeDerived(records, distributions, capital) {
     larryNetIncomeShare: Math.round(larryNetIncomeShare * 100) / 100,
     distributionMismatch:
       Math.abs(larryNetIncomeShare - larryDistributed) > 50,
+    impliedOwnershipByQuarter,
+    capitalRaiseMismatch,
     months,
   };
 }

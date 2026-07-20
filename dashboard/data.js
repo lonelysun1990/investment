@@ -573,6 +573,8 @@ export const DERIVED = {
     "larryDistributed": 365.21,
     "larryNetIncomeShare": -1067.45,
     "distributionMismatch": true,
+    "impliedOwnershipByQuarter": [],
+    "capitalRaiseMismatch": false,
     "months": [
       "2026-01",
       "2026-02",
@@ -589,6 +591,17 @@ export const DERIVED = {
     "larryDistributed": 4381.43,
     "larryNetIncomeShare": -1445.22,
     "distributionMismatch": true,
+    "impliedOwnershipByQuarter": [
+      {
+        "date": "2026-Q1",
+        "impliedOwnershipPct": 0.54
+      },
+      {
+        "date": "2026-Q2",
+        "impliedOwnershipPct": 2.59
+      }
+    ],
+    "capitalRaiseMismatch": true,
     "months": [
       "2024-09",
       "2024-10",
