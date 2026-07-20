@@ -10,3 +10,10 @@ export async function extractPdfText(pdfPath, pageRange) {
   const { stdout } = await execFileAsync("pdftotext", args);
   return stdout;
 }
+
+export async function extractPagesFromPdf(pdfPath) {
+  const { stdout } = await execFileAsync("pdftotext", ["-layout", pdfPath, "-"]);
+  const pages = stdout.split("\f");
+  if (pages.length > 1 && pages[pages.length - 1].trim() === "") pages.pop();
+  return pages;
+}

@@ -49,6 +49,30 @@ test("second migration run over the same source detects duplicates already archi
   await rm(NEW_DIR, { recursive: true, force: true });
 });
 
+test("migrates a real multi-report bundled PDF, storing all 5 sections in the manifest", async () => {
+  const NEW_DIR = "scripts/__fixtures__/tmp-migrated-mcneil-bundle";
+  await rm(NEW_DIR, { recursive: true, force: true });
+  const results = await runMigration("scripts/__fixtures__/raw-mcneil-bundle", NEW_DIR, mcneilConfig);
+
+  const bundleResult = results.find((r) => r.oldPath.endsWith("balance-sheet.pdf"));
+  assert.equal(bundleResult.docType, "balance-sheet");
+  assert.equal(bundleResult.written, true);
+
+  const manifest = JSON.parse(
+    await readFile(path.join(NEW_DIR, bundleResult.batchKey, "manifest.json"), "utf8")
+  );
+  const entry = manifest.files.find((f) => f.fileName === "balance-sheet.pdf");
+  assert.deepEqual(entry.sections, [
+    { docType: "balance-sheet", pageRange: [1, 2] },
+    { docType: "trailing-pnl-detail", pageRange: [3, 9] },
+    { docType: "rentroll-pdf", pageRange: [10, 11] },
+    { docType: "aged-receivables", pageRange: [12, 12] },
+    { docType: "cashflow-detail", pageRange: [13, 13] },
+  ]);
+
+  await rm(NEW_DIR, { recursive: true, force: true });
+});
+
 test("falls back to harvest-fallback batchDateSource for the xlsx fixture (never contains a Printed date)", async () => {
   const NEW_DIR = "scripts/__fixtures__/tmp-migrated-mcneil-fallback";
   await rm(NEW_DIR, { recursive: true, force: true });
