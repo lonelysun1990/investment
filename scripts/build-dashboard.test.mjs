@@ -91,7 +91,7 @@ test("computeDerived calculates ownershipPct and larry share when capital data i
   await writeFile(legacyPath, JSON.stringify({ "2026-05": { netIncome: -9347.72 } }));
   await writeFile(mcneilPath, JSON.stringify({}));
   await writeFile(distributionsPath, JSON.stringify({
-    legacy: [{ date: "2026-06", amount: 1000 }],
+    legacy: [{ date: "2026-06", myDistribution: 1000, totalDistribution: 4000 }],
   }));
   await writeFile(capitalPath, JSON.stringify({
     legacy: { larryInvestment: 50000, totalRaise: 200000 },

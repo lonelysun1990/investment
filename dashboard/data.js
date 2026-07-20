@@ -26,7 +26,7 @@ export const LEGACY = {
     "capitalImprovements": 8491.57,
     "netIncome": -12705.66,
     "narrative": null,
-    "sourceFile": "data/raw/legacy/2026-05/report.pdf",
+    "sourceFile": "data/raw/legacy/2026-05/monthly-update.pdf",
     "extraction": {
       "method": "vision_llm",
       "confidence": "high"
@@ -45,7 +45,7 @@ export const LEGACY = {
       "Administration Expense": 692,
       "Marketing": 50.32,
       "Salaries & Wages": 2157.8,
-      "Contract Services": 0,
+      "Contract Services": 117.4,
       "Repair/Maintenance Expenses": 0,
       "Make Ready Expense": 0,
       "Utility Expenses": 8784.38,
@@ -58,7 +58,7 @@ export const LEGACY = {
     "capitalImprovements": 1753.71,
     "netIncome": -3696.91,
     "narrative": null,
-    "sourceFile": "data/raw/legacy/2026-05/report.pdf",
+    "sourceFile": "data/raw/legacy/2026-05/monthly-update.pdf",
     "extraction": {
       "method": "vision_llm",
       "confidence": "high"
@@ -77,20 +77,20 @@ export const LEGACY = {
       "Administration Expense": 610.35,
       "Marketing": 120,
       "Salaries & Wages": 3454.42,
-      "Contract Services": 117.4,
+      "Contract Services": 0,
       "Repair/Maintenance Expenses": 674.83,
-      "Make Ready Expense": 0,
+      "Make Ready Expense": 264.45,
       "Utility Expenses": 6906.57,
       "Management Fees": 671.6,
       "Fixed Expenses": 5326.66,
       "total": 18146.28
     },
-    "noi": 9309.48,
-    "debtService": 6097,
+    "noi": 9306.48,
+    "debtService": 6532.5,
     "capitalImprovements": 119.51,
     "netIncome": 3143.97,
     "narrative": null,
-    "sourceFile": "data/raw/legacy/2026-05/report.pdf",
+    "sourceFile": "data/raw/legacy/2026-05/monthly-update.pdf",
     "extraction": {
       "method": "vision_llm",
       "confidence": "high"
@@ -111,18 +111,18 @@ export const LEGACY = {
       "Salaries & Wages": 2363.28,
       "Contract Services": 0,
       "Repair/Maintenance Expenses": 149.24,
-      "Make Ready Expense": 264.45,
+      "Make Ready Expense": 0,
       "Utility Expenses": 4917.96,
       "Management Fees": 999.52,
       "Fixed Expenses": 5326.66,
       "total": 14275.1
     },
     "noi": 8721.76,
-    "debtService": 6750.25,
-    "capitalImprovements": 2349.94,
+    "debtService": 6730.25,
+    "capitalImprovements": 2349.09,
     "netIncome": -877.58,
     "narrative": null,
-    "sourceFile": "data/raw/legacy/2026-05/report.pdf",
+    "sourceFile": "data/raw/legacy/2026-05/monthly-update.pdf",
     "extraction": {
       "method": "vision_llm",
       "confidence": "high"
@@ -150,11 +150,11 @@ export const LEGACY = {
       "total": 14309.59
     },
     "noi": 2527.04,
-    "debtService": 6532.5,
-    "capitalImprovements": 2367.29,
-    "netIncome": -2806.75,
+    "debtService": 6750.25,
+    "capitalImprovements": 2967.26,
+    "netIncome": -9347.72,
     "narrative": "Operations Overview\n\n We ended May with occupancy at 74%.\n\n Our PM team is currently processing two evictions.\n\n 8 leases are up for renewal in the coming weeks, and all 8 want to stay, with a $50/mo. rent increase on their renewals.\n\n Leasing activity has increased in the recent weeks, with multiple showings and applications. Most leads continue to come through Facebook\n Marketplace.\n\n As of today, we are pre-leased to 90% occupancy.\n\n\n\n\nFinancial Overview\n\n\n Net Rental Income for May was $18,449. Total revenue for the month was $16,837, which netted to an NOI of $2,527.",
-    "sourceFile": "data/raw/legacy/2026-05/report.pdf",
+    "sourceFile": "data/raw/legacy/2026-05/monthly-update.pdf",
     "extraction": {
       "method": "vision_llm",
       "confidence": "high"
@@ -162,6 +162,90 @@ export const LEGACY = {
   }
 };
 export const MCNEIL = {
+  "2024-09": {
+    "income": {
+      "rental": 0,
+      "other": 0,
+      "total": 6646.25
+    },
+    "expense": {
+      "total": 3029.81
+    },
+    "noi": 3616.44,
+    "debtService": 0,
+    "capitalImprovements": 0,
+    "netIncome": 3616.44,
+    "month": "2024-09",
+    "distribution": 0,
+    "sourceFile": "data/raw/mcneil/2025-01/cashflow-t12.pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "low"
+    }
+  },
+  "2024-10": {
+    "income": {
+      "rental": 0,
+      "other": 0,
+      "total": 21771
+    },
+    "expense": {
+      "total": 10354.63
+    },
+    "noi": 11416.37,
+    "debtService": 0,
+    "capitalImprovements": 0,
+    "netIncome": -11374.71,
+    "month": "2024-10",
+    "distribution": 0,
+    "sourceFile": "data/raw/mcneil/2025-01/cashflow-t12.pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "low"
+    }
+  },
+  "2024-11": {
+    "income": {
+      "rental": 0,
+      "other": 0,
+      "total": 21128.87
+    },
+    "expense": {
+      "total": 12188.99
+    },
+    "noi": 8939.88,
+    "debtService": 0,
+    "capitalImprovements": 0,
+    "netIncome": -16364.47,
+    "month": "2024-11",
+    "distribution": 0,
+    "sourceFile": "data/raw/mcneil/2025-01/cashflow-t12.pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "low"
+    }
+  },
+  "2024-12": {
+    "income": {
+      "rental": 0,
+      "other": 0,
+      "total": 23843.75
+    },
+    "expense": {
+      "total": 17291.51
+    },
+    "noi": 6552.24,
+    "debtService": 0,
+    "capitalImprovements": 0,
+    "netIncome": -11270.67,
+    "month": "2024-12",
+    "distribution": 0,
+    "sourceFile": "data/raw/mcneil/2025-01/cashflow-t12.pdf",
+    "extraction": {
+      "method": "deterministic",
+      "confidence": "low"
+    }
+  },
   "2026-01": {
     "income": {
       "rental": 21769.68,
@@ -169,7 +253,7 @@ export const MCNEIL = {
       "total": 23524.53
     },
     "expense": {
-      "total": 20710.81,
+      "total": 13937.58,
       "Other Income - Fees": 738.22,
       "Other Income - Con": 150.19,
       "Other Income - Utili": 866.44,
@@ -194,7 +278,8 @@ export const MCNEIL = {
     "capitalImprovements": 8244.34,
     "netIncome": -6671.87,
     "month": "2026-01",
-    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
+    "distribution": 118999.45,
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow-t12.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -207,7 +292,7 @@ export const MCNEIL = {
       "total": 26270.74
     },
     "expense": {
-      "total": 14450.23,
+      "total": 11573.79,
       "Other Income - Fees": 362.5,
       "Other Income - Con": 165.43,
       "Other Income - Utili": 965.81,
@@ -232,7 +317,8 @@ export const MCNEIL = {
     "capitalImprovements": 8200.92,
     "netIncome": 1470.14,
     "month": "2026-02",
-    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
+    "distribution": 0,
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow-t12.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -245,7 +331,7 @@ export const MCNEIL = {
       "total": 27044.16
     },
     "expense": {
-      "total": 15816.46,
+      "total": 11218.18,
       "Other Income - Fees": 925.5,
       "Other Income - Con": 166,
       "Other Income - Utili": 1057.66,
@@ -270,7 +356,8 @@ export const MCNEIL = {
     "capitalImprovements": 7537.71,
     "netIncome": 3277.46,
     "month": "2026-03",
-    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
+    "distribution": 0,
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow-t12.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -283,7 +370,7 @@ export const MCNEIL = {
       "total": 19428.24
     },
     "expense": {
-      "total": 15381.38,
+      "total": 12418.24,
       "Other Income - Fees": -401.23,
       "Other Income - Con": 115.15,
       "Other Income - Utili": 735.32,
@@ -308,7 +395,8 @@ export const MCNEIL = {
     "capitalImprovements": 3299,
     "netIncome": -3476.17,
     "month": "2026-04",
-    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
+    "distribution": 24999.86,
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow-t12.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -321,7 +409,7 @@ export const MCNEIL = {
       "total": 24054.14
     },
     "expense": {
-      "total": 18736.15,
+      "total": 15982.64,
       "Other Income - Fees": 255.49,
       "Other Income - Con": 164,
       "Other Income - Utili": 886.65,
@@ -346,7 +434,8 @@ export const MCNEIL = {
     "capitalImprovements": 10113.5,
     "netIncome": -7202.81,
     "month": "2026-05",
-    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
+    "distribution": 0,
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow-t12.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -359,7 +448,7 @@ export const MCNEIL = {
       "total": 28319.66
     },
     "expense": {
-      "total": 20473.08,
+      "total": 14507.14,
       "Other Income - Fees": 1263.49,
       "Other Income - Con": 188,
       "Other Income - Utili": 960.17,
@@ -384,7 +473,8 @@ export const MCNEIL = {
     "capitalImprovements": 4161.71,
     "netIncome": 4640,
     "month": "2026-06",
-    "sourceFile": "data/raw/mcneil/2026-06/cashflow.pdf",
+    "distribution": 0,
+    "sourceFile": "data/raw/mcneil/2026-06/cashflow-t12.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
@@ -406,454 +496,6 @@ export const MCNEIL = {
       "avgActualRent": 983.89,
       "lossToLeaseTotal": 465
     }
-  },
-  "2025-01": {
-    "income": {
-      "rental": 23080,
-      "other": 777.87,
-      "total": 23857.87
-    },
-    "expense": {
-      "total": 9368.24,
-      "General and Administrative": 166.25,
-      "Advertising and marketing": 32.69,
-      "Employee Expense": 2306,
-      "Repair/Maint Expense": 112.33,
-      "Make Ready Expense": 0,
-      "Utility Expense": 1399.58,
-      "Fixed Expenses": 3957.86,
-      "Management Fees": 1393.53
-    },
-    "noi": 14027.53,
-    "debtService": 5010.81,
-    "capitalImprovements": 0,
-    "netIncome": 9016.72,
-    "month": "2025-01",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-02": {
-    "income": {
-      "rental": 23060,
-      "other": 699.62,
-      "total": 23759.62
-    },
-    "expense": {
-      "total": 11844.95,
-      "General and Administrative": 239.82,
-      "Advertising and marketing": 449.22,
-      "Employee Expense": 1405,
-      "Repair/Maint Expense": 2014.78,
-      "Make Ready Expense": 899.23,
-      "Utility Expense": 1803.78,
-      "Fixed Expenses": 3957.89,
-      "Management Fees": 1075.23
-    },
-    "noi": 11703.58,
-    "debtService": 5010.81,
-    "capitalImprovements": 13880,
-    "netIncome": -7187.23,
-    "month": "2025-02",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-03": {
-    "income": {
-      "rental": 24017.29,
-      "other": 770.04,
-      "total": 24787.33
-    },
-    "expense": {
-      "total": 18706.32,
-      "General and Administrative": 396.59,
-      "Advertising and marketing": 0,
-      "Employee Expense": 1365,
-      "Repair/Maint Expense": 2087.92,
-      "Make Ready Expense": 7540.31,
-      "Utility Expense": 2261.01,
-      "Fixed Expenses": 3957.89,
-      "Management Fees": 1097.6
-    },
-    "noi": 5817.93,
-    "debtService": 4525.89,
-    "capitalImprovements": 0,
-    "netIncome": 1292.04,
-    "month": "2025-03",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-04": {
-    "income": {
-      "rental": 25881.13,
-      "other": 2359.45,
-      "total": 28240.58
-    },
-    "expense": {
-      "total": 13334.91,
-      "General and Administrative": 595.74,
-      "Advertising and marketing": 0,
-      "Employee Expense": 1820,
-      "Repair/Maint Expense": 1546.29,
-      "Make Ready Expense": 2289.01,
-      "Utility Expense": 1997.85,
-      "Fixed Expenses": 3957.89,
-      "Management Fees": 1128.13
-    },
-    "noi": 14053.77,
-    "debtService": 5010.81,
-    "capitalImprovements": 0,
-    "netIncome": 9042.96,
-    "month": "2025-04",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-05": {
-    "income": {
-      "rental": 27330,
-      "other": 1287.68,
-      "total": 28617.68
-    },
-    "expense": {
-      "total": 15780.85,
-      "General and Administrative": 128.53,
-      "Advertising and marketing": 0,
-      "Employee Expense": 1285,
-      "Repair/Maint Expense": 1817.95,
-      "Make Ready Expense": 579,
-      "Utility Expense": 2335.44,
-      "Fixed Expenses": 8407.89,
-      "Management Fees": 1227.04
-    },
-    "noi": 12325.74,
-    "debtService": 4849.17,
-    "capitalImprovements": 3700,
-    "netIncome": 3776.57,
-    "month": "2025-05",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-06": {
-    "income": {
-      "rental": 27765,
-      "other": 1624.09,
-      "total": 29389.09
-    },
-    "expense": {
-      "total": 9041.76,
-      "General and Administrative": 341.06,
-      "Advertising and marketing": 0,
-      "Employee Expense": 1350,
-      "Repair/Maint Expense": 12.98,
-      "Make Ready Expense": 0,
-      "Utility Expense": 2156.06,
-      "Fixed Expenses": 3957.89,
-      "Management Fees": 1223.77
-    },
-    "noi": 19836.24,
-    "debtService": 5010.81,
-    "capitalImprovements": 3317.12,
-    "netIncome": 11508.31,
-    "month": "2025-06",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-07": {
-    "income": {
-      "rental": 28105,
-      "other": 2826.97,
-      "total": 30931.97
-    },
-    "expense": {
-      "total": 11276.15,
-      "General and Administrative": 393.68,
-      "Advertising and marketing": 61.44,
-      "Employee Expense": 1660,
-      "Repair/Maint Expense": 160.41,
-      "Make Ready Expense": 379.36,
-      "Utility Expense": 2388.56,
-      "Fixed Expenses": 5849.87,
-      "Management Fees": 382.83
-    },
-    "noi": 18894.73,
-    "debtService": 4849.17,
-    "capitalImprovements": 10029.31,
-    "netIncome": 4016.25,
-    "month": "2025-07",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-08": {
-    "income": {
-      "rental": 25940,
-      "other": 1205.39,
-      "total": 27145.39
-    },
-    "expense": {
-      "total": 12948.89,
-      "General and Administrative": 727.93,
-      "Advertising and marketing": 0,
-      "Employee Expense": 1945,
-      "Repair/Maint Expense": 1764.93,
-      "Make Ready Expense": 1530.14,
-      "Utility Expense": 1834.82,
-      "Fixed Expenses": 3957.89,
-      "Management Fees": 1188.18
-    },
-    "noi": 13685.41,
-    "debtService": 5010.81,
-    "capitalImprovements": 3151.14,
-    "netIncome": 5523.46,
-    "month": "2025-08",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-09": {
-    "income": {
-      "rental": 22660,
-      "other": 39,
-      "total": 22699
-    },
-    "expense": {
-      "total": 12455.25,
-      "General and Administrative": 1190.62,
-      "Advertising and marketing": 50,
-      "Employee Expense": 1925,
-      "Repair/Maint Expense": 87.57,
-      "Make Ready Expense": 1676.58,
-      "Utility Expense": 2304.63,
-      "Fixed Expenses": 4014.77,
-      "Management Fees": 1206.08
-    },
-    "noi": 9637.51,
-    "debtService": 5010.81,
-    "capitalImprovements": 2225,
-    "netIncome": 2401.7,
-    "month": "2025-09",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-10": {
-    "income": {
-      "rental": 22970.43,
-      "other": 1465.42,
-      "total": 24435.85
-    },
-    "expense": {
-      "total": 16709.59,
-      "General and Administrative": 469.33,
-      "Advertising and marketing": 1285.82,
-      "Employee Expense": 2055,
-      "Repair/Maint Expense": 2021.05,
-      "Make Ready Expense": 4412.1,
-      "Utility Expense": 1886.08,
-      "Fixed Expenses": 3358.84,
-      "Management Fees": 1221.37
-    },
-    "noi": 7050.17,
-    "debtService": 5515.84,
-    "capitalImprovements": 1990.99,
-    "netIncome": -456.66,
-    "month": "2025-10",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-11": {
-    "income": {
-      "rental": 23958.33,
-      "other": 2105.76,
-      "total": 26064.09
-    },
-    "expense": {
-      "total": 14222.34,
-      "General and Administrative": 143.73,
-      "Advertising and marketing": 0,
-      "Employee Expense": 2070,
-      "Repair/Maint Expense": 1260.83,
-      "Make Ready Expense": 4113.65,
-      "Utility Expense": 1790.81,
-      "Fixed Expenses": 3694.84,
-      "Management Fees": 1148.48
-    },
-    "noi": 10370.66,
-    "debtService": 5677.48,
-    "capitalImprovements": 8262.46,
-    "netIncome": -3569.28,
-    "month": "2025-11",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2025-12": {
-    "income": {
-      "rental": 23624.25,
-      "other": 1397.16,
-      "total": 25021.41
-    },
-    "expense": {
-      "total": 19965.22,
-      "General and Administrative": 425.93,
-      "Advertising and marketing": 0,
-      "Employee Expense": 2730,
-      "Repair/Maint Expense": 730.01,
-      "Make Ready Expense": 123.12,
-      "Utility Expense": 2165.66,
-      "Fixed Expenses": 12355.93,
-      "Management Fees": 1434.57
-    },
-    "noi": 4576.19,
-    "debtService": 5515.84,
-    "capitalImprovements": 585.91,
-    "netIncome": -1525.56,
-    "month": "2025-12",
-    "sourceFile": "deal_updates/KAZDI/951d26e1-...pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2024-09": {
-    "income": {
-      "rental": 6646.25,
-      "other": 0,
-      "total": 6646.25
-    },
-    "expense": {
-      "total": 3029.81,
-      "General and Administrative": 162.34,
-      "Advertising and marketing": 0,
-      "Employee Expense": 0,
-      "Repair/Maint Expense": 75.1,
-      "Make Ready Expense": 0,
-      "Utility Expense": 0,
-      "Fixed Expenses": 2792.37,
-      "Management Fees": 0
-    },
-    "noi": 3616.44,
-    "debtService": 0,
-    "capitalImprovements": 0,
-    "netIncome": 3616.44,
-    "month": "2024-09",
-    "sourceFile": "deal_updates/DXQ0D/T12.pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2024-10": {
-    "income": {
-      "rental": 21148,
-      "other": 623,
-      "total": 21771
-    },
-    "expense": {
-      "total": 9899.09,
-      "General and Administrative": 1577.14,
-      "Advertising and marketing": 898.35,
-      "Employee Expense": 2015,
-      "Repair/Maint Expense": 1053.19,
-      "Make Ready Expense": 472.12,
-      "Utility Expense": 464.81,
-      "Fixed Expenses": 2792.29,
-      "Management Fees": 626.19
-    },
-    "noi": 11416.37,
-    "debtService": 0,
-    "capitalImprovements": 22791.08,
-    "netIncome": -11374.71,
-    "month": "2024-10",
-    "sourceFile": "deal_updates/DXQ0D/T12.pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2024-11": {
-    "income": {
-      "rental": 20453.87,
-      "other": 675,
-      "total": 21128.87
-    },
-    "expense": {
-      "total": 11749.15,
-      "General and Administrative": 265.82,
-      "Advertising and marketing": 0,
-      "Employee Expense": 3180,
-      "Repair/Maint Expense": 446.79,
-      "Make Ready Expense": 1068.01,
-      "Utility Expense": 3370.05,
-      "Fixed Expenses": 2792.29,
-      "Management Fees": 626.19
-    },
-    "noi": 8939.88,
-    "debtService": 5010.81,
-    "capitalImprovements": 20293.54,
-    "netIncome": -16364.47,
-    "month": "2024-11",
-    "sourceFile": "deal_updates/DXQ0D/T12.pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
-  },
-  "2024-12": {
-    "income": {
-      "rental": 22419.04,
-      "other": 1424.71,
-      "total": 23843.75
-    },
-    "expense": {
-      "total": 17291.51,
-      "General and Administrative": 536.79,
-      "Advertising and marketing": 0,
-      "Employee Expense": 4890,
-      "Repair/Maint Expense": 797.22,
-      "Make Ready Expense": 948.35,
-      "Utility Expense": 6670.56,
-      "Fixed Expenses": 2792.29,
-      "Management Fees": 656.3
-    },
-    "noi": 6552.24,
-    "debtService": 4849.17,
-    "capitalImprovements": 12973.74,
-    "netIncome": -11270.67,
-    "month": "2024-12",
-    "sourceFile": "deal_updates/DXQ0D/T12.pdf",
-    "extraction": {
-      "method": "deterministic",
-      "confidence": "high"
-    }
   }
 };
 export const PROJECTIONS = {};
@@ -868,58 +510,68 @@ export const DISTRIBUTIONS = {
   "legacy": [
     {
       "date": "2026-Q2",
-      "amount": 365.21
+      "myDistribution": 365.21,
+      "totalDistribution": null
     }
   ],
   "mcneil": [
     {
       "date": "2024-Q4",
-      "amount": 518.51
+      "myDistribution": 518.51,
+      "totalDistribution": 0
     },
     {
       "date": "2025-Q1",
-      "amount": 570.37
+      "myDistribution": 570.37,
+      "totalDistribution": null
     },
     {
       "date": "2025-Q2",
-      "amount": 648.14
+      "myDistribution": 648.14,
+      "totalDistribution": null
     },
     {
       "date": "2025-Q3",
-      "amount": 699.99
+      "myDistribution": 699.99,
+      "totalDistribution": null
     },
     {
       "date": "2025-Q4",
-      "amount": 648.14
+      "myDistribution": 648.14,
+      "totalDistribution": null
     },
     {
       "date": "2026-Q1",
-      "amount": 648.14
+      "myDistribution": 648.14,
+      "totalDistribution": 118999.45
     },
     {
       "date": "2026-Q2",
-      "amount": 648.14
+      "myDistribution": 648.14,
+      "totalDistribution": 24999.86
     }
   ]
 };
 export const CAPITAL = {
   "legacy": {
-    "ownershipPct": 3.181818181818182,
-    "larryInvestment": 50000
+    "totalRaise": 1100000,
+    "larryInvestment": 50000,
+    "totalRaiseSource": "The Legacy Apartment Investor Summary.pdf, 'Total Capital Raise (rounded up)' -- an actual/current figure, not a projection"
   },
   "mcneil": {
-    "ownershipPct": 2.592592592592592,
-    "larryInvestment": 50000
+    "totalRaise": 1500000,
+    "larryInvestment": 50000,
+    "totalRaiseSource": "McNeil Star Apartment LLC - PPM.pdf, Sources of Funds table ('Equity from the proceeds of this Offering') -- the PPM itself states these figures are estimates subject to material change, not a confirmed final closing amount. NOTE: the 2026-Q2 distribution ($648.14 of $24,999.86 total) reconciles almost exactly at ~2.59% ownership, implying an actual final raise closer to ~$1,928,571 -- likely oversubscribed beyond this PPM's original target. Left at the PPM-sourced figure rather than substituting an implied number with no document to cite; worth confirming with the sponsor."
   }
 };
 export const DERIVED = {
   "legacy": {
-    "ownershipPct": 3.18,
+    "ownershipPct": 4.55,
     "larryInvestment": 50000,
-    "totalRaise": 1571429,
-    "totalPropertyDistributed": 11478.03,
+    "totalRaise": 1100000,
+    "totalPropertyDistributed": null,
     "larryDistributed": 365.21,
-    "larryNetIncomeShare": -539.09,
+    "larryNetIncomeShare": -1067.45,
     "distributionMismatch": true,
     "months": [
       "2026-01",
@@ -930,30 +582,18 @@ export const DERIVED = {
     ]
   },
   "mcneil": {
-    "ownershipPct": 2.59,
+    "ownershipPct": 3.33,
     "larryInvestment": 50000,
-    "totalRaise": 1928571,
-    "totalPropertyDistributed": 168998.01,
+    "totalRaise": 1500000,
+    "totalPropertyDistributed": 143999.31,
     "larryDistributed": 4381.43,
-    "larryNetIncomeShare": -246.75,
+    "larryNetIncomeShare": -1445.22,
     "distributionMismatch": true,
     "months": [
       "2024-09",
       "2024-10",
       "2024-11",
       "2024-12",
-      "2025-01",
-      "2025-02",
-      "2025-03",
-      "2025-04",
-      "2025-05",
-      "2025-06",
-      "2025-07",
-      "2025-08",
-      "2025-09",
-      "2025-10",
-      "2025-11",
-      "2025-12",
       "2026-01",
       "2026-02",
       "2026-03",

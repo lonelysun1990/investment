@@ -205,7 +205,7 @@ function renderDistributionChart(canvasId, records, distData, ownershipPct) {
   });
 
   const labels = distData.map((d) => d.date);
-  const yourDist = distData.map((d) => d.amount);
+  const yourDist = distData.map((d) => d.myDistribution);
   const yourNoiShare = distData.map((d) => {
     const qNoi = quarterlyNoi[d.date];
     return qNoi != null ? Math.round(qNoi * ownershipPct * 100) / 100 : null;
@@ -293,14 +293,13 @@ function investorCashFlowCard(dealSlug, records) {
   const distRows = distData.length === 0
     ? `<tr><td colspan="5">No distributions recorded yet.</td></tr>`
     : distData.map((d) => {
-        const totalProp = Math.round(d.amount / ownershipPct * 100) / 100;
         const qNoi = quarterlyNoi[d.date];
-        const distRatio = qNoi ? pct(Math.round(totalProp / qNoi * 1000) / 10) : "\u2014";
+        const distRatio = qNoi && d.totalDistribution != null ? pct(Math.round(d.totalDistribution / qNoi * 1000) / 10) : "\u2014";
         const yourNoiShare = qNoi ? Math.round(qNoi * ownershipPct * 100) / 100 : null;
         return `<tr>
           <td>${d.date}</td>
-          <td>${money(d.amount)}</td>
-          <td>${money(totalProp)}</td>
+          <td>${money(d.myDistribution)}</td>
+          <td>${money(d.totalDistribution)}</td>
           <td>${qNoi ? money(qNoi) : "\u2014"}</td>
           <td>${yourNoiShare ? money(yourNoiShare) : "\u2014"}</td>
           <td>${distRatio}</td>
@@ -323,7 +322,7 @@ function investorCashFlowCard(dealSlug, records) {
       <tr><th>Period</th><th>Your share</th><th>Total property</th><th>Quarterly NOI</th><th>Your NOI share</th><th>Dist / NOI %</th></tr>
       ${distRows}
     </table></div>
-    <p style="font-size:12px;color:var(--muted);margin-top:8px">Total property distribution = your share / ownership. Dist/NOI % = how much of quarterly NOI is distributed to investors. A 40–60% ratio is typical (rest goes to debt service, capex, and reserves).</p>
+    <p style="font-size:12px;color:var(--muted);margin-top:8px">Total property distribution is the sponsor-reported total for that period (shown as — when not yet available). Dist/NOI % = how much of quarterly NOI is distributed to investors. A 40–60% ratio is typical (rest goes to debt service, capex, and reserves).</p>
   </div>`;
 }
 
