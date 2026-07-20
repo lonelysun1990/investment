@@ -2,6 +2,7 @@ import { loadRecords, saveRecords } from "./lib/record-store.mjs";
 import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
+import { resolveArchiveRoot } from "./lib/archive-store.mjs";
 
 const MONTH_NAMES = {
   jan: "01", january: "01", feb: "02", february: "02", mar: "03", march: "03",
@@ -191,7 +192,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const config = JSON.parse(configRaw);
 
   for (const [slug, deal] of Object.entries(config.deals)) {
-    const result = await harvestDeal(page, deal.dealId, slug, `data/raw/${slug}`);
+    const result = await harvestDeal(page, deal.dealId, slug, path.join(resolveArchiveRoot(), slug));
     console.log(`${slug}: ${result.newMonths.length ? result.newMonths.join(", ") : "no new months"}`);
   }
   await browser.close();

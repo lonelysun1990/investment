@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile, rm } from "node:fs/promises";
-import { hashContent, archiveFile, findDuplicateHash, loadManifest } from "./archive-store.mjs";
+import { hashContent, archiveFile, findDuplicateHash, loadManifest, resolveArchiveRoot } from "./archive-store.mjs";
 
 const TMP_DIR = "scripts/__fixtures__/tmp-archive-store";
 
@@ -78,5 +78,39 @@ test("archiveFile with same fileName but different content replaces manifest ent
   // Verify file on disk contains version-2
   const written = await readFile(`${TMP_DIR}/2026-01/cashflow-t12.pdf`, "utf8");
   assert.equal(written, "version-2");
+  await rm(TMP_DIR, { recursive: true, force: true });
+});
+
+test("resolveArchiveRoot resolves to the same path regardless of the calling subdirectory's cwd", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const path = (await import("node:path")).default;
+  const fromRepoRoot = resolveArchiveRoot();
+  assert.ok(fromRepoRoot.endsWith(path.join("data", "raw")));
+
+  const script = `import { resolveArchiveRoot } from ${JSON.stringify(path.resolve("scripts/lib/archive-store.mjs"))}; console.log(resolveArchiveRoot());`;
+  const fromSubdir = execFileSync("node", ["--input-type=module", "-e", script], {
+    cwd: "scripts/lib",
+    encoding: "utf8",
+  }).trim();
+  assert.equal(fromSubdir, fromRepoRoot, "must resolve identically whether run from repo root or a subdirectory");
+});
+
+test("archiveFile records a real sections array in the manifest when provided via meta.sections", async () => {
+  await rm(TMP_DIR, { recursive: true, force: true });
+  const sections = [
+    { docType: "balance-sheet", pageRange: [1, 2] },
+    { docType: "trailing-pnl-detail", pageRange: [3, 9] },
+  ];
+  await archiveFile(TMP_DIR, "2025-10", "balance-sheet", "pdf", Buffer.from("bundle-content"), { sections });
+  const manifest = await loadManifest(`${TMP_DIR}/2025-10`);
+  assert.deepEqual(manifest.files[0].sections, sections);
+  await rm(TMP_DIR, { recursive: true, force: true });
+});
+
+test("archiveFile defaults sections to a single implicit section when meta.sections is omitted", async () => {
+  await rm(TMP_DIR, { recursive: true, force: true });
+  await archiveFile(TMP_DIR, "2026-01", "cashflow-t12", "pdf", Buffer.from("report-a"), {});
+  const manifest = await loadManifest(`${TMP_DIR}/2026-01`);
+  assert.deepEqual(manifest.files[0].sections, [{ docType: "cashflow-t12", pageRange: null }]);
   await rm(TMP_DIR, { recursive: true, force: true });
 });

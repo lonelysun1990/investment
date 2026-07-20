@@ -201,6 +201,7 @@ import path from "node:path";
 import { extractRentRoll } from "./extract-mcneil-rentroll.mjs";
 import { runGenericExtraction } from "./lib/run-extraction.mjs";
 import { distributionLabel } from "./deals/mcneil.config.mjs";
+import { resolveArchiveRoot } from "./lib/archive-store.mjs";
 
 export async function extractMcneilBatch(batchDir, manifest) {
   const pdfEntry = manifest.files.find((f) => f.docType === "cashflow-t12");
@@ -254,6 +255,6 @@ export async function runMcneilExtraction(rawDir, outputPath) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const result = await runMcneilExtraction("data/raw/mcneil", "data/mcneil.json");
+  const result = await runMcneilExtraction(path.join(resolveArchiveRoot(), "mcneil"), "data/mcneil.json");
   console.log(`Processed months: ${result.monthsProcessed.join(", ") || "(none)"}`);
 }
