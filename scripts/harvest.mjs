@@ -10,16 +10,15 @@ const MONTH_NAMES = {
   nov: "11", november: "11", dec: "12", december: "12",
 };
 
-export function parseDistributionText(text) {
+export function parseDistributionText(rowTexts) {
   const rows = [];
-  const lineRegex = /(Q[1-4][\s-]*\d{4}|\d{4}[\s-]*Q[1-4])\D{0,10}\$?([\d,]+\.\d{2})/g;
-  let match;
-  while ((match = lineRegex.exec(text))) {
-    const period = match[1].replace(/\s+/g, " ").trim();
-    const parts = period.match(/Q([1-4])[\s-]*(\d{4})|(\d{4})[\s-]*Q([1-4])/);
-    const quarter = parts[1] ?? parts[4];
-    const year = parts[2] ?? parts[3];
-    rows.push({ date: `${year}-Q${quarter}`, amount: parseFloat(match[2].replace(/,/g, "")) });
+  for (const rowText of rowTexts) {
+    const quarterMatch = rowText.match(/(\d{4})\s*Q([1-4])|Q([1-4])\s*(\d{4})/);
+    const amountMatch = rowText.match(/\$([\d,]+\.\d{2})/);
+    if (!quarterMatch || !amountMatch) continue;
+    const year = quarterMatch[1] ?? quarterMatch[4];
+    const q = quarterMatch[2] ?? quarterMatch[3];
+    rows.push({ date: `${year}-Q${q}`, amount: parseFloat(amountMatch[1].replace(/,/g, "")) });
   }
   return rows;
 }
@@ -136,14 +135,44 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir) {
 
 export async function scrapeDistributions(page, dealId) {
   await page.goto(`${PORTAL_BASE}/app/deals/${dealId}`, { waitUntil: "domcontentloaded", timeout: 60000 });
-  await page.waitForTimeout(2000);
-  const viewAll = page.locator("text=View all").first();
-  if (await viewAll.isVisible().catch(() => false)) {
-    await viewAll.click();
-    await page.waitForTimeout(1000);
+  await page.waitForTimeout(2500);
+
+  // "View all" appears in several sections (Images, Deal updates,
+  // Distributions, Documents, ...) in DOM order -- find the one specifically
+  // inside the Distributions section by walking up to its nearest heading,
+  // rather than blindly clicking the first match on the page.
+  const viewAllHandle = await page.evaluateHandle(() => {
+    const candidates = Array.from(document.querySelectorAll("*")).filter(
+      (el) => el.children.length === 0 && /View all/.test(el.textContent || "")
+    );
+    for (const el of candidates) {
+      let node = el;
+      for (let hop = 0; hop < 8 && node; hop++) {
+        node = node.parentElement;
+        if (!node) break;
+        const heading = node.querySelector("h1,h2,h3,h4,[class*=title],[class*=heading]");
+        if (heading && heading.textContent.trim().startsWith("Distributions")) return el;
+      }
+    }
+    return null;
+  });
+  const viewAllEl = viewAllHandle.asElement();
+  if (viewAllEl) {
+    await viewAllEl.click();
+    await page.waitForTimeout(1500);
   }
-  const text = await page.evaluate(() => document.body.innerText);
-  return parseDistributionText(text);
+
+  const rowTexts = await page.evaluate(() => {
+    const tables = Array.from(document.querySelectorAll("table"));
+    for (const table of tables) {
+      if (/Distribution recorded date/.test(table.innerText) || /Memo/.test(table.innerText)) {
+        return Array.from(table.querySelectorAll("tbody tr")).map((tr) => tr.innerText);
+      }
+    }
+    return [];
+  });
+
+  return parseDistributionText(rowTexts);
 }
 
 export async function scrapeOwnershipPct(page, dealId) {
