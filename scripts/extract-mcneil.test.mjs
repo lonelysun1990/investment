@@ -5,6 +5,7 @@ import { extractMcneilPnl, extractMcneilDistributions, extractMcneilBatch, runMc
 
 const FIXTURE = "scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf";
 const ANNUAL_FIXTURE = "scripts/__fixtures__/mcneil/2024-annual-cashflow-statement.pdf";
+const TRAILING_PNL_FIXTURE = "scripts/__fixtures__/mcneil/2025-trailing-pnl-detail.pdf";
 
 test("returns one entry per real month column, excluding the Total column", async () => {
   const result = await extractMcneilPnl(FIXTURE);
@@ -205,4 +206,52 @@ test("runMcneilExtraction folds batches so an earlier batch's occupancy survives
 
   await rm(TMP_RAW, { recursive: true, force: true });
   await rm(outputPath, { force: true });
+});
+
+test("parses the Trailing Profit And Loss Detail header into 12 real months (Oct 2024-Sep 2025)", async () => {
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  assert.equal(result.size, 12);
+  assert.deepEqual([...result.keys()], [
+    "2024-10", "2024-11", "2024-12", "2025-01", "2025-02", "2025-03",
+    "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09",
+  ]);
+});
+
+test("extracts the rental/other income breakdown from account-code-prefixed subtotal rows", async () => {
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  const oct = result.get("2024-10");
+  assert.equal(oct.income.rental, 21148.00);
+  assert.equal(oct.income.other, 623.00);
+  assert.equal(oct.income.total, 21771.00);
+});
+
+test("matches existing verified net income figures for Oct-Dec 2024 (cross-check against the older aggregate-only report)", async () => {
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  assert.equal(result.get("2024-10").netIncome, -11374.71);
+  assert.equal(result.get("2024-11").netIncome, -16364.47);
+  assert.equal(result.get("2024-12").netIncome, -11270.67);
+});
+
+test("extracts the final month (Sep 2025) correctly, including income/expense internal consistency", async () => {
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  const sep = result.get("2025-09");
+  assert.equal(sep.income.rental, 22660.00);
+  assert.equal(sep.income.other, 39.00);
+  assert.equal(sep.income.total, 22699.00);
+  assert.equal(sep.expense.total, 15282.80);
+  assert.equal(sep.noi, 7416.20);
+  assert.equal(sep.netIncome, 180.39);
+});
+
+test("flags the Trailing P&L Detail report as aggregate-only, same as the older annual report", async () => {
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  for (const month of result.keys()) {
+    assert.equal(result.get(month).expenseIsAggregateOnly, true, `${month} should be flagged aggregate-only`);
+  }
+});
+
+test("extractMcneilPnl accepts an optional pageRange and extracts only that range from a larger file", async () => {
+  const result = await extractMcneilPnl("scripts/__fixtures__/mcneil/2025-10-balance-sheet-bundle.pdf", [3, 9]);
+  assert.equal(result.size, 12);
+  assert.equal(result.get("2024-10").netIncome, -11374.71);
 });
