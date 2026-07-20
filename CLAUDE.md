@@ -74,6 +74,11 @@ Every new feature or fix, regardless of size, follows the same protocol:
    + code quality) after each, broad whole-branch review at the end.
 4. **Finish the branch deliberately** (`superpowers:finishing-a-
    development-branch`) rather than leaving worktrees or branches dangling.
+5. **Always squash and merge.** When a feature/fix PR is ready to land on
+   `main`, use squash-and-merge (`gh pr merge --squash`), never a plain
+   merge commit and never rebase-merge. `main`'s history stays one commit
+   per feature; the full task-by-task commit history (implementer +
+   reviewer cycles) remains visible in the merged PR itself on GitHub.
 
 This applies to every feature in this repo, not just the one that prompted
 writing it down.
