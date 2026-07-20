@@ -46,12 +46,17 @@ visualizes them as an interactive dashboard.
 `data/capital.json`'s `totalRaise` field is the one figure that is
 **not** produced by `npm run refresh`. It is captured once per deal,
 manually, from that deal's offering document (the PPM / Investor
-Summary) using `extractTotalRaise` from `scripts/lib/offering-doc.mjs`.
+Summary, or for McNeil specifically, the Investment Deck's ACQUSITION
+SUMMARY table) using `extractTotalRaise` from `scripts/lib/offering-doc.mjs`.
 A deal's total capital raise does not change over time, so it is
 recorded once and left in place — the refresh never re-scrapes it. To
 re-capture it (e.g. after obtaining a corrected offering document), run
 `extractTotalRaise(pdfPath, labelPattern)` against the PDF and update
-`totalRaise` (and its `totalRaiseSource` note) by hand.
+`totalRaise` (and its `totalRaiseSource` note) by hand. Static
+one-time documents like the Investment Deck are archived via
+`harvestStaticDocument` (in `scripts/harvest.mjs`), not the per-month
+`harvestDeal` flow — they don't change monthly, so they aren't
+re-downloaded on every refresh.
 
 ## Running tests
 
