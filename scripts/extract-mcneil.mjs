@@ -31,14 +31,33 @@ function splitRow(line) {
 }
 
 export function parseMonthHeader(text) {
-  const headerLine = text.split("\n").find((l) => /^Account\s+\w{3} \d{4}/.test(l.trim()));
-  if (!headerLine) throw new Error("extract-mcneil: could not find table header row");
-  const monthLabels = headerLine
-    .replace(/^Account/, "")
-    .trim()
-    .split(/\s{2,}/)
-    .filter(Boolean);
-  return monthLabels.slice(0, -1).map(toMonthKey);
+  const lines = text.split("\n");
+
+  // Usual layout: "Account   Jul 2025   Aug 2025   ...   Total" on one line.
+  const inlineHeaderLine = lines.find((l) => /^Account\s+\w{3} \d{4}/.test(l.trim()));
+  if (inlineHeaderLine) {
+    const monthLabels = inlineHeaderLine
+      .replace(/^Account/, "")
+      .trim()
+      .split(/\s{2,}/)
+      .filter(Boolean);
+    return monthLabels.slice(0, -1).map(toMonthKey);
+  }
+
+  // Older report layout: a lone "Account" line, with the month/year labels
+  // on the line immediately before it instead of sharing the same line.
+  const accountLineIndex = lines.findIndex((l) => l.trim() === "Account");
+  if (accountLineIndex > 0) {
+    const monthLabels = lines[accountLineIndex - 1]
+      .trim()
+      .split(/\s{2,}/)
+      .filter(Boolean);
+    if (monthLabels.length > 1 && /^\w{3} \d{4}$/.test(monthLabels[0])) {
+      return monthLabels.slice(0, -1).map(toMonthKey);
+    }
+  }
+
+  throw new Error("extract-mcneil: could not find table header row");
 }
 
 export async function extractMcneilPnl(pdfPath) {
@@ -61,7 +80,17 @@ export async function extractMcneilPnl(pdfPath) {
   let reachedNetIncome = false;
   for (const rawLine of lines) {
     if (reachedNetIncome) break;
-    const row = splitRow(rawLine);
+    let row;
+    try {
+      row = splitRow(rawLine);
+    } catch {
+      // A bare category-header row (no values, just an account code + label,
+      // e.g. "4001.000 Net Rental Income") can coincidentally look like a
+      // money token when its leading indentation collapses against the
+      // "X.XXX" account code. Skip it — a real data row always has real
+      // trailing values that survive splitRow.
+      continue;
+    }
     if (!row) continue;
     const perMonth = row.values.slice(0, monthKeys.length);
     if (perMonth.length !== monthKeys.length) continue;

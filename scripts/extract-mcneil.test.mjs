@@ -1,9 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile, rm } from "node:fs/promises";
-import { extractMcneilPnl, extractMcneilDistributions, extractMcneilBatch, runMcneilExtraction } from "./extract-mcneil.mjs";
+import { extractMcneilPnl, extractMcneilDistributions, extractMcneilBatch, runMcneilExtraction, parseMonthHeader } from "./extract-mcneil.mjs";
 
 const FIXTURE = "scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf";
+const ANNUAL_FIXTURE = "scripts/__fixtures__/mcneil/2024-annual-cashflow-statement.pdf";
 
 test("returns one entry per real month column, excluding the Total column", async () => {
   const result = await extractMcneilPnl(FIXTURE);
@@ -75,6 +76,32 @@ test("extractMcneilDistributions does not double-count the 'Total Member's Distr
   const result = await extractMcneilDistributions(FIXTURE, /Member's Distribution/i);
   // If the truncated "Total Member's Distributi" row were matched too, Jan 2026 would double to 237,998.90
   assert.equal(result.get("2026-01"), 118999.45);
+});
+
+test("parseMonthHeader handles the older report layout where 'Account' is alone on its own line", async () => {
+  const { readFile: rf } = await import("node:fs/promises");
+  const { execFile } = await import("node:child_process");
+  const { promisify } = await import("node:util");
+  const exec = promisify(execFile);
+  const { stdout } = await exec("pdftotext", ["-layout", ANNUAL_FIXTURE, "-"]);
+  const monthKeys = parseMonthHeader(stdout);
+  assert.deepEqual(monthKeys, [
+    "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06",
+    "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12",
+  ]);
+});
+
+test("extractMcneilPnl parses the older report layout's real 2024 figures", async () => {
+  const result = await extractMcneilPnl(ANNUAL_FIXTURE);
+  // Property had no rental activity before Sep 2024 (pre-operation), so only
+  // Sep-Dec 2024 should survive the all-zero-month filter.
+  assert.deepEqual([...result.keys()].sort(), ["2024-09", "2024-10", "2024-11", "2024-12"]);
+  const sep = result.get("2024-09");
+  assert.equal(sep.noi, 3616.44);
+  assert.equal(sep.netIncome, 3616.44);
+  const dec = result.get("2024-12");
+  assert.equal(dec.noi, 6552.24);
+  assert.equal(dec.netIncome, -11270.67);
 });
 
 test("extractMcneilBatch attaches occupancy only to the month the rent roll's as-of date falls in", async () => {
