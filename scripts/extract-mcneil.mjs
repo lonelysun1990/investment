@@ -199,53 +199,73 @@ export async function extractMcneilDistributions(pdfPath, labelPattern, pageRang
 
 import path from "node:path";
 import { extractRentRoll } from "./extract-mcneil-rentroll.mjs";
+import { extractRentRollPdf } from "./extract-mcneil-rentroll-pdf.mjs";
 import { runGenericExtraction } from "./lib/run-extraction.mjs";
 import { distributionLabel } from "./deals/mcneil.config.mjs";
 import { resolveArchiveRoot } from "./lib/archive-store.mjs";
 
-export async function extractMcneilBatch(batchDir, manifest) {
-  const pdfEntry = manifest.files.find((f) => f.docType === "cashflow-t12");
-  const months = new Map();
-  if (!pdfEntry) {
-    const rentrollOnlyEntry = manifest.files.find((f) => f.docType === "rentroll");
-    if (!rentrollOnlyEntry) return months;
+function findSections(manifest, docTypes) {
+  const results = [];
+  for (const file of manifest.files) {
+    const sections = file.sections ?? [{ docType: file.docType, pageRange: null }];
+    for (const section of sections) {
+      if (docTypes.includes(section.docType)) {
+        results.push({ fileName: file.fileName, pageRange: section.pageRange, docType: section.docType });
+      }
+    }
+  }
+  return results;
+}
 
-    const rentRollOnly = await extractRentRoll(path.join(batchDir, rentrollOnlyEntry.fileName));
-    if (rentRollOnly.asOfDate) {
-      const month = rentRollOnly.asOfDate.slice(0, 7);
-      months.set(month, {
-        month,
-        occupancyPct: rentRollOnly.occupancyPct,
-        rentRoll: rentRollOnly,
-      });
+export async function extractMcneilBatch(batchDir, manifest) {
+  const months = new Map();
+
+  const rentRolls = [];
+  for (const { fileName } of findSections(manifest, ["rentroll"])) {
+    rentRolls.push(await extractRentRoll(path.join(batchDir, fileName)));
+  }
+  for (const { fileName, pageRange } of findSections(manifest, ["rentroll-pdf"])) {
+    rentRolls.push(await extractRentRollPdf(path.join(batchDir, fileName), pageRange));
+  }
+
+  const pnlSections = findSections(manifest, ["cashflow-t12", "trailing-pnl-detail"]);
+
+  if (pnlSections.length === 0) {
+    for (const rentRoll of rentRolls) {
+      if (!rentRoll.asOfDate) continue;
+      const month = rentRoll.asOfDate.slice(0, 7);
+      months.set(month, { month, occupancyPct: rentRoll.occupancyPct, rentRoll });
     }
     return months;
   }
 
-  const pdfPath = path.join(batchDir, pdfEntry.fileName);
-  const pnlByMonth = await extractMcneilPnl(pdfPath);
-  const distributionByMonth = await extractMcneilDistributions(pdfPath, distributionLabel);
+  for (const { fileName, pageRange, docType } of pnlSections) {
+    const pdfPath = path.join(batchDir, fileName);
+    const pnlByMonth = await extractMcneilPnl(pdfPath, pageRange);
+    const distributionByMonth =
+      docType === "cashflow-t12"
+        ? await extractMcneilDistributions(pdfPath, distributionLabel, pageRange)
+        : new Map();
 
-  const rentrollEntry = manifest.files.find((f) => f.docType === "rentroll");
-  const rentRoll = rentrollEntry ? await extractRentRoll(path.join(batchDir, rentrollEntry.fileName)) : null;
-
-  for (const [month, pnl] of pnlByMonth) {
-    const { expenseIsAggregateOnly, ...pnlFields } = pnl;
-    const record = {
-      ...pnlFields,
-      month,
-      distribution: distributionByMonth.get(month) ?? 0,
-      sourceFile: pdfPath,
-      extraction: {
-        method: "deterministic",
-        confidence: expenseIsAggregateOnly ? "low" : "high",
-      },
-    };
-    if (rentRoll && rentRoll.asOfDate?.startsWith(month)) {
-      record.occupancyPct = rentRoll.occupancyPct;
-      record.rentRoll = rentRoll;
+    for (const [month, pnl] of pnlByMonth) {
+      const { expenseIsAggregateOnly, ...pnlFields } = pnl;
+      const record = {
+        ...pnlFields,
+        month,
+        distribution: distributionByMonth.get(month) ?? 0,
+        sourceFile: pdfPath,
+        extraction: {
+          method: "deterministic",
+          confidence: expenseIsAggregateOnly ? "low" : "high",
+        },
+      };
+      const matchingRentRoll = rentRolls.find((r) => r.asOfDate?.startsWith(month));
+      if (matchingRentRoll) {
+        record.occupancyPct = matchingRentRoll.occupancyPct;
+        record.rentRoll = matchingRentRoll;
+      }
+      months.set(month, record);
     }
-    months.set(month, record);
   }
   return months;
 }

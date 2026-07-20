@@ -255,3 +255,48 @@ test("extractMcneilPnl accepts an optional pageRange and extracts only that rang
   assert.equal(result.size, 12);
   assert.equal(result.get("2024-10").netIncome, -11374.71);
 });
+
+test("extractMcneilBatch extracts P&L, occupancy, and zero distribution from a real bundled multi-report PDF", async () => {
+  const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-bundle-batch";
+  await rm(TMP_RAW, { recursive: true, force: true });
+
+  const { mkdir, copyFile } = await import("node:fs/promises");
+  const { saveManifest, loadManifest } = await import("./lib/archive-store.mjs");
+
+  await mkdir(`${TMP_RAW}/2025-10`, { recursive: true });
+  await copyFile(
+    "scripts/__fixtures__/mcneil/2025-10-balance-sheet-bundle.pdf",
+    `${TMP_RAW}/2025-10/balance-sheet.pdf`
+  );
+  await saveManifest(`${TMP_RAW}/2025-10`, {
+    files: [
+      {
+        docType: "balance-sheet",
+        fileName: "balance-sheet.pdf",
+        contentHash: "bundle-hash",
+        sections: [
+          { docType: "balance-sheet", pageRange: [1, 2] },
+          { docType: "trailing-pnl-detail", pageRange: [3, 9] },
+          { docType: "rentroll-pdf", pageRange: [10, 11] },
+          { docType: "aged-receivables", pageRange: [12, 12] },
+          { docType: "cashflow-detail", pageRange: [13, 13] },
+        ],
+      },
+    ],
+  });
+
+  const manifest = await loadManifest(`${TMP_RAW}/2025-10`);
+  const months = await extractMcneilBatch(`${TMP_RAW}/2025-10`, manifest);
+
+  assert.equal(months.size, 12);
+  const oct2024 = months.get("2024-10");
+  assert.equal(oct2024.income.rental, 21148);
+  assert.equal(oct2024.income.other, 623);
+  assert.equal(oct2024.netIncome, -11374.71);
+  assert.equal(oct2024.distribution, 0, "trailing-pnl-detail sections never carry a distribution row");
+
+  const sep2025 = months.get("2025-09");
+  assert.equal(sep2025.occupancyPct, 90.6, "the batch's own rentroll-pdf section (9/30/2025) should attach to Sep 2025");
+
+  await rm(TMP_RAW, { recursive: true, force: true });
+});
