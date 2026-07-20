@@ -41,3 +41,13 @@ test("scans subdirectories recursively", async () => {
   assert.equal(violations.length, 1);
   await rm(TMP_DIR, { recursive: true, force: true });
 });
+
+test("detects violations in non-audit test files", async () => {
+  await rm(TMP_DIR, { recursive: true, force: true });
+  await mkdir(TMP_DIR, { recursive: true });
+  await writeFile(`${TMP_DIR}/fake.test.mjs`, 'fetch("https://api.cashflowportal.com/v1/deals/1");\n');
+  const violations = await findViolations(TMP_DIR);
+  assert.equal(violations.length, 1);
+  assert.equal(violations[0].file, `${TMP_DIR}/fake.test.mjs`);
+  await rm(TMP_DIR, { recursive: true, force: true });
+});

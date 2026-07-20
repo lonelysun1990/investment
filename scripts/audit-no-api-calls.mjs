@@ -13,7 +13,7 @@ export async function findViolations(dirPath) {
       continue;
     }
     if (!entry.name.endsWith(".mjs") && !entry.name.endsWith(".js")) continue;
-    if (entry.name.endsWith(".test.mjs")) continue;
+    if (entry.name === "audit-no-api-calls.test.mjs") continue;
     if (entry.name === "audit-no-api-calls.mjs") continue;
     const content = await readFile(fullPath, "utf8");
     const lines = content.split("\n");
