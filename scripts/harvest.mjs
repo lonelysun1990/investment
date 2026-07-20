@@ -58,8 +58,11 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir) {
   });
   // "visible" (the default) can time out even once rows exist: this table's
   // rows keep re-rendering as more lazy-load in, and Playwright's visibility
-  // stability check never settles. "attached" only needs the row to exist.
+  // stability check never settles. "attached" only needs the row to exist,
+  // but the table renders "Loading..." placeholder rows first — wait past
+  // those for the real content to arrive.
   await page.waitForSelector("tbody tr", { timeout: 20000, state: "attached" });
+  await page.waitForTimeout(3000);
 
   const rows = await page.$$eval("tbody tr", (trs) =>
     trs.map((tr) => tr.innerText.split("\n")[0] + "|||" + tr.innerText)
