@@ -6,7 +6,7 @@
       "total": 6646.25
     },
     "expense": {
-      "total": 0
+      "total": 3029.81
     },
     "noi": 3616.44,
     "debtService": 0,
@@ -17,7 +17,7 @@
     "sourceFile": "data/raw/mcneil/2025-01/cashflow-t12.pdf",
     "extraction": {
       "method": "deterministic",
-      "confidence": "high"
+      "confidence": "low"
     }
   },
   "2024-10": {
@@ -27,7 +27,7 @@
       "total": 21771
     },
     "expense": {
-      "total": 0
+      "total": 10354.63
     },
     "noi": 11416.37,
     "debtService": 0,
@@ -38,7 +38,7 @@
     "sourceFile": "data/raw/mcneil/2025-01/cashflow-t12.pdf",
     "extraction": {
       "method": "deterministic",
-      "confidence": "high"
+      "confidence": "low"
     }
   },
   "2024-11": {
@@ -48,7 +48,7 @@
       "total": 21128.87
     },
     "expense": {
-      "total": 0
+      "total": 12188.99
     },
     "noi": 8939.88,
     "debtService": 0,
@@ -59,7 +59,7 @@
     "sourceFile": "data/raw/mcneil/2025-01/cashflow-t12.pdf",
     "extraction": {
       "method": "deterministic",
-      "confidence": "high"
+      "confidence": "low"
     }
   },
   "2024-12": {
@@ -69,7 +69,7 @@
       "total": 23843.75
     },
     "expense": {
-      "total": 0
+      "total": 17291.51
     },
     "noi": 6552.24,
     "debtService": 0,
@@ -80,7 +80,7 @@
     "sourceFile": "data/raw/mcneil/2025-01/cashflow-t12.pdf",
     "extraction": {
       "method": "deterministic",
-      "confidence": "high"
+      "confidence": "low"
     }
   },
   "2026-01": {
@@ -90,7 +90,7 @@
       "total": 23524.53
     },
     "expense": {
-      "total": 20710.81,
+      "total": 13937.58,
       "Other Income - Fees": 738.22,
       "Other Income - Con": 150.19,
       "Other Income - Utili": 866.44,
@@ -129,7 +129,7 @@
       "total": 26270.74
     },
     "expense": {
-      "total": 14450.23,
+      "total": 11573.79,
       "Other Income - Fees": 362.5,
       "Other Income - Con": 165.43,
       "Other Income - Utili": 965.81,
@@ -168,7 +168,7 @@
       "total": 27044.16
     },
     "expense": {
-      "total": 15816.46,
+      "total": 11218.18,
       "Other Income - Fees": 925.5,
       "Other Income - Con": 166,
       "Other Income - Utili": 1057.66,
@@ -207,7 +207,7 @@
       "total": 19428.24
     },
     "expense": {
-      "total": 15381.38,
+      "total": 12418.24,
       "Other Income - Fees": -401.23,
       "Other Income - Con": 115.15,
       "Other Income - Utili": 735.32,
@@ -246,7 +246,7 @@
       "total": 24054.14
     },
     "expense": {
-      "total": 18736.15,
+      "total": 15982.64,
       "Other Income - Fees": 255.49,
       "Other Income - Con": 164,
       "Other Income - Utili": 886.65,
@@ -285,7 +285,7 @@
       "total": 28319.66
     },
     "expense": {
-      "total": 20473.08,
+      "total": 14507.14,
       "Other Income - Fees": 1263.49,
       "Other Income - Con": 188,
       "Other Income - Utili": 960.17,

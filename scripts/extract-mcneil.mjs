@@ -77,6 +77,17 @@ export async function extractMcneilPnl(pdfPath) {
     });
   }
 
+  // Older annual reports only give one aggregate "TOTAL EXPENSE" figure
+  // with no itemized categories underneath, and roll debt service +
+  // capital improvements into a single "TOTAL NON-OPERATING EXPENSE" line
+  // instead of reporting them separately. Track which months hit these
+  // aggregate-only lines so their expense.total isn't clobbered by the
+  // itemized-category recompute below, and so callers can mark those
+  // months' breakdown as lower-confidence rather than silently showing
+  // zeros for debtService/capitalImprovements.
+  const aggregateExpenseMonths = new Set();
+  const aggregateOnlyMonths = new Set();
+
   let reachedNetIncome = false;
   for (const rawLine of lines) {
     if (reachedNetIncome) break;
@@ -106,6 +117,11 @@ export async function extractMcneilPnl(pdfPath) {
       else if (row.label === "Total Capital Improvements") rec.capitalImprovements = value;
       else if (row.label === "NET INCOME") {
         rec.netIncome = value;
+      } else if (row.label === "TOTAL EXPENSE") {
+        rec.expense.total = value;
+        aggregateExpenseMonths.add(key);
+      } else if (row.label === "TOTAL NON-OPERATING EXPENSE") {
+        aggregateOnlyMonths.add(key);
       } else if (/^Total /.test(row.label)) {
         rec.expense[row.label.replace(/^Total /, "")] = value;
       }
@@ -114,11 +130,16 @@ export async function extractMcneilPnl(pdfPath) {
     if (row.label === "NET INCOME") reachedNetIncome = true;
   }
 
-  for (const [, rec] of months) {
+  for (const [key, rec] of months) {
+    if (aggregateExpenseMonths.has(key)) continue;
     const expenseTotal = Object.entries(rec.expense)
       .filter(([k]) => k !== "total")
       .reduce((sum, [, v]) => sum + v, 0);
     rec.expense.total = Math.round(expenseTotal * 100) / 100;
+  }
+
+  for (const [key, rec] of months) {
+    if (aggregateOnlyMonths.has(key)) rec.expenseIsAggregateOnly = true;
   }
 
   for (const [key, rec] of months) {
@@ -195,12 +216,16 @@ export async function extractMcneilBatch(batchDir, manifest) {
   const rentRoll = rentrollEntry ? await extractRentRoll(path.join(batchDir, rentrollEntry.fileName)) : null;
 
   for (const [month, pnl] of pnlByMonth) {
+    const { expenseIsAggregateOnly, ...pnlFields } = pnl;
     const record = {
-      ...pnl,
+      ...pnlFields,
       month,
       distribution: distributionByMonth.get(month) ?? 0,
       sourceFile: pdfPath,
-      extraction: { method: "deterministic", confidence: "high" },
+      extraction: {
+        method: "deterministic",
+        confidence: expenseIsAggregateOnly ? "low" : "high",
+      },
     };
     if (rentRoll && rentRoll.asOfDate?.startsWith(month)) {
       record.occupancyPct = rentRoll.occupancyPct;

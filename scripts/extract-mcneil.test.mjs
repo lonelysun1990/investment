@@ -104,6 +104,43 @@ test("extractMcneilPnl parses the older report layout's real 2024 figures", asyn
   assert.equal(dec.netIncome, -11270.67);
 });
 
+test("extractMcneilPnl captures the aggregate TOTAL EXPENSE line for the older report layout instead of leaving it at zero", async () => {
+  const result = await extractMcneilPnl(ANNUAL_FIXTURE);
+  const oct = result.get("2024-10");
+  assert.equal(oct.expense.total, 10354.63);
+  const dec = result.get("2024-12");
+  assert.equal(dec.expense.total, 17291.51);
+});
+
+test("extractMcneilPnl flags every month in the report as aggregate-only once the TOTAL NON-OPERATING EXPENSE row appears", async () => {
+  const result = await extractMcneilPnl(ANNUAL_FIXTURE);
+  // The row spans all 12 columns in one line, so the whole report's format
+  // is aggregate-only -- not just the months with a nonzero value on it.
+  for (const month of result.keys()) {
+    assert.equal(result.get(month).expenseIsAggregateOnly, true, `${month} should be flagged aggregate-only`);
+  }
+});
+
+test("extractMcneilBatch marks aggregate-only months as low confidence and strips the internal marker", async () => {
+  const { mkdir, copyFile } = await import("node:fs/promises");
+  const { saveManifest, loadManifest } = await import("./lib/archive-store.mjs");
+  const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-aggregate-only";
+  await rm(TMP_RAW, { recursive: true, force: true });
+  await mkdir(`${TMP_RAW}/2025-01`, { recursive: true });
+  await copyFile(ANNUAL_FIXTURE, `${TMP_RAW}/2025-01/cashflow-t12.pdf`);
+  await saveManifest(`${TMP_RAW}/2025-01`, {
+    files: [{ docType: "cashflow-t12", fileName: "cashflow-t12.pdf", contentHash: "e" }],
+  });
+
+  const manifest = await loadManifest(`${TMP_RAW}/2025-01`);
+  const months = await extractMcneilBatch(`${TMP_RAW}/2025-01`, manifest);
+  const oct = months.get("2024-10");
+  assert.equal(oct.extraction.confidence, "low");
+  assert.equal("expenseIsAggregateOnly" in oct, false, "internal marker must not leak into the persisted record");
+
+  await rm(TMP_RAW, { recursive: true, force: true });
+});
+
 test("extractMcneilBatch attaches occupancy only to the month the rent roll's as-of date falls in", async () => {
   const { loadManifest } = await import("./lib/archive-store.mjs");
   const manifest = await loadManifest("scripts/__fixtures__/raw-mcneil/2026-06");
