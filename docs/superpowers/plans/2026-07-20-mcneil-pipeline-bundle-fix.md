@@ -1227,10 +1227,11 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
         if (docType === "unknown") {
           console.warn(`harvestDeal: could not classify "${name}" (${dealSlug} ${month}) -- archived as unknown`);
         }
-        const { batchKey } = resolveBatchDate({ text, harvestedAt: new Date().toISOString() });
+        const { batchKey, source } = resolveBatchDate({ text, harvestedAt: new Date().toISOString() });
         await archiveFile(rawDir, batchKey, docType, ext, buffer, {
           sourceEmailSubject: subject,
           sections,
+          batchDateSource: source,
         });
         downloaded.push(name);
       } catch (err) {
