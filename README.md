@@ -35,9 +35,23 @@ visualizes them as an interactive dashboard.
    so you generally only need to log in again when the session expires.
 2. Run: `npm run refresh`
    This harvests any new monthly emails since the last run, extracts
-   their attachments into `data/legacy.json` / `data/mcneil.json`, and
-   regenerates `dashboard/data.js`.
+   their attachments into `data/legacy.json` / `data/mcneil.json`,
+   refreshes `data/distributions.json` (your per-quarter distribution
+   from the portal's Distributions table, plus quarterly totals
+   aggregated from the deterministic per-month figures) and the
+   ownership cross-check in `data/capital.json`, and regenerates
+   `dashboard/data.js`.
 3. Open `dashboard/index.html` directly in a browser (no server needed).
+
+`data/capital.json`'s `totalRaise` field is the one figure that is
+**not** produced by `npm run refresh`. It is captured once per deal,
+manually, from that deal's offering document (the PPM / Investor
+Summary) using `extractTotalRaise` from `scripts/lib/offering-doc.mjs`.
+A deal's total capital raise does not change over time, so it is
+recorded once and left in place — the refresh never re-scrapes it. To
+re-capture it (e.g. after obtaining a corrected offering document), run
+`extractTotalRaise(pdfPath, labelPattern)` against the PDF and update
+`totalRaise` (and its `totalRaiseSource` note) by hand.
 
 ## Running tests
 

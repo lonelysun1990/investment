@@ -1,0 +1,6 @@
+{
+  "files": [
+    { "docType": "cashflow-t12", "fileName": "cashflow-t12.pdf", "contentHash": "fixture", "sourceEmailSubject": null, "harvestedAt": "2026-06-15T00:00:00.000Z", "batchDateSource": "content" },
+    { "docType": "rentroll", "fileName": "rentroll.xlsx", "contentHash": "fixture", "sourceEmailSubject": null, "harvestedAt": "2026-06-15T00:00:00.000Z", "batchDateSource": "content" }
+  ]
+}

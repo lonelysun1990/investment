@@ -142,38 +142,19 @@ export async function extractLegacyMonth(config, pdfPath, month, opts = {}) {
   return records;
 }
 
-import { readdir } from "node:fs/promises";
-import { loadRecords, saveRecords, mergeRecord } from "./lib/record-store.mjs";
+import { runGenericExtraction } from "./lib/run-extraction.mjs";
+
+export async function extractLegacyBatch(batchDir, manifest, config) {
+  const entry = manifest.files.find((f) => f.docType === "monthly-update");
+  if (!entry) return new Map();
+  const pdfPath = path.join(batchDir, entry.fileName);
+  const batchMonth = path.basename(batchDir);
+  const records = await extractLegacyMonth(config, pdfPath, batchMonth);
+  return new Map(Object.entries(records));
+}
 
 export async function runLegacyExtraction(config, rawDir, outputPath) {
-  let monthDirs;
-  try {
-    monthDirs = (await readdir(rawDir, { withFileTypes: true }))
-      .filter((d) => d.isDirectory())
-      .map((d) => d.name)
-      .sort();
-  } catch (err) {
-    if (err.code === "ENOENT") return { monthsProcessed: [] };
-    throw err;
-  }
-
-  let records = await loadRecords(outputPath);
-  const monthsProcessed = [];
-
-  for (const month of monthDirs) {
-    const monthPath = path.join(rawDir, month);
-    const files = (await readdir(monthPath)).filter((f) => f.endsWith(".pdf"));
-    if (files.length === 0) continue;
-    const pdfPath = path.join(monthPath, files[0]);
-    const newRecords = await extractLegacyMonth(config, pdfPath, month);
-    for (const [m, record] of Object.entries(newRecords)) {
-      records = mergeRecord(records, m, record);
-      if (!monthsProcessed.includes(m)) monthsProcessed.push(m);
-    }
-  }
-
-  await saveRecords(outputPath, records);
-  return { monthsProcessed };
+  return runGenericExtraction(rawDir, outputPath, (batchDir, manifest) => extractLegacyBatch(batchDir, manifest, config));
 }
 
 import { readFile as readFileForConfig } from "node:fs/promises";

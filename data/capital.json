@@ -1,10 +1,14 @@
 {
   "legacy": {
-    "ownershipPct": 3.181818181818182,
-    "larryInvestment": 50000
+    "totalRaise": 1100000,
+    "larryInvestment": 50000,
+    "totalRaiseSource": "The Legacy Apartment Investor Summary.pdf, 'Total Capital Raise (rounded up)' -- an actual/current figure, not a projection",
+    "ownershipPctCheck": null
   },
   "mcneil": {
-    "ownershipPct": 2.592592592592592,
-    "larryInvestment": 50000
+    "totalRaise": 1500000,
+    "larryInvestment": 50000,
+    "totalRaiseSource": "McNeil Star Apartment LLC - PPM.pdf, Sources of Funds table ('Equity from the proceeds of this Offering') -- the PPM itself states these figures are estimates subject to material change, not a confirmed final closing amount. NOTE: the 2026-Q2 distribution ($648.14 of $24,999.86 total) reconciles almost exactly at ~2.59% ownership, implying an actual final raise closer to ~$1,928,571 -- likely oversubscribed beyond this PPM's original target. Left at the PPM-sourced figure rather than substituting an implied number with no document to cite; worth confirming with the sponsor.",
+    "ownershipPctCheck": null
   }
 }

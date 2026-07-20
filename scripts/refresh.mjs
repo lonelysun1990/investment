@@ -1,9 +1,12 @@
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { chromium } from "playwright";
-import { harvestDeal } from "./harvest.mjs";
+import { harvestDeal, scrapeDistributions, scrapeOwnershipPct } from "./harvest.mjs";
 import { runLegacyExtraction } from "./extract-legacy.mjs";
 import { runMcneilExtraction } from "./extract-mcneil.mjs";
 import { buildDashboardData } from "./build-dashboard.mjs";
+import { loadRecords } from "./lib/record-store.mjs";
+import { aggregateDistributionByQuarter } from "./lib/quarter.mjs";
+import { mergeDistributions } from "./lib/merge-distributions.mjs";
 
 export function formatRefreshSummary(results) {
   const lines = [];
@@ -24,12 +27,38 @@ async function main() {
   for (const [slug, deal] of Object.entries(config.deals)) {
     await harvestDeal(page, deal.dealId, slug, `data/raw/${slug}`);
   }
-  await browser.close();
 
   const legacyResult = await runLegacyExtraction(config.vision_llm ?? null, "data/raw/legacy", "data/legacy.json");
   const mcneilResult = await runMcneilExtraction("data/raw/mcneil", "data/mcneil.json");
 
   console.log(formatRefreshSummary({ legacy: legacyResult, mcneil: mcneilResult }));
+
+  // Refresh distributions (my share via DOM, total via the deterministic
+  // per-month `distribution` field already extracted into legacy.json/
+  // mcneil.json) and an ownership cross-check -- all DOM-only, per
+  // CLAUDE.md. Total capital raise is captured once, manually, from each
+  // deal's offering document (see README) -- it's static and isn't
+  // re-scraped on every refresh.
+  const distributions = JSON.parse(await readFile("data/distributions.json", "utf8").catch(() => "{}"));
+  const capital = JSON.parse(await readFile("data/capital.json", "utf8").catch(() => "{}"));
+  const recordsBySlug = {
+    legacy: await loadRecords("data/legacy.json"),
+    mcneil: await loadRecords("data/mcneil.json"),
+  };
+
+  for (const [slug, deal] of Object.entries(config.deals)) {
+    const domDistributions = await scrapeDistributions(page, deal.dealId);
+    const totalByQuarter = aggregateDistributionByQuarter(recordsBySlug[slug] ?? {});
+    distributions[slug] = mergeDistributions(distributions[slug] ?? [], domDistributions, totalByQuarter);
+
+    const ownershipPctCheck = await scrapeOwnershipPct(page, deal.dealId);
+    capital[slug] = { ...(capital[slug] ?? {}), ownershipPctCheck };
+  }
+
+  await writeFile("data/distributions.json", JSON.stringify(distributions, null, 2) + "\n", "utf8");
+  await writeFile("data/capital.json", JSON.stringify(capital, null, 2) + "\n", "utf8");
+
+  await browser.close();
 
   await buildDashboardData();
   console.log("Dashboard data rebuilt: dashboard/data.js");

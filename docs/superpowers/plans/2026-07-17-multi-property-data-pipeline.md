@@ -393,7 +393,9 @@ Expected output includes:
           Member's Distribution             0.00 ... (118,999.45) ... (24,999.86) ...          0.00
       Total Member's Distributi             0.00 ... (118,999.45) ... (24,999.86) ...          0.00
 ```
-The values under "Member's Distribution" are `(118,999.45)` in the Jul 2025 column and `(24,999.86)` in the Oct 2025 column, zero everywhere else.
+**Correction (verified during Task 4's implementation, both by the implementer and independently re-verified by the controller via character-position alignment against the header row and an order-based token count):** the two nonzero amounts land under **Jan 2026** and **Apr 2026**, not Jul 2025 / Oct 2025 as originally written here — the dense 12-column layout is easy to mis-eyeball. The values below are corrected accordingly.
+
+The values under "Member's Distribution" are `(118,999.45)` in the Jan 2026 column and `(24,999.86)` in the Apr 2026 column, zero everywhere else.
 
 - [ ] **Step 2: Write the failing tests**
 
@@ -407,18 +409,20 @@ import { extractMcneilPnl, extractMcneilDistributions, runMcneilExtraction } fro
 test("extracts the Member's Distribution line across all 12 header months", async () => {
   const result = await extractMcneilDistributions(FIXTURE, /Member's Distribution/i);
   assert.equal(result.size, 12);
-  assert.equal(result.get("2025-07"), 118999.45);
-  assert.equal(result.get("2025-10"), 24999.86);
+  assert.equal(result.get("2026-01"), 118999.45);
+  assert.equal(result.get("2026-04"), 24999.86);
   assert.equal(result.get("2025-08"), 0);
   assert.equal(result.get("2026-06"), 0);
 });
 
 test("extractMcneilDistributions does not double-count the 'Total Member's Distributi' subtotal row", async () => {
   const result = await extractMcneilDistributions(FIXTURE, /Member's Distribution/i);
-  // If the truncated "Total Member's Distributi" row were matched too, Jul 2025 would double to 237,998.90
-  assert.equal(result.get("2025-07"), 118999.45);
+  // If the truncated "Total Member's Distributi" row were matched too, Jan 2026 would double to 237,998.90
+  assert.equal(result.get("2026-01"), 118999.45);
 });
 ```
+
+Also guard the row-parsing loop against a real `pdftotext` layout quirk: very wide negative dollar amounts elsewhere in the statement (e.g. Investing Activities' `Buildings` row) occasionally collapse the column separator to a single space, which `splitRow` cannot tokenize — it throws via `parseMoney`. Skip those rows (they can never be the distribution row) rather than letting the whole scan crash; see the corrected Step 4 code below, which wraps the `splitRow` call in a try/catch.
 
 - [ ] **Step 3: Run tests to verify they fail**
 
@@ -473,7 +477,16 @@ export async function extractMcneilDistributions(pdfPath, labelPattern) {
   const result = new Map(monthKeys.map((key) => [key, 0]));
 
   for (const rawLine of text.split("\n")) {
-    const row = splitRow(rawLine);
+    let row;
+    try {
+      row = splitRow(rawLine);
+    } catch {
+      // pdftotext occasionally collapses the space between two adjacent
+      // wide dollar values (e.g. large negative amounts in unrelated
+      // sections), which splitRow cannot parse. Skip those rows — they
+      // are never the distribution row we're looking for.
+      continue;
+    }
     if (!row) continue;
     if (row.label.startsWith("Total ")) continue;
     if (!labelPattern.test(row.label)) continue;
@@ -1543,13 +1556,18 @@ Write these into `data/raw/mcneil-migrated/<batch>/offering-doc.pdf` and `data/r
 
 Expected: `data/raw/mcneil-migrated/` and `data/raw/legacy-migrated/` each contain an `offering-doc.pdf` in some batch folder.
 
-- [ ] **Step 4: Swap in the migrated archives**
+- [ ] **Step 4: Swap in the migrated archives (non-destructively)**
+
+`data/raw/` is gitignored — the original PDFs/XLSX files under `data/raw/mcneil` and `data/raw/legacy` have no backup anywhere (not in git, not pushed). Rename, don't delete, so a migration bug can't cause permanent data loss:
 
 ```bash
-rm -rf data/raw/mcneil data/raw/legacy
+mv data/raw/mcneil data/raw/mcneil.pre-migration-backup
+mv data/raw/legacy data/raw/legacy.pre-migration-backup
 mv data/raw/mcneil-migrated data/raw/mcneil
 mv data/raw/legacy-migrated data/raw/legacy
 ```
+
+Only delete `data/raw/mcneil.pre-migration-backup` and `data/raw/legacy.pre-migration-backup` after Task 13's full end-to-end verification passes — add this as the first step of Task 13, not here.
 
 - [ ] **Step 5: Re-derive capital.json**
 
@@ -1633,7 +1651,13 @@ Open `dashboard/index.html` directly in a browser. Confirm:
 - "Total capital raise" is no longer blank for either deal.
 - The distribution history section shows both a "my distribution" and a "total distribution" number, not a back-calculated one.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Delete the pre-migration backups now that Steps 2-4 have verified the new archive end to end**
+
+```bash
+rm -rf data/raw/mcneil.pre-migration-backup data/raw/legacy.pre-migration-backup
+```
+
+- [ ] **Step 6: Commit**
 
 ```bash
 git add -A

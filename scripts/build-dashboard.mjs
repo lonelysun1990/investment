@@ -22,35 +22,60 @@ async function loadJsonSafe(filePath) {
 
 function computeDerived(records, distributions, capital) {
   const months = Object.keys(records).sort();
-  const ownershipPct = capital.ownershipPct
-    ? capital.ownershipPct / 100
-    : capital.totalRaise
-      ? (capital.larryInvestment ?? 50000) / capital.totalRaise
-      : null;
+  const ownershipPct = capital.totalRaise
+    ? (capital.larryInvestment ?? 50000) / capital.totalRaise
+    : null;
 
   const totalNetIncome = Object.values(records).reduce(
     (sum, r) => sum + (r.netIncome ?? 0), 0
   );
 
   const larrySumDistributed = (distributions ?? []).reduce(
-    (sum, d) => sum + (d.amount ?? 0), 0
+    (sum, d) => sum + (d.myDistribution ?? 0), 0
   );
 
+  const knownTotalDistributions = (distributions ?? []).filter(
+    (d) => d.totalDistribution != null
+  );
+  const totalPropertyDistributed = knownTotalDistributions.length > 0
+    ? Math.round(
+        knownTotalDistributions.reduce((sum, d) => sum + d.totalDistribution, 0) * 100
+      ) / 100
+    : null;
+
   const larryDistributed = larrySumDistributed;
-  const totalPropertyDistributed = ownershipPct
-    ? Math.round((larryDistributed / ownershipPct) * 100) / 100
-    : 0;
   const larryNetIncomeShare = totalNetIncome * (ownershipPct ?? 0);
 
+  const roundedOwnershipPct = ownershipPct
+    ? Math.round(ownershipPct * 10000) / 100
+    : null;
+
+  const impliedOwnershipByQuarter = (distributions ?? [])
+    .filter(
+      (d) => d.myDistribution != null && d.totalDistribution != null && d.totalDistribution !== 0
+    )
+    .map((d) => ({
+      date: d.date,
+      impliedOwnershipPct: Math.round((d.myDistribution / d.totalDistribution) * 10000) / 100,
+    }));
+
+  const capitalRaiseMismatch =
+    roundedOwnershipPct != null &&
+    impliedOwnershipByQuarter.some(
+      (entry) => Math.abs(entry.impliedOwnershipPct - roundedOwnershipPct) > 0.3
+    );
+
   return {
-    ownershipPct: ownershipPct ? Math.round(ownershipPct * 10000) / 100 : null,
+    ownershipPct: roundedOwnershipPct,
     larryInvestment: capital.larryInvestment ?? 50000,
-    totalRaise: capital.totalRaise ?? (ownershipPct ? Math.round((capital.larryInvestment ?? 50000) / ownershipPct) : null),
+    totalRaise: capital.totalRaise ?? null,
     totalPropertyDistributed,
     larryDistributed: Math.round(larryDistributed * 100) / 100,
     larryNetIncomeShare: Math.round(larryNetIncomeShare * 100) / 100,
     distributionMismatch:
       Math.abs(larryNetIncomeShare - larryDistributed) > 50,
+    impliedOwnershipByQuarter,
+    capitalRaiseMismatch,
     months,
   };
 }
