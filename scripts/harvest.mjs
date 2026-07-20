@@ -1,6 +1,6 @@
 import { loadRecords, saveRecords } from "./lib/record-store.mjs";
 import { chromium } from "playwright";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
 const MONTH_NAMES = {
@@ -9,6 +9,25 @@ const MONTH_NAMES = {
   aug: "08", august: "08", sep: "09", september: "09", oct: "10", october: "10",
   nov: "11", november: "11", dec: "12", december: "12",
 };
+
+export function parseDistributionText(text) {
+  const rows = [];
+  const lineRegex = /(Q[1-4][\s-]*\d{4}|\d{4}[\s-]*Q[1-4])\D{0,10}\$?([\d,]+\.\d{2})/g;
+  let match;
+  while ((match = lineRegex.exec(text))) {
+    const period = match[1].replace(/\s+/g, " ").trim();
+    const parts = period.match(/Q([1-4])[\s-]*(\d{4})|(\d{4})[\s-]*Q([1-4])/);
+    const quarter = parts[1] ?? parts[4];
+    const year = parts[2] ?? parts[3];
+    rows.push({ date: `${year}-Q${quarter}`, amount: parseFloat(match[2].replace(/,/g, "")) });
+  }
+  return rows;
+}
+
+export function parseOwnershipPct(text) {
+  const match = text.match(/([\d.]+)\s*%\s*(?:ownership|equity|of the deal)/i);
+  return match ? parseFloat(match[1]) : null;
+}
 
 export function parseEmailSubjectMonth(subject) {
   const match = subject.match(/([A-Za-z]+)\s+(\d{4})/);
@@ -69,10 +88,13 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir) {
     const monthDir = path.join(rawDir, month);
     await mkdir(monthDir, { recursive: true });
     for (const { name, href } of attachmentLinks) {
-      const response = await page.request.get(href);
-      const buffer = await response.body();
       const safeName = name.replace(/[^a-zA-Z0-9.\- ]/g, "_");
-      await writeFile(path.join(monthDir, safeName), buffer);
+      const link = page.locator(`a[href="${href}"]`).first();
+      const [download] = await Promise.all([
+        page.waitForEvent("download", { timeout: 30000 }),
+        link.click(),
+      ]);
+      await download.saveAs(path.join(monthDir, safeName));
     }
 
     seen[month] = { harvestedAt: new Date().toISOString(), files: attachmentLinks.map((a) => a.name) };
@@ -85,6 +107,25 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir) {
 
   await saveSeenManifest(seenPath, seen);
   return { newMonths };
+}
+
+export async function scrapeDistributions(page, dealId) {
+  await page.goto(`${PORTAL_BASE}/app/deals/${dealId}`, { waitUntil: "domcontentloaded", timeout: 60000 });
+  await page.waitForTimeout(2000);
+  const viewAll = page.locator("text=View all").first();
+  if (await viewAll.isVisible().catch(() => false)) {
+    await viewAll.click();
+    await page.waitForTimeout(1000);
+  }
+  const text = await page.evaluate(() => document.body.innerText);
+  return parseDistributionText(text);
+}
+
+export async function scrapeOwnershipPct(page, dealId) {
+  await page.goto(`${PORTAL_BASE}/app/deals/${dealId}`, { waitUntil: "domcontentloaded", timeout: 60000 });
+  await page.waitForTimeout(2000);
+  const text = await page.evaluate(() => document.body.innerText);
+  return parseOwnershipPct(text);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
