@@ -87,25 +87,41 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir) {
 
     const monthDir = path.join(rawDir, month);
     await mkdir(monthDir, { recursive: true });
+    const downloaded = [];
+    let hadFailure = false;
     for (const { name, href } of attachmentLinks) {
       const safeName = name.replace(/[^a-zA-Z0-9.\- ]/g, "_");
-      const link = page.locator(`a[href="${href}"]`).first();
-      const [download] = await Promise.all([
-        page.waitForEvent("download", { timeout: 30000 }),
-        link.click(),
-      ]);
-      await download.saveAs(path.join(monthDir, safeName));
+      try {
+        const link = page.locator(`a[href="${href}"]`).first();
+        const [download] = await Promise.all([
+          page.waitForEvent("download", { timeout: 30000 }),
+          link.click(),
+        ]);
+        await download.saveAs(path.join(monthDir, safeName));
+        downloaded.push(name);
+      } catch (err) {
+        hadFailure = true;
+        console.warn(
+          `harvestDeal: download failed for ${dealSlug} ${month} "${name}" (${href}): ${err.message}`
+        );
+      }
     }
 
-    seen[month] = { harvestedAt: new Date().toISOString(), files: attachmentLinks.map((a) => a.name) };
-    newMonths.push(month);
+    // Only mark a month as seen once every attachment for it has downloaded
+    // successfully. A partially-downloaded month (some attachments failed)
+    // must NOT be recorded as seen, so the whole month is retried on the
+    // next run rather than silently leaving missing files on disk forever.
+    if (!hadFailure) {
+      seen[month] = { harvestedAt: new Date().toISOString(), files: downloaded };
+      newMonths.push(month);
+      await saveSeenManifest(seenPath, seen);
+    }
 
     const doneButton = page.locator("text=Done").first();
     if (await doneButton.isVisible().catch(() => false)) await doneButton.click();
     await page.waitForTimeout(500);
   }
 
-  await saveSeenManifest(seenPath, seen);
   return { newMonths };
 }
 
