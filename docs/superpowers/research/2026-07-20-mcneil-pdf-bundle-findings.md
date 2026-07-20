@@ -99,15 +99,38 @@ these temp files are gone — they are not committed anywhere).
 
 Current `data/mcneil.json` (main checkout) has 2024-09 through 2024-12 present, with
 non-zero `netIncome` and `income.total` (e.g. 2024-09 netIncome $3,616.44, income.total
-$6,646.25) — **not literally all-zero**. What IS zero for these months: the
-`income.rental` / `income.other` line-item breakdown, because the only source
-document for this period was an aggregate-only FY2024 T12 report (`TOTAL
-INCOME`/`TOTAL EXPENSE` lines only, no rental-vs-other split). The newly-discovered
-Trailing P&L Detail bundle (`2025-10/balance-sheet.pdf`, pages 3–9) covers Oct–Dec
-2024 too, WITH itemized rows (Gross Potential Rent, etc.) — extracting from this
-bundle should let the rental/other split be filled in for Oct–Dec 2024, not just
-2025. Sep 2024 is not covered by any bundle found so far (both bundles start at Oct
-2024) — flag this gap explicitly rather than assuming it's fixed.
+$6,646.25) — **not literally all-zero**. The FY2024 T12 report
+(`2024-annual-cashflow-statement.pdf`) is NOT aggregate-only for income: it contains
+`Total Net Rental Income` / `Total Other Rental Income` rows, so the
+`income.rental` / `income.other` breakdown IS populated for these months from this
+report alone (e.g. 2024-09 `income.rental` $6,646.25) — no need to wait on another
+source for the income split. What IS aggregate-only in this report is the *expense*
+side: it reports only a single `TOTAL EXPENSE` figure with no lower-level operating
+category breakdown that sums to it, and rolls debt service + capital improvements
+into one `TOTAL NON-OPERATING EXPENSE` line instead of reporting them separately —
+this is what `expenseIsAggregateOnly` flags.
+
+Separately, this report's `pdftotext -layout` rendering has a column-layout quirk
+unrelated to the aggregate-only expense structure above: two itemized expense-category
+rows (`Total Advertising and marketing`, `Total Building Improvements`) glue their
+leading "0.00" value directly onto the label with zero or one separating space,
+because the layout leaves no room for a real 2+-space gap before a short zero-valued
+first column. Before the account-code fix in `splitRow` (Task 1 of this branch), this
+quirk was masked — the same rows were skipped for the unrelated reason that their
+leading account-code prefix (e.g. `5099.001`) was mistaken for a money value. After
+that fix, `splitRow` correctly skips past the account code but then absorbed the glued
+"0.00" into the label, corrupting 2024-09's itemized expense breakdown with garbage
+keys (`"Advertising and marketing0.00"`, `"Building Improvements 0.00"`) while leaving
+`expense.total` correct (it comes from the separate aggregate `TOTAL EXPENSE` line,
+unaffected). Fixed by having `splitRow` return `null` for any row whose label itself
+ends in a money-shaped token, rather than guess at the split.
+
+The newly-discovered Trailing P&L Detail bundle (`2025-10/balance-sheet.pdf`, pages
+3–9) covers Oct–Dec 2024 too, WITH itemized rows (Gross Potential Rent, etc.) —
+extracting from this bundle could still be useful for cross-verification, but is not
+required to fill an income-split gap for Oct–Dec 2024 since the T12 report already
+supplies it. Sep 2024 is not covered by any bundle found so far (both bundles start at
+Oct 2024) — flag this gap explicitly rather than assuming it's fixed.
 
 ## 5. Legacy — confirmed NOT affected
 

@@ -21,6 +21,15 @@ function splitRow(line) {
   const firstMoneyMatch = line.match(new RegExp(`\\s{2,}${moneyToken.source}`));
   if (!firstMoneyMatch) return null;
   const label = line.slice(0, firstMoneyMatch.index).trim();
+  // pdftotext occasionally glues a short "0.00" value directly onto the
+  // label with zero or one separating space when the layout leaves no room
+  // for a real 2+-space gap before it -- that glued value would otherwise
+  // get absorbed into the label, shifting every later column by one. A
+  // trailing money-shaped token in the label is a more reliable signal of
+  // this than trying to recover its exact value, so skip the row rather
+  // than guess -- same philosophy as the account-code false-positive case
+  // handled by the (?!\d) lookahead above.
+  if (new RegExp(`${moneyToken.source}$`).test(label)) return null;
   const rest = line.slice(firstMoneyMatch.index).trim();
   const values = rest.split(/\s{2,}/).filter(Boolean).map(parseMoney);
   return { label, values };

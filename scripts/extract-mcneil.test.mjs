@@ -122,6 +122,14 @@ test("extractMcneilPnl flags every month in the report as aggregate-only once th
   }
 });
 
+test("extractMcneilPnl does not corrupt the expense breakdown with glued-label values from pdftotext column artifacts", async () => {
+  const result = await extractMcneilPnl(ANNUAL_FIXTURE);
+  const sep = result.get("2024-09");
+  assert.equal(sep.expense.total, 3029.81, "the aggregate TOTAL EXPENSE line must still be correct");
+  assert.ok(!("Advertising and marketing0.00" in sep.expense), "glued-label row must not produce a garbage category key");
+  assert.ok(!("Building Improvements 0.00" in sep.expense), "glued-label row must not produce a garbage category key");
+});
+
 test("extractMcneilBatch marks aggregate-only months as low confidence and strips the internal marker", async () => {
   const { mkdir, copyFile } = await import("node:fs/promises");
   const { saveManifest, loadManifest } = await import("./lib/archive-store.mjs");

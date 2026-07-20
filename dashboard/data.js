@@ -171,7 +171,6 @@ export const MCNEIL = {
     "expense": {
       "total": 3029.81,
       "Misc Mgmt Expense": 162.34,
-      "Advertising and marketing0.00": 898.35,
       "Payroll Expense": 0,
       "Employee Expense": 0,
       "Building Supplies": 0,
@@ -189,7 +188,6 @@ export const MCNEIL = {
       "Utility Expense": 0,
       "Fixed Expenses": 2792.37,
       "Management Fees": 0,
-      "Building Improvements 0.00": 15162.47,
       "Land Improvements": 0,
       "Capital Expenditures": 0
     },
