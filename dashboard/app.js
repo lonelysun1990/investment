@@ -208,7 +208,7 @@ function renderDistributionChart(canvasId, records, distData, ownershipPct) {
   const yourDist = distData.map((d) => d.myDistribution);
   const yourNoiShare = distData.map((d) => {
     const qNoi = quarterlyNoi[d.date];
-    return qNoi != null ? Math.round(qNoi * ownershipPct * 100) / 100 : null;
+    return qNoi != null ? Math.round(qNoi * (ownershipPct / 100) * 100) / 100 : null;
   });
 
   chartInstances.push(
@@ -295,7 +295,7 @@ function investorCashFlowCard(dealSlug, records) {
     : distData.map((d) => {
         const qNoi = quarterlyNoi[d.date];
         const distRatio = qNoi && d.totalDistribution != null ? pct(Math.round(d.totalDistribution / qNoi * 1000) / 10) : "\u2014";
-        const yourNoiShare = qNoi ? Math.round(qNoi * ownershipPct * 100) / 100 : null;
+        const yourNoiShare = qNoi ? Math.round(qNoi * (ownershipPct / 100) * 100) / 100 : null;
         return `<tr>
           <td>${d.date}</td>
           <td>${money(d.myDistribution)}</td>
