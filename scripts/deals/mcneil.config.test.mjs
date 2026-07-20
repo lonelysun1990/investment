@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { classifyDoc, distributionLabel, totalRaiseLabel } from "./mcneil.config.mjs";
+import { classifyDoc, distributionLabel, totalRaiseLabel, investmentDeckRaiseLabel } from "./mcneil.config.mjs";
 import { extractPagesFromPdf } from "../lib/pdf-pages.mjs";
+import { extractTotalRaise } from "../lib/offering-doc.mjs";
 
 test("classifies a twelve-month cash flow PDF as cashflow-t12", () => {
   const pages = ["Twelve Month Cash Flow Statement Expanded Detail\nJune 2026 - Accrual"];
@@ -65,4 +66,12 @@ test("totalRaiseLabel matches the real McNeil PPM's Sources of Funds equity line
 test("totalRaiseLabel does not match a bare grand-total line that isn't specifically about the offering amount", () => {
   assert.ok(!totalRaiseLabel.test("Total"));
   assert.ok(!totalRaiseLabel.test("                                                Total                        $2,698,000"));
+});
+
+test("investmentDeckRaiseLabel extracts the real capital-raise figure from the Investment Deck's ACQUSITION SUMMARY table", async () => {
+  const result = await extractTotalRaise(
+    "scripts/__fixtures__/mcneil/2024-investment-deck-acquisition-summary.pdf",
+    investmentDeckRaiseLabel
+  );
+  assert.equal(result, 1300000);
 });

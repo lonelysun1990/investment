@@ -27,4 +27,5 @@ export function classifyDoc({ filename, pages }) {
 
 export const distributionLabel = /^Member's Distribution$/i;
 export const totalRaiseLabel = /Total (Offering Amount|Capital Rais(?:e|ed))|Equity.*proceeds of this Offering/i;
+export const investmentDeckRaiseLabel = /Total Member Capital Needed to Close/i;
 export const occupancySource = "rentroll";
