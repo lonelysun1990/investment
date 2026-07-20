@@ -64,17 +64,20 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir) {
   await page.waitForSelector("tbody tr", { timeout: 20000, state: "attached" });
   await page.waitForTimeout(3000);
 
-  const rows = await page.$$eval("tbody tr", (trs) =>
-    trs.map((tr) => tr.innerText.split("\n")[0] + "|||" + tr.innerText)
-  );
+  const rows = await page.$$eval("tbody tr", (trs) => trs.map((tr) => tr.innerText));
 
   const newMonths = [];
-  for (const rowText of rows) {
-    const subject = rowText.split("|||")[1] ?? "";
+  for (let i = 0; i < rows.length; i++) {
+    const subject = rows[i];
     const month = parseEmailSubjectMonth(subject);
     if (!month || seen[month]) continue;
 
-    const row = page.locator("tbody tr", { hasText: subject.split("\n")[0] }).first();
+    // Re-locate by index, not by text: some rows (e.g. monthly update
+    // emails) render their date+subject on one line joined by tab
+    // characters rather than newlines, which never matches hasText's
+    // whitespace-normalized substring check and silently resolves to
+    // zero elements.
+    const row = page.locator("tbody tr").nth(i);
     await row.locator("button").last().click();
     await page.waitForTimeout(3000);
 
