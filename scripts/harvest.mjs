@@ -84,14 +84,7 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
     await page.waitForTimeout(3000);
 
     const attachmentLinks = await page.evaluate(() => {
-      const overlays = Array.from(document.querySelectorAll("div,section,aside")).filter((el) => {
-        const s = getComputedStyle(el);
-        const r = el.getBoundingClientRect();
-        return (s.position === "fixed" || s.position === "absolute") && r.width > 350 && r.height > 250;
-      });
-      const scope = overlays.sort((a, b) => a.innerText.length - b.innerText.length)[0];
-      if (!scope) return [];
-      return Array.from(scope.querySelectorAll("a"))
+      return Array.from(document.querySelectorAll("a"))
         .map((a) => ({ name: a.innerText.trim(), href: a.href }))
         .filter((a) => a.href && /\.(pdf|xlsx)(\?|$)/i.test(a.href));
     });
