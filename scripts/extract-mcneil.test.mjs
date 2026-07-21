@@ -42,6 +42,13 @@ test("captures nonOperatingExpense.total from the aggregate line even when itemi
   assert.equal(june.nonOperatingExpense.total, 5010.81 + 4161.71);
 });
 
+test("captures Total Other Non-Operating into nonOperatingExpense.otherNonOperating, not the operating expense breakdown", async () => {
+  const result = await extractMcneilPnl(FIXTURE);
+  const jan = result.get("2026-01");
+  assert.equal(jan.nonOperatingExpense.otherNonOperating, 2337.0);
+  assert.ok(!("Other Non-Operating" in jan.expense), "must not also appear as a stray operating-expense category");
+});
+
 test("June 2026 report is high confidence, not flagged aggregate-only, despite having a TOTAL NON-OPERATING line", async () => {
   const result = await extractMcneilPnl(FIXTURE);
   const june = result.get("2026-06");

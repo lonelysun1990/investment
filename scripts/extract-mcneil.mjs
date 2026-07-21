@@ -136,6 +136,7 @@ export async function extractMcneilPnl(pdfPath, pageRange) {
       else if (label === "NET OPERATING INCOME") rec.noi = value;
       else if (label === "Total Debt Service") rec.nonOperatingExpense.debtService = value;
       else if (label === "Total Capital Improvements") rec.nonOperatingExpense.capitalImprovements = value;
+      else if (label === "Total Other Non-Operating") rec.nonOperatingExpense.otherNonOperating = value;
       else if (label === "NET INCOME") {
         rec.netIncome = value;
       } else if (label === "TOTAL EXPENSE") {
