@@ -1,6 +1,6 @@
 import { loadRecords, saveRecords } from "./lib/record-store.mjs";
 import { chromium } from "playwright";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile, unlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
@@ -74,13 +74,13 @@ async function downloadOrCaptureAttachment(page, href) {
   });
   popupPdf.catch(() => {});
 
-  const downloadEvent = page.waitForEvent("download", { timeout: 20000 });
+  const downloadEvent = page.waitForEvent("download", { timeout: 30000 });
   downloadEvent.catch(() => {});
 
-  const link = page.locator(`a[href="${href}"]`).first();
-  await link.click();
-
   try {
+    const link = page.locator(`a[href="${href}"]`).first();
+    await link.click();
+
     const winner = await Promise.race([
       downloadEvent.then((download) => ({ type: "download", download })),
       popupPdf.then((buffer) => ({ type: "popup", buffer })),
@@ -168,7 +168,11 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
         if (ext.toLowerCase() === "pdf") {
           const tmpPath = path.join(tmpdir(), `${randomUUID()}.pdf`);
           await writeFile(tmpPath, buffer);
-          pages = await extractPagesFromPdf(tmpPath).catch(() => []);
+          try {
+            pages = await extractPagesFromPdf(tmpPath).catch(() => []);
+          } finally {
+            await unlink(tmpPath).catch(() => {});
+          }
         }
         const text = pages.join("\n");
         const rawResult = dealConfig.classifyDoc({ filename: safeName, pages, text });
