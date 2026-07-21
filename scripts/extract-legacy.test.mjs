@@ -43,45 +43,35 @@ const EXPECTED_TABLE = {
       income: { rental: 18448.91, other: 0, total: 18448.91 },
       expense: { "Administration Expense": 266.31, Marketing: 0, "Salaries & Wages": 1481.64, "Contract Services": 0, "Repair/Maintenance Expenses": 603.85, "Make Ready Expense": 323.96, "Utility Expenses": 5635.64, "Management Fees": 671.53, "Fixed Expenses": 5326.66, total: 14309.59 },
       noi: 4139.32,
-      debtService: 6532.5,
-      otherNonOperating: 2375,
-      capitalImprovements: 2967.26,
+      nonOperatingExpense: { debtService: 6532.5, otherNonOperating: 2375, capitalImprovements: 2967.26, total: 11874.76 },
       netIncome: -7735.44,
     },
     "2026-02": {
       income: { rental: 18448.91, other: 0, total: 18448.91 },
       expense: { "Administration Expense": 266.31, Marketing: 0, "Salaries & Wages": 1481.64, "Contract Services": 0, "Repair/Maintenance Expenses": 603.85, "Make Ready Expense": 323.96, "Utility Expenses": 5635.64, "Management Fees": 671.53, "Fixed Expenses": 5326.66, total: 14309.59 },
       noi: 4139.32,
-      debtService: 6532.5,
-      otherNonOperating: 2375,
-      capitalImprovements: 2967.26,
+      nonOperatingExpense: { debtService: 6532.5, otherNonOperating: 2375, capitalImprovements: 2967.26, total: 11874.76 },
       netIncome: -7735.44,
     },
     "2026-03": {
       income: { rental: 18448.91, other: 0, total: 18448.91 },
       expense: { "Administration Expense": 266.31, Marketing: 0, "Salaries & Wages": 1481.64, "Contract Services": 0, "Repair/Maintenance Expenses": 603.85, "Make Ready Expense": 323.96, "Utility Expenses": 5635.64, "Management Fees": 671.53, "Fixed Expenses": 5326.66, total: 14309.59 },
       noi: 4139.32,
-      debtService: 6532.5,
-      otherNonOperating: 2375,
-      capitalImprovements: 2967.26,
+      nonOperatingExpense: { debtService: 6532.5, otherNonOperating: 2375, capitalImprovements: 2967.26, total: 11874.76 },
       netIncome: -7735.44,
     },
     "2026-04": {
       income: { rental: 18448.91, other: 0, total: 18448.91 },
       expense: { "Administration Expense": 266.31, Marketing: 0, "Salaries & Wages": 1481.64, "Contract Services": 0, "Repair/Maintenance Expenses": 603.85, "Make Ready Expense": 323.96, "Utility Expenses": 5635.64, "Management Fees": 671.53, "Fixed Expenses": 5326.66, total: 14309.59 },
       noi: 4139.32,
-      debtService: 6532.5,
-      otherNonOperating: 2375,
-      capitalImprovements: 2967.26,
+      nonOperatingExpense: { debtService: 6532.5, otherNonOperating: 2375, capitalImprovements: 2967.26, total: 11874.76 },
       netIncome: -7735.44,
     },
     "2026-05": {
       income: { rental: 18448.91, other: -1612.28, total: 16836.63 },
       expense: { "Administration Expense": 266.31, Marketing: 0, "Salaries & Wages": 1481.64, "Contract Services": 0, "Repair/Maintenance Expenses": 603.85, "Make Ready Expense": 323.96, "Utility Expenses": 5635.64, "Management Fees": 671.53, "Fixed Expenses": 5326.66, total: 14309.59 },
       noi: 2527.04,
-      debtService: 6532.5,
-      otherNonOperating: 2375,
-      capitalImprovements: 2967.26,
+      nonOperatingExpense: { debtService: 6532.5, otherNonOperating: 2375, capitalImprovements: 2967.26, total: 11874.76 },
       netIncome: -9347.72,
     },
   },
@@ -127,6 +117,7 @@ test("extractLegacyMonth assembles multiple monthly records with no LLM configur
   assert.equal(may.sourceFile, FIXTURE);
   assert.equal(may.extraction.method, "unavailable");
   assert.equal(may.noi, null);
+  assert.equal(may.nonOperatingExpense, null);
   assert.equal(may.narrative.includes("processing two evictions"), true);
 });
 
@@ -139,9 +130,21 @@ test("extractLegacyMonth assembles multiple monthly records with a working visio
   assert.equal(Object.keys(records).length, 5);
   assert.equal(records["2026-05"].income.total, 16836.63);
   assert.equal(records["2026-05"].noi, 2527.04);
+  assert.equal(records["2026-05"].nonOperatingExpense.total, 11874.76);
   assert.equal(records["2026-05"].netIncome, -9347.72);
   assert.equal(records["2026-05"].extraction.method, "vision_llm");
   assert.equal(records["2026-05"].extraction.confidence, "high");
+});
+
+test("reconciliation holds for the real fixture's vision-LLM-derived record", async () => {
+  const { reconcilePnlRecord } = await import("./lib/reconcile-pnl.mjs");
+  const fakeConfig = { baseUrl: "https://example.test/v1", apiKey: "x", model: "gpt-4o" };
+  const fakeCallVisionLlm = async () => JSON.stringify(EXPECTED_TABLE);
+  const records = await extractLegacyMonth(fakeConfig, FIXTURE, "2026-05", {
+    callVisionLlmImpl: fakeCallVisionLlm,
+  });
+  const { reconciled } = reconcilePnlRecord(records["2026-05"]);
+  assert.equal(reconciled, true);
 });
 
 test("extractLegacyBatch reads the monthly-update doc via manifest and returns records keyed by month", async () => {

@@ -51,9 +51,7 @@ const PNL_TABLE_PROMPT = `This image is a property-management "Trailing Profit a
       "income": { "rental": number, "other": number, "total": number },
       "expense": { "<exact category label as printed>": number, ..., "total": number },
       "noi": number,
-      "debtService": number,
-      "otherNonOperating": number,
-      "capitalImprovements": number,
+      "nonOperatingExpense": { "debtService": number, "otherNonOperating": number, "capitalImprovements": number, "total": number },
       "netIncome": number
     }
   }
@@ -112,8 +110,7 @@ export async function extractLegacyMonth(config, pdfPath, month, opts = {}) {
         income: null,
         expense: null,
         noi: null,
-        debtService: null,
-        capitalImprovements: null,
+        nonOperatingExpense: null,
         netIncome: null,
         narrative: narrative.narrative,
         sourceFile: pdfPath,
@@ -131,8 +128,7 @@ export async function extractLegacyMonth(config, pdfPath, month, opts = {}) {
       income: table?.income ?? null,
       expense: table?.expense ?? null,
       noi: table?.noi ?? null,
-      debtService: table?.debtService ?? null,
-      capitalImprovements: table?.capitalImprovements ?? null,
+      nonOperatingExpense: table?.nonOperatingExpense ?? null,
       netIncome: table?.netIncome ?? null,
       narrative: m === month ? narrative.narrative : null,
       sourceFile: pdfPath,
