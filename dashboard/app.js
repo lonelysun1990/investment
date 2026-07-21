@@ -6,7 +6,8 @@ const navButtons = document.querySelectorAll("#nav button");
 function money(n, opts = {}) {
   if (n === null || n === undefined) return "\u2014";
   const dec = opts.decimals ?? 0;
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: dec, minimumFractionDigits: dec });
+  const formatted = Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: dec, minimumFractionDigits: dec });
+  return n < 0 ? `($${formatted})` : `$${formatted}`;
 }
 
 function pct(n) {
@@ -61,24 +62,39 @@ function renderPortfolio() {
 
 // ── Per-deal helpers ──
 
+function moneyBracketed(n, opts = {}) {
+  if (n === null || n === undefined) return "—";
+  const dec = opts.decimals ?? 0;
+  const formatted = Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: dec, minimumFractionDigits: dec });
+  return `($${formatted})`;
+}
+
 function pnlLedgerTable(records) {
   const months = sortedMonths(records);
   if (months.length === 0) return "<p>No monthly records yet.</p>";
   const rows = [
-    ["Rental income", (m) => records[m].income?.rental],
-    ["Other income", (m) => records[m].income?.other],
-    ["Total income", (m) => records[m].income?.total],
-    ["Total expense", (m) => records[m].expense?.total],
-    ["NOI", (m) => records[m].noi],
-    ["Debt service", (m) => records[m].debtService],
-    ["Capital improvements", (m) => records[m].capitalImprovements],
-    ["Net income", (m) => records[m].netIncome],
+    { label: "Rental income", getter: (m) => records[m].income?.rental },
+    { label: "Other income", getter: (m) => records[m].income?.other },
+    { label: "Total income", getter: (m) => records[m].income?.total, highlight: true },
+    { label: "Total operating expense", getter: (m) => records[m].expense?.total, alwaysBracket: true },
+    { label: "NOI", getter: (m) => records[m].noi, highlight: true },
+    { label: "Non-operating expense", getter: (m) => records[m].nonOperatingExpense?.total, alwaysBracket: true },
+    { label: "Net income", getter: (m) => records[m].netIncome, highlight: true },
   ];
   const header = `<tr><th>Account</th>${months.map((m) => `<th>${m}</th>`).join("")}</tr>`;
   const body = rows
-    .map(([label, getter]) => {
-      const cells = months.map((m) => `<td>${money(getter(m), { decimals: 2 })}</td>`).join("");
-      return `<tr><td class="row-label">${label}</td>${cells}</tr>`;
+    .map(({ label, getter, highlight, alwaysBracket }) => {
+      const cells = months
+        .map((m) => {
+          const value = getter(m);
+          const display = alwaysBracket
+            ? value == null ? "—" : moneyBracketed(value, { decimals: 2 })
+            : money(value, { decimals: 2 });
+          return `<td>${display}</td>`;
+        })
+        .join("");
+      const rowClass = highlight ? " class=\"row-highlight\"" : "";
+      return `<tr${rowClass}><td class="row-label">${label}</td>${cells}</tr>`;
     })
     .join("");
   return tableScrollWrapper(months.length, `<table>${header}${body}</table>`);
@@ -104,40 +120,6 @@ function destroyCharts() {
 }
 
 const CHART_COLORS = ["#16a34a", "#dc2626", "#2563eb", "#eab308", "#8b5cf6", "#f97316", "#06b6d4", "#ec4899", "#84cc16", "#6366f1", "#14b8a6", "#f43f5e"];
-
-function renderMonthlyWaterfallChart(canvasId, records) {
-  const months = sortedMonths(records);
-  if (months.length === 0) return;
-  const ctx = document.getElementById(canvasId).getContext("2d");
-  const incomeVals = months.map((m) => records[m].income?.total ?? 0);
-  const expenseVals = months.map((m) => -(records[m].expense?.total ?? 0));
-  const noiVals = months.map((m) => records[m].noi ?? 0);
-  const debtVals = months.map((m) => -(records[m].debtService ?? 0));
-  const capexVals = months.map((m) => -(records[m].capitalImprovements ?? 0));
-  const netVals = months.map((m) => records[m].netIncome ?? 0);
-
-  chartInstances.push(
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: months,
-        datasets: [
-          { label: "Total income", data: incomeVals, backgroundColor: CHART_COLORS[0] },
-          { label: "Expenses", data: expenseVals, backgroundColor: CHART_COLORS[1] },
-          { label: "NOI", data: noiVals, backgroundColor: CHART_COLORS[2] },
-          { label: "Debt service", data: debtVals, backgroundColor: CHART_COLORS[3] },
-          { label: "Capital imp.", data: capexVals, backgroundColor: CHART_COLORS[4] },
-          { label: "Net income", data: netVals, backgroundColor: CHART_COLORS[5], borderColor: "#000", borderWidth: 1, type: "bar" },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: "bottom" } },
-      },
-    })
-  );
-}
 
 function renderExpenseBreakdownChart(canvasId, records) {
   const months = sortedMonths(records);
@@ -254,7 +236,7 @@ function actualVsProjectionTable(dealSlug, records) {
 function breakEvenOccupancy(record) {
   if (!record.occupancyPct || !record.income?.rental || record.occupancyPct === 0) return null;
   const rentalIncomePerOccupancyPoint = record.income.rental / record.occupancyPct;
-  const fixedOutflow = (record.expense?.total ?? 0) + (record.debtService ?? 0) + (record.capitalImprovements ?? 0);
+  const fixedOutflow = (record.expense?.total ?? 0) + (record.nonOperatingExpense?.total ?? 0);
   const otherIncome = record.income?.other ?? 0;
   const noiBreakEvenPct = ((record.expense?.total ?? 0) - otherIncome) / rentalIncomePerOccupancyPoint;
   const netIncomeBreakEvenPct = (fixedOutflow - otherIncome) / rentalIncomePerOccupancyPoint;
@@ -294,7 +276,6 @@ function investorCashFlowCard(dealSlug, records) {
     ? `<tr><td colspan="5">No distributions recorded yet.</td></tr>`
     : distData.map((d) => {
         const qNoi = quarterlyNoi[d.date];
-        const distRatio = qNoi && d.totalDistribution != null ? pct(Math.round(d.totalDistribution / qNoi * 1000) / 10) : "\u2014";
         const yourNoiShare = qNoi ? Math.round(qNoi * (ownershipPct / 100) * 100) / 100 : null;
         return `<tr>
           <td>${d.date}</td>
@@ -302,7 +283,6 @@ function investorCashFlowCard(dealSlug, records) {
           <td>${money(d.totalDistribution)}</td>
           <td>${qNoi ? money(qNoi) : "\u2014"}</td>
           <td>${yourNoiShare ? money(yourNoiShare) : "\u2014"}</td>
-          <td>${distRatio}</td>
         </tr>`;
       }).join("");
 
@@ -319,7 +299,7 @@ function investorCashFlowCard(dealSlug, records) {
     <div style="height:240px"><canvas id="distchart-${dealSlug}"></canvas></div>
     <h3>Distribution history</h3>
     <div style="overflow-x:auto;max-width:100%"><table>
-      <tr><th>Period</th><th>Your share</th><th>Total property</th><th>Quarterly NOI</th><th>Your NOI share</th><th>Dist / NOI %</th></tr>
+      <tr><th>Period</th><th>Your distribution</th><th>Total distribution</th><th>Quarterly NOI</th><th>Your NOI share</th></tr>
       ${distRows}
     </table></div>
     <p style="font-size:12px;color:var(--muted);margin-top:8px">Total property distribution is the sponsor-reported total for that period (shown as — when not yet available). Dist/NOI % = how much of quarterly NOI is distributed to investors. A 40–60% ratio is typical (rest goes to debt service, capex, and reserves).</p>
@@ -340,7 +320,6 @@ function renderDealView(dealSlug) {
 
   root.innerHTML = `
     <div class="card"><h2>${DEAL_LABELS[dealSlug]} \u2014 Monthly P&L ledger</h2>${pnlLedgerTable(records)}</div>
-    <div class="card"><h2>Revenue \u2192 NOI \u2192 Net income (${nMonths} months)</h2>${chartScrollWrapper(nMonths, `<canvas id="waterfall-${dealSlug}"></canvas>`)}</div>
     <div class="card"><h2>Expense breakdown</h2>${chartScrollWrapper(nMonths, `<canvas id="expenses-${dealSlug}"></canvas>`)}</div>
     <div class="card"><h2>Occupancy & rental income</h2>${chartScrollWrapper(nMonths, `<canvas id="occupancy-${dealSlug}"></canvas>`)}</div>
     <div class="card"><h2>Break-even occupancy</h2>
@@ -357,7 +336,6 @@ function renderDealView(dealSlug) {
   `;
 
   destroyCharts();
-  renderMonthlyWaterfallChart(`waterfall-${dealSlug}`, records);
   renderExpenseBreakdownChart(`expenses-${dealSlug}`, records);
   renderOccupancyOverlayChart(`occupancy-${dealSlug}`, records);
   renderDistributionChart(`distchart-${dealSlug}`, records, distData, derived.ownershipPct);
