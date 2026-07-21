@@ -1,6 +1,8 @@
 import { loadRecords, saveRecords } from "./lib/record-store.mjs";
 import { chromium } from "playwright";
-import { mkdir, readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { archiveFile, resolveArchiveRoot } from "./lib/archive-store.mjs";
 import { resolveBatchDate } from "./lib/batch-date.mjs";
@@ -50,6 +52,44 @@ export async function saveSeenManifest(path, seen) {
 
 const PORTAL_BASE = "https://whitepagodagroup.cashflowportal.com";
 
+async function downloadOrCaptureAttachment(page, href) {
+  const context = page.context();
+
+  let popupHandler;
+  const popupPdf = new Promise((resolve, reject) => {
+    popupHandler = (newPage) => {
+      newPage.on("response", (r) => {
+        if (r.headers()["content-type"] === "application/pdf") {
+          r.body().then(resolve, reject);
+        }
+      });
+    };
+    context.on("page", popupHandler);
+  });
+  popupPdf.catch(() => {});
+
+  const downloadEvent = page.waitForEvent("download", { timeout: 20000 });
+  downloadEvent.catch(() => {});
+
+  const link = page.locator(`a[href="${href}"]`).first();
+  await link.click();
+
+  try {
+    const winner = await Promise.race([
+      downloadEvent.then((download) => ({ type: "download", download })),
+      popupPdf.then((buffer) => ({ type: "popup", buffer })),
+    ]);
+
+    if (winner.type === "download") {
+      const tmpPath = await winner.download.path();
+      return await readFile(tmpPath);
+    }
+    return winner.buffer;
+  } finally {
+    context.off("page", popupHandler);
+  }
+}
+
 export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
   const seenPath = path.join(rawDir, "_seen.json");
   const seen = await loadSeenManifest(seenPath);
@@ -94,15 +134,14 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
     for (const { name, href } of attachmentLinks) {
       const safeName = name.replace(/[^a-zA-Z0-9.\- ]/g, "_");
       try {
-        const link = page.locator(`a[href="${href}"]`).first();
-        const [download] = await Promise.all([
-          page.waitForEvent("download", { timeout: 30000 }),
-          link.click(),
-        ]);
-        const tmpPath = await download.path();
-        const buffer = await readFile(tmpPath);
+        const buffer = await downloadOrCaptureAttachment(page, href);
         const ext = path.extname(safeName).replace(".", "");
-        const pages = ext.toLowerCase() === "pdf" ? await extractPagesFromPdf(tmpPath).catch(() => []) : [];
+        let pages = [];
+        if (ext.toLowerCase() === "pdf") {
+          const tmpPath = path.join(tmpdir(), `${randomUUID()}.pdf`);
+          await writeFile(tmpPath, buffer);
+          pages = await extractPagesFromPdf(tmpPath).catch(() => []);
+        }
         const text = pages.join("\n");
         const rawResult = dealConfig.classifyDoc({ filename: safeName, pages, text });
         const sections = Array.isArray(rawResult) ? rawResult : [{ docType: rawResult, pageRange: null }];
