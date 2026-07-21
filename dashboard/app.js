@@ -302,7 +302,7 @@ function investorCashFlowCard(dealSlug, records) {
       <tr><th>Period</th><th>Your distribution</th><th>Total distribution</th><th>Quarterly NOI</th><th>Your NOI share</th></tr>
       ${distRows}
     </table></div>
-    <p style="font-size:12px;color:var(--muted);margin-top:8px">Total property distribution is the sponsor-reported total for that period (shown as — when not yet available). Dist/NOI % = how much of quarterly NOI is distributed to investors. A 40–60% ratio is typical (rest goes to debt service, capex, and reserves).</p>
+    <p style="font-size:12px;color:var(--muted);margin-top:8px">Total distribution is the sponsor-reported total for that period (shown as — when not yet available).</p>
   </div>`;
 }
 
