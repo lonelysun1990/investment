@@ -110,7 +110,8 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
         if (docType === "unknown") {
           console.warn(`harvestDeal: could not classify "${name}" (${dealSlug} ${month}) -- archived as unknown`);
         }
-        const { batchKey, source } = resolveBatchDate({ text, harvestedAt: new Date().toISOString() });
+        const { batchKey: resolvedBatchKey, source } = resolveBatchDate({ text, harvestedAt: new Date().toISOString() });
+        const batchKey = source === "harvest-fallback" ? month : resolvedBatchKey;
         await archiveFile(rawDir, batchKey, docType, ext, buffer, {
           sourceEmailSubject: subject,
           sections,
