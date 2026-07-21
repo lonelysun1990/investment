@@ -4,9 +4,13 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { archiveFile, resolveArchiveRoot } from "./lib/archive-store.mjs";
 import { resolveBatchDate } from "./lib/batch-date.mjs";
 import { extractPagesFromPdf } from "./lib/pdf-pages.mjs";
+
+const execFileAsync = promisify(execFile);
 
 const MONTH_NAMES = {
   jan: "01", january: "01", feb: "02", february: "02", mar: "03", march: "03",
@@ -74,7 +78,7 @@ async function downloadOrCaptureAttachment(page, href) {
   downloadEvent.catch(() => {});
 
   const link = page.locator(`a[href="${href}"]`).first();
-  await link.click({ modifiers: ["Meta"] });
+  await link.click();
 
   try {
     const winner = await Promise.race([
@@ -90,6 +94,27 @@ async function downloadOrCaptureAttachment(page, href) {
   } finally {
     context.off("page", popupHandler);
     if (popupPageRef && !popupPageRef.isClosed()) await popupPageRef.close().catch(() => {});
+  }
+}
+
+async function withForegroundRestored(action) {
+  let frontApp = null;
+  try {
+    const { stdout } = await execFileAsync("osascript", [
+      "-e",
+      'tell application "System Events" to get name of first application process whose frontmost is true',
+    ]);
+    frontApp = stdout.trim();
+  } catch {
+    // Not on macOS, or System Events unavailable -- skip silently, don't fail the harvest over this.
+  }
+
+  try {
+    return await action();
+  } finally {
+    if (frontApp) {
+      await execFileAsync("osascript", ["-e", `tell application "${frontApp}" to activate`]).catch(() => {});
+    }
   }
 }
 
@@ -137,7 +162,7 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
     for (const { name, href } of attachmentLinks) {
       const safeName = name.replace(/[^a-zA-Z0-9.\- ]/g, "_");
       try {
-        const buffer = await downloadOrCaptureAttachment(page, href);
+        const buffer = await withForegroundRestored(() => downloadOrCaptureAttachment(page, href));
         const ext = path.extname(safeName).replace(".", "");
         let pages = [];
         if (ext.toLowerCase() === "pdf") {
