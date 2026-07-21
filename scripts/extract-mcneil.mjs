@@ -91,8 +91,7 @@ export async function extractMcneilPnl(pdfPath, pageRange) {
       income: { rental: 0, other: 0, total: 0 },
       expense: { total: 0 },
       noi: 0,
-      debtService: 0,
-      capitalImprovements: 0,
+      nonOperatingExpense: { debtService: 0, otherNonOperating: 0, capitalImprovements: 0, total: 0 },
       netIncome: 0,
     });
   }
@@ -107,6 +106,7 @@ export async function extractMcneilPnl(pdfPath, pageRange) {
   // zeros for debtService/capitalImprovements.
   const aggregateExpenseMonths = new Set();
   const aggregateOnlyMonths = new Set();
+  const nonOperatingTotalCaptured = new Set();
 
   let reachedNetIncome = false;
   for (const rawLine of lines) {
@@ -134,15 +134,20 @@ export async function extractMcneilPnl(pdfPath, pageRange) {
       else if (label === "Total Other Income" || label === "Total Other Rental Income") rec.income.other = value;
       else if (label === "TOTAL INCOME") rec.income.total = value;
       else if (label === "NET OPERATING INCOME") rec.noi = value;
-      else if (label === "Total Debt Service") rec.debtService = value;
-      else if (label === "Total Capital Improvements") rec.capitalImprovements = value;
+      else if (label === "Total Debt Service") rec.nonOperatingExpense.debtService = value;
+      else if (label === "Total Capital Improvements") rec.nonOperatingExpense.capitalImprovements = value;
       else if (label === "NET INCOME") {
         rec.netIncome = value;
       } else if (label === "TOTAL EXPENSE") {
         rec.expense.total = value;
         aggregateExpenseMonths.add(key);
       } else if (label === "TOTAL NON-OPERATING EXPENSE") {
+        rec.nonOperatingExpense.total = value;
         aggregateOnlyMonths.add(key);
+        nonOperatingTotalCaptured.add(key);
+      } else if (label === "TOTAL NON-OPERATING") {
+        rec.nonOperatingExpense.total = value;
+        nonOperatingTotalCaptured.add(key);
       } else if (/^Total /.test(label)) {
         rec.expense[label.replace(/^Total /, "")] = value;
       }
@@ -160,6 +165,15 @@ export async function extractMcneilPnl(pdfPath, pageRange) {
   }
 
   for (const [key, rec] of months) {
+    if (nonOperatingTotalCaptured.has(key)) continue;
+    const nonOpTotal =
+      rec.nonOperatingExpense.debtService +
+      rec.nonOperatingExpense.otherNonOperating +
+      rec.nonOperatingExpense.capitalImprovements;
+    rec.nonOperatingExpense.total = Math.round(nonOpTotal * 100) / 100;
+  }
+
+  for (const [key, rec] of months) {
     if (aggregateOnlyMonths.has(key)) rec.expenseIsAggregateOnly = true;
   }
 
@@ -170,8 +184,7 @@ export async function extractMcneilPnl(pdfPath, pageRange) {
       rec.income.total === 0 &&
       Object.values(rec.expense).every((v) => v === 0) &&
       rec.noi === 0 &&
-      rec.debtService === 0 &&
-      rec.capitalImprovements === 0 &&
+      Object.values(rec.nonOperatingExpense).every((v) => v === 0) &&
       rec.netIncome === 0;
     if (allZero) months.delete(key);
   }
