@@ -236,13 +236,18 @@ function actualVsProjectionTable(dealSlug, records) {
 function breakEvenOccupancy(record) {
   if (!record.occupancyPct || !record.income?.rental || record.occupancyPct === 0) return null;
   const rentalIncomePerOccupancyPoint = record.income.rental / record.occupancyPct;
-  const fixedOutflow = (record.expense?.total ?? 0) + (record.nonOperatingExpense?.total ?? 0);
   const otherIncome = record.income?.other ?? 0;
   const noiBreakEvenPct = ((record.expense?.total ?? 0) - otherIncome) / rentalIncomePerOccupancyPoint;
-  const netIncomeBreakEvenPct = (fixedOutflow - otherIncome) / rentalIncomePerOccupancyPoint;
+
+  let netIncomeBreakEvenPct = null;
+  if (record.nonOperatingExpense) {
+    const fixedOutflow = (record.expense?.total ?? 0) + record.nonOperatingExpense.total;
+    netIncomeBreakEvenPct = Math.round(((fixedOutflow - otherIncome) / rentalIncomePerOccupancyPoint) * 10) / 10;
+  }
+
   return {
     noiBreakEvenPct: Math.round(noiBreakEvenPct * 10) / 10,
-    netIncomeBreakEvenPct: Math.round(netIncomeBreakEvenPct * 10) / 10,
+    netIncomeBreakEvenPct,
     actualPct: record.occupancyPct,
   };
 }
