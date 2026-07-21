@@ -3,6 +3,7 @@ import path from "node:path";
 import { loadManifest } from "./archive-store.mjs";
 import { foldMonths } from "./merge-months.mjs";
 import { saveRecords } from "./record-store.mjs";
+import { reconcilePnlRecord } from "./reconcile-pnl.mjs";
 
 export async function runGenericExtraction(dealRawDir, outputPath, extractBatch) {
   let batchNames;
@@ -26,7 +27,15 @@ export async function runGenericExtraction(dealRawDir, outputPath, extractBatch)
 
   const merged = foldMonths(batches);
   const records = {};
-  for (const [month, record] of merged) records[month] = record;
+  for (const [month, record] of merged) {
+    const { reconciled, notes } = reconcilePnlRecord(record);
+    if (reconciled) {
+      records[month] = record;
+    } else {
+      for (const note of notes) console.warn(`${month}: ${note}`);
+      records[month] = { ...record, reconciled: false };
+    }
+  }
   await saveRecords(outputPath, records);
 
   return { monthsProcessed: [...merged.keys()].sort(), batchesProcessed: batchNames };
