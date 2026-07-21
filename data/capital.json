@@ -6,9 +6,9 @@
     "ownershipPctCheck": null
   },
   "mcneil": {
-    "totalRaise": 1500000,
+    "totalRaise": 1300000,
     "larryInvestment": 50000,
-    "totalRaiseSource": "McNeil Star Apartment LLC - PPM.pdf, Sources of Funds table ('Equity from the proceeds of this Offering') -- the PPM itself states these figures are estimates subject to material change, not a confirmed final closing amount. NOTE: the 2026-Q2 distribution ($648.14 of $24,999.86 total) reconciles almost exactly at ~2.59% ownership, implying an actual final raise closer to ~$1,928,571 -- likely oversubscribed beyond this PPM's original target. Left at the PPM-sourced figure rather than substituting an implied number with no document to cite; worth confirming with the sponsor.",
+    "totalRaiseSource": "McNeil Star Apartment LLC - Investment Deck (PDF), ACQUSITION SUMMARY table, 'Total Member Capital Needed to Close' -- self-consistent with the same deck's own stated 3.8% ownership for a $50k investment (50000/1300000 = 3.85%). Replaces the PPM's Sources of Funds estimate. Still does not match the ~2.59% ownership implied by the real 2026-Q2 distribution ($648.14 of $24,999.86) -- that discrepancy remains unresolved and is intentionally left visible via ownershipPctCheck rather than papered over.",
     "ownershipPctCheck": null
   }
 }

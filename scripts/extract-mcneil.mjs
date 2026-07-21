@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { parseMoney } from "./lib/money.mjs";
+import { extractPdfText } from "./lib/pdf-pages.mjs";
 
 const execFileAsync = promisify(execFile);
 
@@ -15,16 +16,20 @@ function toMonthKey(label) {
   return `${match[2]}-${MONTH_ABBR[match[1]]}`;
 }
 
-async function fullText(pdfPath) {
-  const { stdout } = await execFileAsync("pdftotext", ["-layout", pdfPath, "-"]);
-  return stdout;
-}
-
 function splitRow(line) {
-  const moneyToken = /-?\(?\$?[\d,]+\.\d{2}\)?/;
+  const moneyToken = /-?\(?\$?[\d,]+\.\d{2}(?!\d)\)?/;
   const firstMoneyMatch = line.match(new RegExp(`\\s{2,}${moneyToken.source}`));
   if (!firstMoneyMatch) return null;
   const label = line.slice(0, firstMoneyMatch.index).trim();
+  // pdftotext occasionally glues a short "0.00" value directly onto the
+  // label with zero or one separating space when the layout leaves no room
+  // for a real 2+-space gap before it -- that glued value would otherwise
+  // get absorbed into the label, shifting every later column by one. A
+  // trailing money-shaped token in the label is a more reliable signal of
+  // this than trying to recover its exact value, so skip the row rather
+  // than guess -- same philosophy as the account-code false-positive case
+  // handled by the (?!\d) lookahead above.
+  if (new RegExp(`${moneyToken.source}$`).test(label)) return null;
   const rest = line.slice(firstMoneyMatch.index).trim();
   const values = rest.split(/\s{2,}/).filter(Boolean).map(parseMoney);
   return { label, values };
@@ -57,11 +62,26 @@ export function parseMonthHeader(text) {
     }
   }
 
+  // Trailing Profit And Loss Detail layout: "Account   Actual   Actual  ...
+  // Total   Variance", with month/year labels on the line immediately
+  // before it, ending in "Adjusted" (for "Adjusted Total") instead of a
+  // bare "Total".
+  const accountActualLineIndex = lines.findIndex((l) => /^Account\s+Actual(\s+Actual)*/.test(l.trim()));
+  if (accountActualLineIndex > 0) {
+    const monthLabels = lines[accountActualLineIndex - 1]
+      .trim()
+      .split(/\s{2,}/)
+      .filter(Boolean);
+    if (monthLabels.length > 1 && /^\w{3} \d{4}$/.test(monthLabels[0])) {
+      return monthLabels.slice(0, -1).map(toMonthKey);
+    }
+  }
+
   throw new Error("extract-mcneil: could not find table header row");
 }
 
-export async function extractMcneilPnl(pdfPath) {
-  const text = await fullText(pdfPath);
+export async function extractMcneilPnl(pdfPath, pageRange) {
+  const text = await extractPdfText(pdfPath, pageRange);
   const lines = text.split("\n");
   const monthKeys = parseMonthHeader(text);
 
@@ -103,31 +123,32 @@ export async function extractMcneilPnl(pdfPath) {
       continue;
     }
     if (!row) continue;
+    const label = row.label.replace(/^\d+\.\d+\s+/, "");
     const perMonth = row.values.slice(0, monthKeys.length);
     if (perMonth.length !== monthKeys.length) continue;
 
     monthKeys.forEach((key, i) => {
       const rec = months.get(key);
       const value = perMonth[i];
-      if (row.label === "Total Rental Income") rec.income.rental = value;
-      else if (row.label === "Total Other Income") rec.income.other = value;
-      else if (row.label === "TOTAL INCOME") rec.income.total = value;
-      else if (row.label === "NET OPERATING INCOME") rec.noi = value;
-      else if (row.label === "Total Debt Service") rec.debtService = value;
-      else if (row.label === "Total Capital Improvements") rec.capitalImprovements = value;
-      else if (row.label === "NET INCOME") {
+      if (label === "Total Rental Income" || label === "Total Net Rental Income") rec.income.rental = value;
+      else if (label === "Total Other Income" || label === "Total Other Rental Income") rec.income.other = value;
+      else if (label === "TOTAL INCOME") rec.income.total = value;
+      else if (label === "NET OPERATING INCOME") rec.noi = value;
+      else if (label === "Total Debt Service") rec.debtService = value;
+      else if (label === "Total Capital Improvements") rec.capitalImprovements = value;
+      else if (label === "NET INCOME") {
         rec.netIncome = value;
-      } else if (row.label === "TOTAL EXPENSE") {
+      } else if (label === "TOTAL EXPENSE") {
         rec.expense.total = value;
         aggregateExpenseMonths.add(key);
-      } else if (row.label === "TOTAL NON-OPERATING EXPENSE") {
+      } else if (label === "TOTAL NON-OPERATING EXPENSE") {
         aggregateOnlyMonths.add(key);
-      } else if (/^Total /.test(row.label)) {
-        rec.expense[row.label.replace(/^Total /, "")] = value;
+      } else if (/^Total /.test(label)) {
+        rec.expense[label.replace(/^Total /, "")] = value;
       }
     });
 
-    if (row.label === "NET INCOME") reachedNetIncome = true;
+    if (label === "NET INCOME") reachedNetIncome = true;
   }
 
   for (const [key, rec] of months) {
@@ -157,8 +178,8 @@ export async function extractMcneilPnl(pdfPath) {
   return months;
 }
 
-export async function extractMcneilDistributions(pdfPath, labelPattern) {
-  const text = await fullText(pdfPath);
+export async function extractMcneilDistributions(pdfPath, labelPattern, pageRange) {
+  const text = await extractPdfText(pdfPath, pageRange);
   const monthKeys = parseMonthHeader(text);
   const result = new Map(monthKeys.map((key) => [key, 0]));
 
@@ -187,52 +208,73 @@ export async function extractMcneilDistributions(pdfPath, labelPattern) {
 
 import path from "node:path";
 import { extractRentRoll } from "./extract-mcneil-rentroll.mjs";
+import { extractRentRollPdf } from "./extract-mcneil-rentroll-pdf.mjs";
 import { runGenericExtraction } from "./lib/run-extraction.mjs";
 import { distributionLabel } from "./deals/mcneil.config.mjs";
+import { resolveArchiveRoot } from "./lib/archive-store.mjs";
+
+function findSections(manifest, docTypes) {
+  const results = [];
+  for (const file of manifest.files) {
+    const sections = file.sections ?? [{ docType: file.docType, pageRange: null }];
+    for (const section of sections) {
+      if (docTypes.includes(section.docType)) {
+        results.push({ fileName: file.fileName, pageRange: section.pageRange, docType: section.docType });
+      }
+    }
+  }
+  return results;
+}
 
 export async function extractMcneilBatch(batchDir, manifest) {
-  const pdfEntry = manifest.files.find((f) => f.docType === "cashflow-t12");
   const months = new Map();
-  if (!pdfEntry) {
-    const rentrollOnlyEntry = manifest.files.find((f) => f.docType === "rentroll");
-    if (!rentrollOnlyEntry) return months;
 
-    const rentRollOnly = await extractRentRoll(path.join(batchDir, rentrollOnlyEntry.fileName));
-    if (rentRollOnly.asOfDate) {
-      const month = rentRollOnly.asOfDate.slice(0, 7);
-      months.set(month, {
-        month,
-        occupancyPct: rentRollOnly.occupancyPct,
-        rentRoll: rentRollOnly,
-      });
+  const rentRolls = [];
+  for (const { fileName } of findSections(manifest, ["rentroll"])) {
+    rentRolls.push(await extractRentRoll(path.join(batchDir, fileName)));
+  }
+  for (const { fileName, pageRange } of findSections(manifest, ["rentroll-pdf"])) {
+    rentRolls.push(await extractRentRollPdf(path.join(batchDir, fileName), pageRange));
+  }
+
+  const pnlSections = findSections(manifest, ["cashflow-t12", "trailing-pnl-detail"]);
+
+  if (pnlSections.length === 0) {
+    for (const rentRoll of rentRolls) {
+      if (!rentRoll.asOfDate) continue;
+      const month = rentRoll.asOfDate.slice(0, 7);
+      months.set(month, { month, occupancyPct: rentRoll.occupancyPct, rentRoll });
     }
     return months;
   }
 
-  const pdfPath = path.join(batchDir, pdfEntry.fileName);
-  const pnlByMonth = await extractMcneilPnl(pdfPath);
-  const distributionByMonth = await extractMcneilDistributions(pdfPath, distributionLabel);
+  for (const { fileName, pageRange, docType } of pnlSections) {
+    const pdfPath = path.join(batchDir, fileName);
+    const pnlByMonth = await extractMcneilPnl(pdfPath, pageRange);
+    const distributionByMonth =
+      docType === "cashflow-t12"
+        ? await extractMcneilDistributions(pdfPath, distributionLabel, pageRange)
+        : new Map();
 
-  const rentrollEntry = manifest.files.find((f) => f.docType === "rentroll");
-  const rentRoll = rentrollEntry ? await extractRentRoll(path.join(batchDir, rentrollEntry.fileName)) : null;
-
-  for (const [month, pnl] of pnlByMonth) {
-    const { expenseIsAggregateOnly, ...pnlFields } = pnl;
-    const record = {
-      ...pnlFields,
-      month,
-      distribution: distributionByMonth.get(month) ?? 0,
-      sourceFile: pdfPath,
-      extraction: {
-        method: "deterministic",
-        confidence: expenseIsAggregateOnly ? "low" : "high",
-      },
-    };
-    if (rentRoll && rentRoll.asOfDate?.startsWith(month)) {
-      record.occupancyPct = rentRoll.occupancyPct;
-      record.rentRoll = rentRoll;
+    for (const [month, pnl] of pnlByMonth) {
+      const { expenseIsAggregateOnly, ...pnlFields } = pnl;
+      const record = {
+        ...pnlFields,
+        month,
+        distribution: distributionByMonth.get(month) ?? 0,
+        sourceFile: pdfPath,
+        extraction: {
+          method: "deterministic",
+          confidence: expenseIsAggregateOnly ? "low" : "high",
+        },
+      };
+      const matchingRentRoll = rentRolls.find((r) => r.asOfDate?.startsWith(month));
+      if (matchingRentRoll) {
+        record.occupancyPct = matchingRentRoll.occupancyPct;
+        record.rentRoll = matchingRentRoll;
+      }
+      months.set(month, record);
     }
-    months.set(month, record);
   }
   return months;
 }
@@ -242,6 +284,6 @@ export async function runMcneilExtraction(rawDir, outputPath) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const result = await runMcneilExtraction("data/raw/mcneil", "data/mcneil.json");
+  const result = await runMcneilExtraction(path.join(resolveArchiveRoot(), "mcneil"), "data/mcneil.json");
   console.log(`Processed months: ${result.monthsProcessed.join(", ") || "(none)"}`);
 }

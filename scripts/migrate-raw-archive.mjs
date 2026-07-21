@@ -3,7 +3,7 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { archiveFile } from "./lib/archive-store.mjs";
 import { resolveBatchDate } from "./lib/batch-date.mjs";
-import { extractTextFromPdf } from "./lib/offering-doc.mjs";
+import { extractPagesFromPdf } from "./lib/pdf-pages.mjs";
 
 export async function planMigration(oldRawDir, dealConfig) {
   const monthDirs = (await readdir(oldRawDir, { withFileTypes: true }))
@@ -20,11 +20,14 @@ export async function planMigration(oldRawDir, dealConfig) {
       const filePath = path.join(dirPath, file.name);
       const buffer = await readFile(filePath);
       const ext = path.extname(file.name).replace(".", "");
-      const text = ext.toLowerCase() === "pdf" ? await extractTextFromPdf(filePath).catch(() => "") : "";
-      const docType = dealConfig.classifyDoc({ filename: file.name, text });
+      const pages = ext.toLowerCase() === "pdf" ? await extractPagesFromPdf(filePath).catch(() => []) : [];
+      const text = pages.join("\n");
+      const rawResult = dealConfig.classifyDoc({ filename: file.name, pages, text });
+      const sections = Array.isArray(rawResult) ? rawResult : [{ docType: rawResult, pageRange: null }];
+      const docType = sections[0].docType;
       const harvestedAt = `${monthDir}-01T00:00:00.000Z`;
       const { batchKey, source } = resolveBatchDate({ text, harvestedAt });
-      plan.push({ oldPath: filePath, batchKey, docType, ext, buffer, source, harvestedAt });
+      plan.push({ oldPath: filePath, batchKey, docType, sections, ext, buffer, source, harvestedAt });
     }
   }
   return plan;
@@ -37,6 +40,7 @@ export async function runMigration(oldRawDir, newRawDir, dealConfig) {
     const result = await archiveFile(newRawDir, entry.batchKey, entry.docType, entry.ext, entry.buffer, {
       batchDateSource: entry.source,
       harvestedAt: entry.harvestedAt,
+      sections: entry.sections,
     });
     results.push({ ...entry, ...result });
   }

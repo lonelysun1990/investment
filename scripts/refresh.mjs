@@ -1,5 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { chromium } from "playwright";
+import path from "node:path";
 import { harvestDeal, scrapeDistributions, scrapeOwnershipPct } from "./harvest.mjs";
 import { runLegacyExtraction } from "./extract-legacy.mjs";
 import { runMcneilExtraction } from "./extract-mcneil.mjs";
@@ -7,6 +8,7 @@ import { buildDashboardData } from "./build-dashboard.mjs";
 import { loadRecords } from "./lib/record-store.mjs";
 import { aggregateDistributionByQuarter } from "./lib/quarter.mjs";
 import { mergeDistributions } from "./lib/merge-distributions.mjs";
+import { resolveArchiveRoot } from "./lib/archive-store.mjs";
 
 export function formatRefreshSummary(results) {
   const lines = [];
@@ -25,11 +27,12 @@ async function main() {
   const page = ctx.pages().find((p) => p.url().includes("cashflowportal")) ?? ctx.pages()[0];
 
   for (const [slug, deal] of Object.entries(config.deals)) {
-    await harvestDeal(page, deal.dealId, slug, `data/raw/${slug}`);
+    const dealConfig = await import(`./deals/${slug}.config.mjs`);
+    await harvestDeal(page, deal.dealId, slug, path.join(resolveArchiveRoot(), slug), dealConfig);
   }
 
-  const legacyResult = await runLegacyExtraction(config.vision_llm ?? null, "data/raw/legacy", "data/legacy.json");
-  const mcneilResult = await runMcneilExtraction("data/raw/mcneil", "data/mcneil.json");
+  const legacyResult = await runLegacyExtraction(config.vision_llm ?? null, path.join(resolveArchiveRoot(), "legacy"), "data/legacy.json");
+  const mcneilResult = await runMcneilExtraction(path.join(resolveArchiveRoot(), "mcneil"), "data/mcneil.json");
 
   console.log(formatRefreshSummary({ legacy: legacyResult, mcneil: mcneilResult }));
 

@@ -1,9 +1,18 @@
 import { createHash } from "node:crypto";
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import path from "node:path";
+import { execSync } from "node:child_process";
 
 export function hashContent(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
+}
+
+export function resolveArchiveRoot() {
+  const gitCommonDir = execSync("git rev-parse --path-format=absolute --git-common-dir", {
+    encoding: "utf8",
+  }).trim();
+  const mainRoot = path.dirname(gitCommonDir);
+  return path.join(mainRoot, "data", "raw");
 }
 
 export async function loadManifest(batchDir) {
@@ -58,6 +67,7 @@ export async function archiveFile(dealRawDir, batchKey, docType, ext, buffer, me
     docType,
     fileName,
     contentHash,
+    sections: meta.sections ?? [{ docType, pageRange: null }],
     sourceEmailSubject: meta.sourceEmailSubject ?? null,
     harvestedAt: meta.harvestedAt ?? new Date().toISOString(),
     batchDateSource: meta.batchDateSource ?? "content",

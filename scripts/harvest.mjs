@@ -1,7 +1,10 @@
 import { loadRecords, saveRecords } from "./lib/record-store.mjs";
 import { chromium } from "playwright";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { archiveFile, resolveArchiveRoot } from "./lib/archive-store.mjs";
+import { resolveBatchDate } from "./lib/batch-date.mjs";
+import { extractPagesFromPdf } from "./lib/pdf-pages.mjs";
 
 const MONTH_NAMES = {
   jan: "01", january: "01", feb: "02", february: "02", mar: "03", march: "03",
@@ -47,7 +50,7 @@ export async function saveSeenManifest(path, seen) {
 
 const PORTAL_BASE = "https://whitepagodagroup.cashflowportal.com";
 
-export async function harvestDeal(page, dealId, dealSlug, rawDir) {
+export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
   const seenPath = path.join(rawDir, "_seen.json");
   const seen = await loadSeenManifest(seenPath);
 
@@ -93,8 +96,6 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir) {
         .filter((a) => a.href && /\.(pdf|xlsx)(\?|$)/i.test(a.href));
     });
 
-    const monthDir = path.join(rawDir, month);
-    await mkdir(monthDir, { recursive: true });
     const downloaded = [];
     let hadFailure = false;
     for (const { name, href } of attachmentLinks) {
@@ -105,7 +106,23 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir) {
           page.waitForEvent("download", { timeout: 30000 }),
           link.click(),
         ]);
-        await download.saveAs(path.join(monthDir, safeName));
+        const tmpPath = await download.path();
+        const buffer = await readFile(tmpPath);
+        const ext = path.extname(safeName).replace(".", "");
+        const pages = ext.toLowerCase() === "pdf" ? await extractPagesFromPdf(tmpPath).catch(() => []) : [];
+        const text = pages.join("\n");
+        const rawResult = dealConfig.classifyDoc({ filename: safeName, pages, text });
+        const sections = Array.isArray(rawResult) ? rawResult : [{ docType: rawResult, pageRange: null }];
+        const docType = sections[0].docType;
+        if (docType === "unknown") {
+          console.warn(`harvestDeal: could not classify "${name}" (${dealSlug} ${month}) -- archived as unknown`);
+        }
+        const { batchKey, source } = resolveBatchDate({ text, harvestedAt: new Date().toISOString() });
+        await archiveFile(rawDir, batchKey, docType, ext, buffer, {
+          sourceEmailSubject: subject,
+          sections,
+          batchDateSource: source,
+        });
         downloaded.push(name);
       } catch (err) {
         hadFailure = true;
@@ -131,6 +148,34 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir) {
   }
 
   return { newMonths };
+}
+
+export async function harvestStaticDocument(page, dealId, docLabel, docType, rawDir, batchKey = "offering") {
+  await page.goto(`${PORTAL_BASE}/app/documents/${dealId}?tab=documents`, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
+  await page.waitForTimeout(2500);
+
+  const rows = page.locator("tbody tr");
+  const count = await rows.count();
+  for (let i = 0; i < count; i++) {
+    const row = rows.nth(i);
+    const rowText = await row.innerText();
+    if (!rowText.includes(docLabel)) continue;
+
+    const [download] = await Promise.all([
+      page.waitForEvent("download", { timeout: 30000 }),
+      row.locator("button").nth(2).click(),
+    ]);
+    const tmpPath = await download.path();
+    const buffer = await readFile(tmpPath);
+    const result = await archiveFile(rawDir, batchKey, docType, "pdf", buffer, {
+      sourceEmailSubject: docLabel,
+    });
+    return { found: true, ...result };
+  }
+  return { found: false };
 }
 
 export async function scrapeDistributions(page, dealId) {
@@ -191,7 +236,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const config = JSON.parse(configRaw);
 
   for (const [slug, deal] of Object.entries(config.deals)) {
-    const result = await harvestDeal(page, deal.dealId, slug, `data/raw/${slug}`);
+    const dealConfig = await import(`./deals/${slug}.config.mjs`);
+    const result = await harvestDeal(page, deal.dealId, slug, path.join(resolveArchiveRoot(), slug), dealConfig);
     console.log(`${slug}: ${result.newMonths.length ? result.newMonths.join(", ") : "no new months"}`);
   }
   await browser.close();

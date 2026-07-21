@@ -143,6 +143,7 @@ export async function extractLegacyMonth(config, pdfPath, month, opts = {}) {
 }
 
 import { runGenericExtraction } from "./lib/run-extraction.mjs";
+import { resolveArchiveRoot } from "./lib/archive-store.mjs";
 
 export async function extractLegacyBatch(batchDir, manifest, config) {
   const entry = manifest.files.find((f) => f.docType === "monthly-update");
@@ -167,6 +168,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   } catch {
     console.warn("extract-legacy: no config.json / vision_llm block found; page-4 P&L table will be skipped.");
   }
-  const result = await runLegacyExtraction(config, "data/raw/legacy", "data/legacy.json");
+  const result = await runLegacyExtraction(config, path.join(resolveArchiveRoot(), "legacy"), "data/legacy.json");
   console.log(`Processed months: ${result.monthsProcessed.join(", ") || "(none)"}`);
 }

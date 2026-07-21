@@ -5,6 +5,7 @@ import { extractMcneilPnl, extractMcneilDistributions, extractMcneilBatch, runMc
 
 const FIXTURE = "scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf";
 const ANNUAL_FIXTURE = "scripts/__fixtures__/mcneil/2024-annual-cashflow-statement.pdf";
+const TRAILING_PNL_FIXTURE = "scripts/__fixtures__/mcneil/2025-trailing-pnl-detail.pdf";
 
 test("returns one entry per real month column, excluding the Total column", async () => {
   const result = await extractMcneilPnl(FIXTURE);
@@ -121,6 +122,14 @@ test("extractMcneilPnl flags every month in the report as aggregate-only once th
   }
 });
 
+test("extractMcneilPnl does not corrupt the expense breakdown with glued-label values from pdftotext column artifacts", async () => {
+  const result = await extractMcneilPnl(ANNUAL_FIXTURE);
+  const sep = result.get("2024-09");
+  assert.equal(sep.expense.total, 3029.81, "the aggregate TOTAL EXPENSE line must still be correct");
+  assert.ok(!("Advertising and marketing0.00" in sep.expense), "glued-label row must not produce a garbage category key");
+  assert.ok(!("Building Improvements 0.00" in sep.expense), "glued-label row must not produce a garbage category key");
+});
+
 test("extractMcneilBatch marks aggregate-only months as low confidence and strips the internal marker", async () => {
   const { mkdir, copyFile } = await import("node:fs/promises");
   const { saveManifest, loadManifest } = await import("./lib/archive-store.mjs");
@@ -205,4 +214,97 @@ test("runMcneilExtraction folds batches so an earlier batch's occupancy survives
 
   await rm(TMP_RAW, { recursive: true, force: true });
   await rm(outputPath, { force: true });
+});
+
+test("parses the Trailing Profit And Loss Detail header into 12 real months (Oct 2024-Sep 2025)", async () => {
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  assert.equal(result.size, 12);
+  assert.deepEqual([...result.keys()], [
+    "2024-10", "2024-11", "2024-12", "2025-01", "2025-02", "2025-03",
+    "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09",
+  ]);
+});
+
+test("extracts the rental/other income breakdown from account-code-prefixed subtotal rows", async () => {
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  const oct = result.get("2024-10");
+  assert.equal(oct.income.rental, 21148.00);
+  assert.equal(oct.income.other, 623.00);
+  assert.equal(oct.income.total, 21771.00);
+});
+
+test("matches existing verified net income figures for Oct-Dec 2024 (cross-check against the older aggregate-only report)", async () => {
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  assert.equal(result.get("2024-10").netIncome, -11374.71);
+  assert.equal(result.get("2024-11").netIncome, -16364.47);
+  assert.equal(result.get("2024-12").netIncome, -11270.67);
+});
+
+test("extracts the final month (Sep 2025) correctly, including income/expense internal consistency", async () => {
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  const sep = result.get("2025-09");
+  assert.equal(sep.income.rental, 22660.00);
+  assert.equal(sep.income.other, 39.00);
+  assert.equal(sep.income.total, 22699.00);
+  assert.equal(sep.expense.total, 15282.80);
+  assert.equal(sep.noi, 7416.20);
+  assert.equal(sep.netIncome, 180.39);
+});
+
+test("flags the Trailing P&L Detail report as aggregate-only, same as the older annual report", async () => {
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  for (const month of result.keys()) {
+    assert.equal(result.get(month).expenseIsAggregateOnly, true, `${month} should be flagged aggregate-only`);
+  }
+});
+
+test("extractMcneilPnl accepts an optional pageRange and extracts only that range from a larger file", async () => {
+  const result = await extractMcneilPnl("scripts/__fixtures__/mcneil/2025-10-balance-sheet-bundle.pdf", [3, 9]);
+  assert.equal(result.size, 12);
+  assert.equal(result.get("2024-10").netIncome, -11374.71);
+});
+
+test("extractMcneilBatch extracts P&L, occupancy, and zero distribution from a real bundled multi-report PDF", async () => {
+  const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-bundle-batch";
+  await rm(TMP_RAW, { recursive: true, force: true });
+
+  const { mkdir, copyFile } = await import("node:fs/promises");
+  const { saveManifest, loadManifest } = await import("./lib/archive-store.mjs");
+
+  await mkdir(`${TMP_RAW}/2025-10`, { recursive: true });
+  await copyFile(
+    "scripts/__fixtures__/mcneil/2025-10-balance-sheet-bundle.pdf",
+    `${TMP_RAW}/2025-10/balance-sheet.pdf`
+  );
+  await saveManifest(`${TMP_RAW}/2025-10`, {
+    files: [
+      {
+        docType: "balance-sheet",
+        fileName: "balance-sheet.pdf",
+        contentHash: "bundle-hash",
+        sections: [
+          { docType: "balance-sheet", pageRange: [1, 2] },
+          { docType: "trailing-pnl-detail", pageRange: [3, 9] },
+          { docType: "rentroll-pdf", pageRange: [10, 11] },
+          { docType: "aged-receivables", pageRange: [12, 12] },
+          { docType: "cashflow-detail", pageRange: [13, 13] },
+        ],
+      },
+    ],
+  });
+
+  const manifest = await loadManifest(`${TMP_RAW}/2025-10`);
+  const months = await extractMcneilBatch(`${TMP_RAW}/2025-10`, manifest);
+
+  assert.equal(months.size, 12);
+  const oct2024 = months.get("2024-10");
+  assert.equal(oct2024.income.rental, 21148);
+  assert.equal(oct2024.income.other, 623);
+  assert.equal(oct2024.netIncome, -11374.71);
+  assert.equal(oct2024.distribution, 0, "trailing-pnl-detail sections never carry a distribution row");
+
+  const sep2025 = months.get("2025-09");
+  assert.equal(sep2025.occupancyPct, 90.6, "the batch's own rentroll-pdf section (9/30/2025) should attach to Sep 2025");
+
+  await rm(TMP_RAW, { recursive: true, force: true });
 });
