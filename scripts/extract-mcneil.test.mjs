@@ -25,9 +25,60 @@ test("parses NOI, debt service, capital improvements, and net income for June 20
   const result = await extractMcneilPnl(FIXTURE);
   const june = result.get("2026-06");
   assert.equal(june.noi, 13812.52);
-  assert.equal(june.debtService, 5010.81);
-  assert.equal(june.capitalImprovements, 4161.71);
+  assert.equal(june.nonOperatingExpense.debtService, 5010.81);
+  assert.equal(june.nonOperatingExpense.capitalImprovements, 4161.71);
+  assert.equal(june.nonOperatingExpense.total, 9172.52);
   assert.equal(june.netIncome, 4640.0);
+});
+
+test("captures nonOperatingExpense.total from the aggregate line even when itemized debt service/capex are also present", async () => {
+  const result = await extractMcneilPnl(FIXTURE);
+  const june = result.get("2026-06");
+  // 9172.52 is the real printed "TOTAL NON-OPERATING" line for Jun 2026,
+  // which does NOT equal debtService+capitalImprovements alone
+  // (5010.81 + 4161.71 = 9172.52 here, but the aggregate line must be
+  // used directly rather than recomputed, since other report formats'
+  // aggregate includes an otherNonOperating amount with no itemized line).
+  assert.equal(june.nonOperatingExpense.total, 5010.81 + 4161.71);
+});
+
+test("captures Total Other Non-Operating into nonOperatingExpense.otherNonOperating, not the operating expense breakdown", async () => {
+  const result = await extractMcneilPnl(FIXTURE);
+  const jan = result.get("2026-01");
+  assert.equal(jan.nonOperatingExpense.otherNonOperating, 2337.0);
+  assert.ok(!("Other Non-Operating" in jan.expense), "must not also appear as a stray operating-expense category");
+});
+
+test("June 2026 report is high confidence, not flagged aggregate-only, despite having a TOTAL NON-OPERATING line", async () => {
+  const result = await extractMcneilPnl(FIXTURE);
+  const june = result.get("2026-06");
+  assert.equal(june.expenseIsAggregateOnly, undefined);
+});
+
+test("older aggregate-only report populates nonOperatingExpense.total from TOTAL NON-OPERATING EXPENSE with zero itemized sub-fields", async () => {
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  const oct2024 = result.get("2024-10");
+  assert.equal(oct2024.nonOperatingExpense.debtService, 0);
+  assert.equal(oct2024.nonOperatingExpense.capitalImprovements, 0);
+  assert.equal(oct2024.nonOperatingExpense.otherNonOperating, 0);
+  assert.ok(oct2024.nonOperatingExpense.total > 0, "the aggregate line's real dollar value must be captured, not left at 0");
+  assert.equal(oct2024.expenseIsAggregateOnly, true);
+});
+
+test("reconciliation holds for a real month with itemized non-operating detail (June 2026)", async () => {
+  const { reconcilePnlRecord } = await import("./lib/reconcile-pnl.mjs");
+  const result = await extractMcneilPnl(FIXTURE);
+  const june = result.get("2026-06");
+  const { reconciled } = reconcilePnlRecord(june);
+  assert.equal(reconciled, true);
+});
+
+test("reconciliation holds for a real aggregate-only month (Trailing P&L Detail, Oct 2024)", async () => {
+  const { reconcilePnlRecord } = await import("./lib/reconcile-pnl.mjs");
+  const result = await extractMcneilPnl(TRAILING_PNL_FIXTURE);
+  const oct2024 = result.get("2024-10");
+  const { reconciled } = reconcilePnlRecord(oct2024);
+  assert.equal(reconciled, true);
 });
 
 test("parses a loss month correctly (May 2026, negative net income)", async () => {

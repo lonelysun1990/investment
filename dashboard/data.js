@@ -192,8 +192,12 @@ export const MCNEIL = {
       "Capital Expenditures": 0
     },
     "noi": 3616.44,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 0
+    },
     "netIncome": 3616.44,
     "month": "2024-09",
     "distribution": 0,
@@ -237,8 +241,12 @@ export const MCNEIL = {
       "Capital Expenditures": 22791.08
     },
     "noi": 11416.37,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 22791.08
+    },
     "netIncome": -11374.71,
     "month": "2024-10",
     "distribution": 0,
@@ -282,8 +290,12 @@ export const MCNEIL = {
       "Capital Expenditures": 20293.54
     },
     "noi": 8939.88,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 25304.35
+    },
     "netIncome": -16364.47,
     "month": "2024-11",
     "distribution": 0,
@@ -327,8 +339,12 @@ export const MCNEIL = {
       "Capital Expenditures": 12973.74
     },
     "noi": 6552.24,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 17822.91
+    },
     "netIncome": -11270.67,
     "month": "2024-12",
     "distribution": 0,
@@ -374,8 +390,12 @@ export const MCNEIL = {
       "Capital Expenditures": 0
     },
     "noi": 14027.53,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 5010.81
+    },
     "netIncome": 9016.72,
     "month": "2025-01",
     "distribution": 0,
@@ -421,8 +441,12 @@ export const MCNEIL = {
       "Capital Expenditures": 13880
     },
     "noi": 11703.58,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 18890.81
+    },
     "netIncome": -7187.23,
     "month": "2025-02",
     "distribution": 0,
@@ -468,8 +492,12 @@ export const MCNEIL = {
       "Capital Expenditures": 0
     },
     "noi": 5817.93,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 4525.89
+    },
     "netIncome": 1292.04,
     "month": "2025-03",
     "distribution": 0,
@@ -515,8 +543,12 @@ export const MCNEIL = {
       "Capital Expenditures": 0
     },
     "noi": 14053.77,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 5010.81
+    },
     "netIncome": 9042.96,
     "month": "2025-04",
     "distribution": 0,
@@ -562,8 +594,12 @@ export const MCNEIL = {
       "Capital Expenditures": 3700
     },
     "noi": 12325.74,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 8549.17
+    },
     "netIncome": 3776.57,
     "month": "2025-05",
     "distribution": 0,
@@ -609,8 +645,12 @@ export const MCNEIL = {
       "Capital Expenditures": 3317.12
     },
     "noi": 19836.24,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 8327.93
+    },
     "netIncome": 11508.31,
     "month": "2025-06",
     "distribution": 0,
@@ -656,8 +696,12 @@ export const MCNEIL = {
       "Capital Expenditures": 10029.31
     },
     "noi": 18894.73,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 14878.48
+    },
     "netIncome": 4016.25,
     "month": "2025-07",
     "distribution": 0,
@@ -703,8 +747,12 @@ export const MCNEIL = {
       "Capital Expenditures": 3151.14
     },
     "noi": 13685.41,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 8161.95
+    },
     "netIncome": 5523.46,
     "month": "2025-08",
     "distribution": 0,
@@ -750,8 +798,12 @@ export const MCNEIL = {
       "Capital Expenditures": 2225
     },
     "noi": 9637.51,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 7235.81
+    },
     "netIncome": 2401.7,
     "month": "2025-09",
     "distribution": 0,
@@ -805,8 +857,12 @@ export const MCNEIL = {
       "Capital Expenditures": 1990.99
     },
     "noi": 7050.17,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 7506.83
+    },
     "netIncome": -456.66,
     "month": "2025-10",
     "distribution": 0,
@@ -852,8 +908,12 @@ export const MCNEIL = {
       "Capital Expenditures": 8262.46
     },
     "noi": 10370.66,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 13939.94
+    },
     "netIncome": -3569.28,
     "month": "2025-11",
     "distribution": 0,
@@ -899,8 +959,12 @@ export const MCNEIL = {
       "Capital Expenditures": 585.91
     },
     "noi": 4576.19,
-    "debtService": 0,
-    "capitalImprovements": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 6101.75
+    },
     "netIncome": -1525.56,
     "month": "2025-12",
     "distribution": 0,
@@ -942,12 +1006,15 @@ export const MCNEIL = {
       "Utility Expenses": 2668.72,
       "Management Fees": 696.55,
       "Fixed Expenses": 5050.76,
-      "Other Non-Operating": 2337,
       "Appliances (CapEx)": 378.88
     },
     "noi": 9586.95,
-    "debtService": 5677.48,
-    "capitalImprovements": 8244.34,
+    "nonOperatingExpense": {
+      "debtService": 5677.48,
+      "otherNonOperating": 2337,
+      "capitalImprovements": 8244.34,
+      "total": 16258.82
+    },
     "netIncome": -6671.87,
     "month": "2026-01",
     "distribution": 118999.45,
@@ -981,12 +1048,15 @@ export const MCNEIL = {
       "Utility Expenses": 2090.08,
       "Management Fees": 692.19,
       "Fixed Expenses": 5021.78,
-      "Other Non-Operating": 500,
       "Appliances (CapEx)": 0
     },
     "noi": 14696.95,
-    "debtService": 4525.89,
-    "capitalImprovements": 8200.92,
+    "nonOperatingExpense": {
+      "debtService": 4525.89,
+      "otherNonOperating": 500,
+      "capitalImprovements": 8200.92,
+      "total": 13226.81
+    },
     "netIncome": 1470.14,
     "month": "2026-02",
     "distribution": 0,
@@ -1020,12 +1090,15 @@ export const MCNEIL = {
       "Utility Expenses": 1937.64,
       "Management Fees": 1047.89,
       "Fixed Expenses": 5021.78,
-      "Other Non-Operating": 0,
       "Appliances (CapEx)": 2024.41
     },
     "noi": 15825.98,
-    "debtService": 5010.81,
-    "capitalImprovements": 7537.71,
+    "nonOperatingExpense": {
+      "debtService": 5010.81,
+      "otherNonOperating": 0,
+      "capitalImprovements": 7537.71,
+      "total": 12548.52
+    },
     "netIncome": 3277.46,
     "month": "2026-03",
     "distribution": 0,
@@ -1059,12 +1132,15 @@ export const MCNEIL = {
       "Utility Expenses": 1960.45,
       "Management Fees": 777.13,
       "Fixed Expenses": 5021.78,
-      "Other Non-Operating": 2338,
       "Appliances (CapEx)": 0
     },
     "noi": 7010,
-    "debtService": 4849.17,
-    "capitalImprovements": 3299,
+    "nonOperatingExpense": {
+      "debtService": 4849.17,
+      "otherNonOperating": 2338,
+      "capitalImprovements": 3299,
+      "total": 10486.17
+    },
     "netIncome": -3476.17,
     "month": "2026-04",
     "distribution": 24999.86,
@@ -1098,12 +1174,15 @@ export const MCNEIL = {
       "Utility Expenses": 1893,
       "Management Fees": 962.17,
       "Fixed Expenses": 5021.78,
-      "Other Non-Operating": 150,
       "Appliances (CapEx)": 93.45
     },
     "noi": 8071.5,
-    "debtService": 5010.81,
-    "capitalImprovements": 10113.5,
+    "nonOperatingExpense": {
+      "debtService": 5010.81,
+      "otherNonOperating": 150,
+      "capitalImprovements": 10113.5,
+      "total": 15274.31
+    },
     "netIncome": -7202.81,
     "month": "2026-05",
     "distribution": 0,
@@ -1137,12 +1216,15 @@ export const MCNEIL = {
       "Utility Expenses": 1677.65,
       "Management Fees": 0,
       "Fixed Expenses": 5021.78,
-      "Other Non-Operating": 0,
       "Appliances (CapEx)": 230.38
     },
     "noi": 13812.52,
-    "debtService": 5010.81,
-    "capitalImprovements": 4161.71,
+    "nonOperatingExpense": {
+      "debtService": 5010.81,
+      "otherNonOperating": 0,
+      "capitalImprovements": 4161.71,
+      "total": 9172.52
+    },
     "netIncome": 4640,
     "month": "2026-06",
     "distribution": 0,

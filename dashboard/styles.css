@@ -39,3 +39,4 @@ table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th, td { text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--border); }
 th:first-child, td:first-child { text-align: left; }
 .flag-low-confidence { color: var(--loss); font-size: 11px; }
+tr.row-highlight td { border-top: 2px solid var(--fg); border-bottom: 2px solid var(--fg); font-weight: 600; }
