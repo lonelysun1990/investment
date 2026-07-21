@@ -32,3 +32,5 @@ export const occupancySource = "email";
 
 // Source: McNeil Investment Deck, ACQUSITION SUMMARY table, "# Units: 32"
 export const totalUnits = 32;
+
+export const capturesEmailOccupancy = true;

@@ -197,6 +197,14 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
       }
     }
 
+    if (dealConfig.capturesEmailOccupancy) {
+      try {
+        await captureOccupancyDocs(page, rawDir, month, subject);
+      } catch (err) {
+        console.warn(`harvestDeal: occupancy capture failed for ${dealSlug} ${month}: ${err.message}`);
+      }
+    }
+
     // Only mark a month as seen once every attachment for it has downloaded
     // successfully. A partially-downloaded month (some attachments failed)
     // must NOT be recorded as seen, so the whole month is retried on the
@@ -213,6 +221,41 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
   }
 
   return { newMonths };
+}
+
+export async function findEmailContentFrame(page) {
+  for (const frame of page.frames()) {
+    if (frame.url() !== "about:blank") continue;
+    const bodyLength = await frame.evaluate(() => document.body?.innerText?.length ?? 0).catch(() => 0);
+    if (bodyLength > 0) return frame;
+  }
+  return null;
+}
+
+export async function captureOccupancyDocs(page, rawDir, month, subject) {
+  const contentFrame = await findEmailContentFrame(page);
+  if (!contentFrame) {
+    console.warn(`captureOccupancyDocs: could not find email content frame for ${month} -- skipping`);
+    return;
+  }
+
+  const narrativeText = await contentFrame.evaluate(() => document.body.innerText);
+  await archiveFile(rawDir, month, "occupancy-narrative", "txt", Buffer.from(narrativeText, "utf8"), {
+    sourceEmailSubject: subject,
+  });
+
+  const chartHandle = await contentFrame.evaluateHandle(() => {
+    return Array.from(document.querySelectorAll("img")).find((img) => /\.png(\?|$)/i.test(img.src)) ?? null;
+  });
+  const chartEl = chartHandle.asElement();
+  if (chartEl) {
+    const chartBuffer = await chartEl.screenshot();
+    await archiveFile(rawDir, month, "occupancy-chart", "png", chartBuffer, {
+      sourceEmailSubject: subject,
+    });
+  } else {
+    console.warn(`captureOccupancyDocs: no occupancy chart image found for ${month}`);
+  }
 }
 
 export async function harvestStaticDocument(page, dealId, docLabel, docType, rawDir, batchKey = "offering") {
