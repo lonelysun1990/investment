@@ -56,8 +56,10 @@ async function downloadOrCaptureAttachment(page, href) {
   const context = page.context();
 
   let popupHandler;
+  let popupPageRef = null;
   const popupPdf = new Promise((resolve, reject) => {
     popupHandler = (newPage) => {
+      popupPageRef = newPage;
       newPage.on("response", (r) => {
         if (r.headers()["content-type"] === "application/pdf") {
           r.body().then(resolve, reject);
@@ -72,7 +74,7 @@ async function downloadOrCaptureAttachment(page, href) {
   downloadEvent.catch(() => {});
 
   const link = page.locator(`a[href="${href}"]`).first();
-  await link.click();
+  await link.click({ modifiers: ["Meta"] });
 
   try {
     const winner = await Promise.race([
@@ -87,6 +89,7 @@ async function downloadOrCaptureAttachment(page, href) {
     return winner.buffer;
   } finally {
     context.off("page", popupHandler);
+    if (popupPageRef && !popupPageRef.isClosed()) await popupPageRef.close().catch(() => {});
   }
 }
 
