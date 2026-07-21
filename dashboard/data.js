@@ -1195,22 +1195,22 @@ export const DISTRIBUTIONS = {
     {
       "date": "2025-Q1",
       "myDistribution": 570.37,
-      "totalDistribution": null
+      "totalDistribution": 0
     },
     {
       "date": "2025-Q2",
       "myDistribution": 648.14,
-      "totalDistribution": null
+      "totalDistribution": 0
     },
     {
       "date": "2025-Q3",
       "myDistribution": 699.99,
-      "totalDistribution": null
+      "totalDistribution": 0
     },
     {
       "date": "2025-Q4",
       "myDistribution": 648.14,
-      "totalDistribution": null
+      "totalDistribution": 0
     },
     {
       "date": "2026-Q1",
