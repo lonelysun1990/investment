@@ -201,70 +201,55 @@ test("extractMcneilBatch marks aggregate-only months as low confidence and strip
   await rm(TMP_RAW, { recursive: true, force: true });
 });
 
-test("extractMcneilBatch attaches occupancy only to the month the rent roll's as-of date falls in", async () => {
-  const { loadManifest } = await import("./lib/archive-store.mjs");
-  const manifest = await loadManifest("scripts/__fixtures__/raw-mcneil/2026-06");
-  const months = await extractMcneilBatch("scripts/__fixtures__/raw-mcneil/2026-06", manifest);
-  assert.equal(months.get("2026-06").occupancyPct, 84.4);
-  assert.equal(months.get("2026-05").occupancyPct, undefined);
+test("extractMcneilBatch attaches occupancy from a direct-statement narrative even with no PDF in the batch", async () => {
+  const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-direct-statement-only";
+  await rm(TMP_RAW, { recursive: true, force: true });
+
+  const { mkdir, copyFile } = await import("node:fs/promises");
+  const { saveManifest, loadManifest } = await import("./lib/archive-store.mjs");
+
+  await mkdir(`${TMP_RAW}/2024-10`, { recursive: true });
+  await copyFile(
+    "scripts/__fixtures__/mcneil-emails/2024-10-narrative.txt",
+    `${TMP_RAW}/2024-10/occupancy-narrative.txt`
+  );
+  await saveManifest(`${TMP_RAW}/2024-10`, {
+    files: [{ docType: "occupancy-narrative", fileName: "occupancy-narrative.txt", contentHash: "e1" }],
+  });
+
+  const manifest = await loadManifest(`${TMP_RAW}/2024-10`);
+  const months = await extractMcneilBatch(`${TMP_RAW}/2024-10`, manifest, null);
+
+  assert.equal(months.size, 2);
+  assert.equal(months.get("2024-10").occupancyPct, 87.5);
+  assert.equal(months.get("2024-09").occupancyPct, 90.6);
+
+  await rm(TMP_RAW, { recursive: true, force: true });
 });
 
-test("extractMcneilBatch emits an occupancy-only record when the batch has a rentroll but no cashflow-t12 PDF", async () => {
-  const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-rentroll-only";
+test("extractMcneilBatch attaches occupancy from a vacant-unit narrative when no direct statement is present", async () => {
+  const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-vacant-unit-only";
   await rm(TMP_RAW, { recursive: true, force: true });
 
   const { mkdir, copyFile } = await import("node:fs/promises");
   const { saveManifest, loadManifest } = await import("./lib/archive-store.mjs");
 
   await mkdir(`${TMP_RAW}/2026-06`, { recursive: true });
-  await copyFile("scripts/__fixtures__/mcneil/2026-06-rent-roll.xlsx", `${TMP_RAW}/2026-06/rentroll.xlsx`);
+  await copyFile(
+    "scripts/__fixtures__/mcneil-emails/2026-06-narrative.txt",
+    `${TMP_RAW}/2026-06/occupancy-narrative.txt`
+  );
   await saveManifest(`${TMP_RAW}/2026-06`, {
-    files: [{ docType: "rentroll", fileName: "rentroll.xlsx", contentHash: "d" }],
+    files: [{ docType: "occupancy-narrative", fileName: "occupancy-narrative.txt", contentHash: "e2" }],
   });
 
   const manifest = await loadManifest(`${TMP_RAW}/2026-06`);
-  const months = await extractMcneilBatch(`${TMP_RAW}/2026-06`, manifest);
+  const months = await extractMcneilBatch(`${TMP_RAW}/2026-06`, manifest, null);
 
   assert.equal(months.size, 1);
-  const june = months.get("2026-06");
-  assert.ok(june, "expected a 2026-06 record from the rentroll-only batch");
-  assert.equal(june.occupancyPct, 84.4);
-  assert.ok(june.rentRoll, "expected the record to include the full rentRoll object");
+  assert.equal(months.get("2026-06").occupancyPct, 90.6);
 
   await rm(TMP_RAW, { recursive: true, force: true });
-});
-
-test("runMcneilExtraction folds batches so an earlier batch's occupancy survives a later batch that lacks a rent roll", async () => {
-  const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-fold-raw";
-  const outputPath = "scripts/__fixtures__/tmp-mcneil-fold-output.json";
-  await rm(TMP_RAW, { recursive: true, force: true });
-  await rm(outputPath, { force: true });
-
-  const { mkdir, copyFile } = await import("node:fs/promises");
-  const { saveManifest } = await import("./lib/archive-store.mjs");
-
-  await mkdir(`${TMP_RAW}/2026-05`, { recursive: true });
-  await copyFile("scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf", `${TMP_RAW}/2026-05/cashflow-t12.pdf`);
-  await copyFile("scripts/__fixtures__/mcneil/2026-06-rent-roll.xlsx", `${TMP_RAW}/2026-05/rentroll.xlsx`);
-  await saveManifest(`${TMP_RAW}/2026-05`, {
-    files: [
-      { docType: "cashflow-t12", fileName: "cashflow-t12.pdf", contentHash: "a" },
-      { docType: "rentroll", fileName: "rentroll.xlsx", contentHash: "b" },
-    ],
-  });
-
-  await mkdir(`${TMP_RAW}/2026-06`, { recursive: true });
-  await copyFile("scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf", `${TMP_RAW}/2026-06/cashflow-t12.pdf`);
-  await saveManifest(`${TMP_RAW}/2026-06`, {
-    files: [{ docType: "cashflow-t12", fileName: "cashflow-t12.pdf", contentHash: "c" }],
-  });
-
-  await runMcneilExtraction(TMP_RAW, outputPath);
-  const written = JSON.parse(await readFile(outputPath, "utf8"));
-  assert.equal(written["2026-06"].occupancyPct, 84.4, "occupancy from the 2026-05 batch's rent roll should survive into 2026-06");
-
-  await rm(TMP_RAW, { recursive: true, force: true });
-  await rm(outputPath, { force: true });
 });
 
 test("parses the Trailing Profit And Loss Detail header into 12 real months (Oct 2024-Sep 2025)", async () => {
@@ -315,7 +300,7 @@ test("extractMcneilPnl accepts an optional pageRange and extracts only that rang
   assert.equal(result.get("2024-10").netIncome, -11374.71);
 });
 
-test("extractMcneilBatch extracts P&L, occupancy, and zero distribution from a real bundled multi-report PDF", async () => {
+test("extractMcneilBatch extracts P&L and zero distribution from a real bundled multi-report PDF", async () => {
   const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-bundle-batch";
   await rm(TMP_RAW, { recursive: true, force: true });
 
@@ -355,7 +340,10 @@ test("extractMcneilBatch extracts P&L, occupancy, and zero distribution from a r
   assert.equal(oct2024.distribution, 0, "trailing-pnl-detail sections never carry a distribution row");
 
   const sep2025 = months.get("2025-09");
-  assert.equal(sep2025.occupancyPct, 90.6, "the batch's own rentroll-pdf section (9/30/2025) should attach to Sep 2025");
+  // occupancyPct now comes exclusively from the email narrative/chart pipeline (Task 4),
+  // not from the batch's rentroll-pdf section -- this fixture has no archived
+  // occupancy-narrative/occupancy-chart doc, so occupancyPct is correctly absent.
+  assert.equal(sep2025.occupancyPct, undefined);
 
   await rm(TMP_RAW, { recursive: true, force: true });
 });

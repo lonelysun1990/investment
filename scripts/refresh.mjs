@@ -32,7 +32,7 @@ async function main() {
   }
 
   const legacyResult = await runLegacyExtraction(config.vision_llm ?? null, path.join(resolveArchiveRoot(), "legacy"), "data/legacy.json");
-  const mcneilResult = await runMcneilExtraction(path.join(resolveArchiveRoot(), "mcneil"), "data/mcneil.json");
+  const mcneilResult = await runMcneilExtraction(config.vision_llm ?? null, path.join(resolveArchiveRoot(), "mcneil"), "data/mcneil.json");
 
   console.log(formatRefreshSummary({ legacy: legacyResult, mcneil: mcneilResult }));
 

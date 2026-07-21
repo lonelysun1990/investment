@@ -221,11 +221,13 @@ export async function extractMcneilDistributions(pdfPath, labelPattern, pageRang
 }
 
 import path from "node:path";
-import { extractRentRoll } from "./extract-mcneil-rentroll.mjs";
-import { extractRentRollPdf } from "./extract-mcneil-rentroll-pdf.mjs";
+import { readFile } from "node:fs/promises";
 import { runGenericExtraction } from "./lib/run-extraction.mjs";
-import { distributionLabel } from "./deals/mcneil.config.mjs";
+import { distributionLabel, totalUnits } from "./deals/mcneil.config.mjs";
 import { resolveArchiveRoot } from "./lib/archive-store.mjs";
+import { extractDirectStatement, extractVacantUnitNarrative } from "./extract-mcneil-occupancy-narrative.mjs";
+import { extractOccupancyChart } from "./extract-mcneil-occupancy-chart.mjs";
+import { mergeOccupancySources } from "./lib/merge-occupancy.mjs";
 
 function findSections(manifest, docTypes) {
   const results = [];
@@ -240,24 +242,47 @@ function findSections(manifest, docTypes) {
   return results;
 }
 
-export async function extractMcneilBatch(batchDir, manifest) {
-  const months = new Map();
+async function extractMcneilOccupancy(batchDir, manifest, batchMonth, config) {
+  const narrativeSections = findSections(manifest, ["occupancy-narrative"]);
+  const chartSections = findSections(manifest, ["occupancy-chart"]);
 
-  const rentRolls = [];
-  for (const { fileName } of findSections(manifest, ["rentroll"])) {
-    rentRolls.push(await extractRentRoll(path.join(batchDir, fileName)));
+  let directStatement = new Map();
+  let vacantNarrative = new Map();
+  if (narrativeSections.length > 0) {
+    const narrativeText = await readFile(path.join(batchDir, narrativeSections[0].fileName), "utf8");
+    const direct = extractDirectStatement(narrativeText, batchMonth);
+    if (direct) directStatement = new Map(Object.entries(direct));
+    const vacant = extractVacantUnitNarrative(narrativeText, batchMonth, totalUnits);
+    if (vacant) vacantNarrative = new Map(Object.entries(vacant));
   }
-  for (const { fileName, pageRange } of findSections(manifest, ["rentroll-pdf"])) {
-    rentRolls.push(await extractRentRollPdf(path.join(batchDir, fileName), pageRange));
+
+  let chart = new Map();
+  if (chartSections.length > 0) {
+    const chartResult = await extractOccupancyChart(
+      config,
+      path.join(batchDir, chartSections[0].fileName),
+      batchMonth
+    );
+    if (chartResult) chart = new Map(Object.entries(chartResult));
   }
+
+  return mergeOccupancySources(
+    [directStatement, vacantNarrative, chart],
+    ["direct statement", "vacant-unit narrative", "chart"]
+  );
+}
+
+export async function extractMcneilBatch(batchDir, manifest, config) {
+  const months = new Map();
+  const batchMonth = path.basename(batchDir);
+
+  const occupancyByMonth = await extractMcneilOccupancy(batchDir, manifest, batchMonth, config);
 
   const pnlSections = findSections(manifest, ["cashflow-t12", "trailing-pnl-detail"]);
 
   if (pnlSections.length === 0) {
-    for (const rentRoll of rentRolls) {
-      if (!rentRoll.asOfDate) continue;
-      const month = rentRoll.asOfDate.slice(0, 7);
-      months.set(month, { month, occupancyPct: rentRoll.occupancyPct, rentRoll });
+    for (const [month, occupancyPct] of occupancyByMonth) {
+      months.set(month, { month, occupancyPct });
     }
     return months;
   }
@@ -282,22 +307,32 @@ export async function extractMcneilBatch(batchDir, manifest) {
           confidence: expenseIsAggregateOnly ? "low" : "high",
         },
       };
-      const matchingRentRoll = rentRolls.find((r) => r.asOfDate?.startsWith(month));
-      if (matchingRentRoll) {
-        record.occupancyPct = matchingRentRoll.occupancyPct;
-        record.rentRoll = matchingRentRoll;
+      if (occupancyByMonth.has(month)) {
+        record.occupancyPct = occupancyByMonth.get(month);
       }
       months.set(month, record);
     }
   }
+
+  for (const [month, occupancyPct] of occupancyByMonth) {
+    if (!months.has(month)) months.set(month, { month, occupancyPct });
+  }
+
   return months;
 }
 
-export async function runMcneilExtraction(rawDir, outputPath) {
-  return runGenericExtraction(rawDir, outputPath, extractMcneilBatch);
+export async function runMcneilExtraction(config, rawDir, outputPath) {
+  return runGenericExtraction(rawDir, outputPath, (batchDir, manifest) => extractMcneilBatch(batchDir, manifest, config));
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const result = await runMcneilExtraction(path.join(resolveArchiveRoot(), "mcneil"), "data/mcneil.json");
+  let config = null;
+  try {
+    const raw = await readFile("config.json", "utf8");
+    config = JSON.parse(raw).vision_llm ?? null;
+  } catch {
+    console.warn("extract-mcneil: no config.json / vision_llm block found; occupancy chart reading will be skipped.");
+  }
+  const result = await runMcneilExtraction(config, path.join(resolveArchiveRoot(), "mcneil"), "data/mcneil.json");
   console.log(`Processed months: ${result.monthsProcessed.join(", ") || "(none)"}`);
 }
