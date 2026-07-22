@@ -91,7 +91,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 82
   },
   "2024-11": {
     "income": {
@@ -140,7 +141,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 88
   },
   "2024-12": {
     "income": {
@@ -189,7 +191,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 88
   },
   "2025-01": {
     "income": {
@@ -240,7 +243,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 86
   },
   "2025-02": {
     "income": {
@@ -291,7 +295,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 90
   },
   "2025-03": {
     "income": {
@@ -342,7 +347,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 95
   },
   "2025-04": {
     "income": {
@@ -393,7 +399,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 92
   },
   "2025-05": {
     "income": {
@@ -444,7 +451,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 95
   },
   "2025-06": {
     "income": {
@@ -495,7 +503,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 95
   },
   "2025-07": {
     "income": {
@@ -546,7 +555,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 97
   },
   "2025-08": {
     "income": {
@@ -597,7 +607,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 95
   },
   "2025-09": {
     "income": {
@@ -649,16 +660,11 @@
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 90.6,
-    "rentRoll": {
-      "asOfDate": "2025-09-30",
-      "totalUnits": 32,
-      "occupiedUnits": 29,
-      "vacantUnits": 3,
-      "occupancyPct": 90.6
-    }
+    "occupancyPct": 93
   },
   "2025-10": {
+    "month": "2025-10",
+    "occupancyPct": 89,
     "income": {
       "rental": 22970.43,
       "other": 1465.42,
@@ -701,8 +707,6 @@
       "total": 7506.83
     },
     "netIncome": -456.66,
-    "month": "2025-10",
-    "distribution": 0,
     "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/mcneil/2026-01/balance-sheet.pdf",
     "extraction": {
       "method": "deterministic",
@@ -758,7 +762,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 82
   },
   "2025-12": {
     "income": {
@@ -810,16 +815,11 @@
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 84.4,
-    "rentRoll": {
-      "asOfDate": "2025-12-31",
-      "totalUnits": 32,
-      "occupiedUnits": 27,
-      "vacantUnits": 5,
-      "occupancyPct": 84.4
-    }
+    "occupancyPct": 88
   },
   "2026-01": {
+    "month": "2026-01",
+    "occupancyPct": 84,
     "income": {
       "rental": 21769.68,
       "other": 1754.85,
@@ -853,7 +853,6 @@
       "total": 16258.82
     },
     "netIncome": -6671.87,
-    "month": "2026-01",
     "distribution": 118999.45,
     "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/mcneil/2026-06/cashflow-t12.pdf",
     "extraction": {
@@ -901,7 +900,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
-    }
+    },
+    "occupancyPct": 85
   },
   "2026-03": {
     "income": {
@@ -943,7 +943,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
-    }
+    },
+    "occupancyPct": 85
   },
   "2026-04": {
     "income": {
@@ -985,7 +986,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
-    }
+    },
+    "occupancyPct": 85
   },
   "2026-05": {
     "income": {
@@ -1027,7 +1029,8 @@
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
-    }
+    },
+    "occupancyPct": 87
   },
   "2026-06": {
     "income": {
@@ -1070,22 +1073,6 @@
       "method": "deterministic",
       "confidence": "high"
     },
-    "occupancyPct": 84.4,
-    "rentRoll": {
-      "asOfDate": "2026-06-30",
-      "totalUnits": 32,
-      "occupiedUnits": 27,
-      "occupancyPct": 84.4,
-      "vacantUnits": 4,
-      "otherStatusUnits": [
-        {
-          "unit": "213",
-          "status": "UE"
-        }
-      ],
-      "avgMarketRent": 1001.11,
-      "avgActualRent": 983.89,
-      "lossToLeaseTotal": 465
-    }
+    "occupancyPct": 90.6
   }
 }

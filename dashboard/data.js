@@ -1,8 +1,426 @@
 // GENERATED FILE — do not edit by hand. Run `npm run refresh` to regenerate.
 export const LEGACY = {
+  "2025-02": {
+    "month": "2025-02",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 0,
+      "other": 0,
+      "total": 0
+    },
+    "expense": {
+      "5000.001 General and Administrative": 0,
+      "5099.001 Advertising and marketing": 0,
+      "5100.001 Employee Expense": 0,
+      "5200.001 Repair/Maint Expense": 0,
+      "5300.001 Make Ready Expense": 0,
+      "5400.001 Utility Expense": 0,
+      "6100.001 Fixed Expenses": 0,
+      "6102.001 Real Estate Taxes": 0,
+      "6103.001 Property Insurance": 0,
+      "6106.001 Other Legal, Accounting & Professional": 0,
+      "6900.001 Management Fees": 0,
+      "total": 0
+    },
+    "noi": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 0
+    },
+    "netIncome": 0,
+    "narrative": null,
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-01/monthly-update.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2025-03": {
+    "month": "2025-03",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 0,
+      "other": 0,
+      "total": 0
+    },
+    "expense": {
+      "5000.001 General and Administrative": 0,
+      "5099.001 Advertising and marketing": 0,
+      "5100.001 Employee Expense": 0,
+      "5200.001 Repair/Maint Expense": 0,
+      "5300.001 Make Ready Expense": 0,
+      "5400.001 Utility Expense": 0,
+      "6100.001 Fixed Expenses": 0,
+      "6102.001 Real Estate Taxes": 0,
+      "6103.001 Property Insurance": 0,
+      "6106.001 Other Legal, Accounting & Professional": 0,
+      "6900.001 Management Fees": 0,
+      "total": 0
+    },
+    "noi": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 0
+    },
+    "netIncome": 0,
+    "narrative": null,
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-01/monthly-update.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2025-04": {
+    "month": "2025-04",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 0,
+      "other": 0,
+      "total": 0
+    },
+    "expense": {
+      "5000.001 General and Administrative": 0,
+      "5099.001 Advertising and marketing": 0,
+      "5100.001 Employee Expense": 0,
+      "5200.001 Repair/Maint Expense": 0,
+      "5300.001 Make Ready Expense": 0,
+      "5400.001 Utility Expense": 0,
+      "6100.001 Fixed Expenses": 0,
+      "6102.001 Real Estate Taxes": 0,
+      "6103.001 Property Insurance": 0,
+      "6106.001 Other Legal, Accounting & Professional": 0,
+      "6900.001 Management Fees": 0,
+      "total": 0
+    },
+    "noi": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 0
+    },
+    "netIncome": 0,
+    "narrative": null,
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-01/monthly-update.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2025-05": {
+    "month": "2025-05",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 0,
+      "other": 0,
+      "total": 0
+    },
+    "expense": {
+      "5000.001 General and Administrative": 0,
+      "5099.001 Advertising and marketing": 0,
+      "5100.001 Employee Expense": 0,
+      "5200.001 Repair/Maint Expense": 0,
+      "5300.001 Make Ready Expense": 0,
+      "5400.001 Utility Expense": 0,
+      "6100.001 Fixed Expenses": 0,
+      "6102.001 Real Estate Taxes": 0,
+      "6103.001 Property Insurance": 0,
+      "6106.001 Other Legal, Accounting & Professional": 0,
+      "6900.001 Management Fees": 0,
+      "total": 0
+    },
+    "noi": 0,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 0
+    },
+    "netIncome": 0,
+    "narrative": null,
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-01/monthly-update.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2025-06": {
+    "month": "2025-06",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 0,
+      "other": 0,
+      "total": 0
+    },
+    "expense": {
+      "5000.001 General and Administrative": 0,
+      "5099.001 Advertising and marketing": 0,
+      "5100.001 Employee Expense": 0,
+      "5200.001 Repair/Maint Expense": 0,
+      "5300.001 Make Ready Expense": 0,
+      "5400.001 Utility Expense": 0,
+      "6100.001 Fixed Expenses": 0,
+      "6102.001 Real Estate Taxes": 0,
+      "6103.001 Property Insurance": 0,
+      "6106.001 Other Legal, Accounting & Professional": 0,
+      "6900.001 Management Fees": 0,
+      "total": 190.25
+    },
+    "noi": -190.25,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 0
+    },
+    "netIncome": -190.25,
+    "narrative": null,
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-01/monthly-update.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2025-07": {
+    "month": "2025-07",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 0,
+      "other": 0,
+      "total": 0
+    },
+    "expense": {
+      "5000.001 General and Administrative": 10.31,
+      "5099.001 Advertising and marketing": 0,
+      "5100.001 Employee Expense": 0,
+      "5200.001 Repair/Maint Expense": 0,
+      "5300.001 Make Ready Expense": 0,
+      "5400.001 Utility Expense": 0,
+      "6100.001 Fixed Expenses": 0,
+      "6102.001 Real Estate Taxes": 0,
+      "6103.001 Property Insurance": 0,
+      "6106.001 Other Legal, Accounting & Professional": 0,
+      "6900.001 Management Fees": 0,
+      "total": 10.31
+    },
+    "noi": -10.31,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 0
+    },
+    "netIncome": -10.31,
+    "narrative": null,
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-01/monthly-update.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2025-08": {
+    "month": "2025-08",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 6.25,
+      "other": 0,
+      "total": 6.25
+    },
+    "expense": {
+      "5000.001 General and Administrative": 0,
+      "5099.001 Advertising and marketing": 0,
+      "5100.001 Employee Expense": 0,
+      "5200.001 Repair/Maint Expense": 0,
+      "5300.001 Make Ready Expense": 0,
+      "5400.001 Utility Expense": 0,
+      "6100.001 Fixed Expenses": 0,
+      "6102.001 Real Estate Taxes": 0,
+      "6103.001 Property Insurance": 0,
+      "6106.001 Other Legal, Accounting & Professional": 184,
+      "6900.001 Management Fees": 0,
+      "total": 190.25
+    },
+    "noi": -184,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 0
+    },
+    "netIncome": -184.25,
+    "narrative": null,
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-01/monthly-update.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2025-09": {
+    "month": "2025-09",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 10.31,
+      "other": 0,
+      "total": 10.31
+    },
+    "expense": {
+      "5000.001 General and Administrative": 0,
+      "5099.001 Advertising and marketing": 235.23,
+      "5100.001 Employee Expense": 0,
+      "5200.001 Repair/Maint Expense": 0,
+      "5300.001 Make Ready Expense": 0,
+      "5400.001 Utility Expense": 0,
+      "6100.001 Fixed Expenses": 0,
+      "6102.001 Real Estate Taxes": 0,
+      "6103.001 Property Insurance": 0,
+      "6106.001 Other Legal, Accounting & Professional": 0,
+      "6900.001 Management Fees": 0,
+      "total": 235.23
+    },
+    "noi": -224.92,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 0
+    },
+    "netIncome": -224.92,
+    "narrative": null,
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-01/monthly-update.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2025-10": {
+    "month": "2025-10",
+    "occupancyPct": null,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 9,
+      "other": 49.57,
+      "total": 58.57
+    },
+    "expense": {
+      "5000.001 General and Administrative": 0,
+      "5099.001 Advertising and marketing": 49.57,
+      "5100.001 Employee Expense": 8,
+      "5200.001 Repair/Maint Expense": 4,
+      "5300.001 Make Ready Expense": 0,
+      "5400.001 Utility Expense": 0,
+      "6100.001 Fixed Expenses": 0,
+      "6102.001 Real Estate Taxes": 0,
+      "6103.001 Property Insurance": 0,
+      "6106.001 Other Legal, Accounting & Professional": 0,
+      "6900.001 Management Fees": 0,
+      "total": 61.57
+    },
+    "noi": -3,
+    "nonOperatingExpense": {
+      "debtService": 7000,
+      "otherNonOperating": 0,
+      "capitalImprovements": 0,
+      "total": 7000
+    },
+    "netIncome": -7003,
+    "narrative": null,
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-01/monthly-update.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2025-11": {
+    "month": "2025-11",
+    "occupancyPct": 94,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 9100.42,
+      "other": 0,
+      "total": 9100.42
+    },
+    "expense": {
+      "5000.001 General and Administrative": 1093.19,
+      "5099.001 Advertising and marketing": 49.57,
+      "5100.001 Employee Expense": 0,
+      "5200.001 Repair/Maint Expense": 0,
+      "5300.001 Make Ready Expense": 0,
+      "5400.001 Utility Expense": 0,
+      "6100.001 Fixed Expenses": 0,
+      "6102.001 Real Estate Taxes": 0,
+      "6300.001 Property Insurance": 0,
+      "6116.001 Other Legal, Accounting & Professional": 1046.2,
+      "6900.001 Management Fees": 691.45,
+      "total": 3280.41
+    },
+    "noi": 5820.01,
+    "nonOperatingExpense": {
+      "debtService": 0,
+      "otherNonOperating": 21543.1,
+      "capitalImprovements": 12089.32,
+      "total": 33632.42
+    },
+    "netIncome": -27812.41,
+    "narrative": "Operations Overview\n\n We ended November with occupancy at 94%, and currently have one notice-to-vacate.\n\n The transition with our property management (PM) team after acquisition has been going smoothly. The former full-time leasing manager at the\n property was hired on by our PM team, and she is continuing to help with operations on-site at The Legacy on a part-time basis, with the plan\n ultimately for her to move off-site and no longer be needed at The Legacy within the coming days.\n\n We are also glad to share that the former full-time maintenance manager has accepted our offer to stay on with us at The Legacy on a part-time\n basis. In addition to handling standard maintenance requests, he will also be responsible for landscaping, unit turnovers, and showing units. He\n is a hard worker who knows the property well and gets along great with the residents, so this is a win for us!\n\n\n\nFinancial Overview\n\n Since we acquired the property mid-month on 11/14/25, we do not have a normal, full month of financials for November. Therefore, we will plan\n to provide financial information beginning with December’s data on next month's investor report.",
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-02/monthly-update.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
+  "2025-12": {
+    "month": "2025-12",
+    "occupancyPct": 84,
+    "preLeasedPct": null,
+    "income": {
+      "rental": 20128.47,
+      "other": 7137.5,
+      "total": 27265.97
+    },
+    "expense": {
+      "5000.001 General and Administrative": 642.91,
+      "5099.001 Advertising and marketing": 0,
+      "5100.001 Employee Expense": 8652.48,
+      "5200.001 Repair/Maint Expense": 834.81,
+      "5300.001 Make Ready Expense": 0,
+      "5400.001 Utility Expense": 0,
+      "6100.001 Fixed Expenses": 0,
+      "6102.001 Real Estate Taxes": 0,
+      "6300.001 Property Insurance": 1378.76,
+      "6116.001 Other Legal, Accounting & Professional": 1056.7,
+      "6900.001 Management Fees": 668.09,
+      "total": 13152.75
+    },
+    "noi": 14113.22,
+    "nonOperatingExpense": {
+      "debtService": 3701.75,
+      "otherNonOperating": 58681.94,
+      "capitalImprovements": 0,
+      "total": 62383.69
+    },
+    "netIncome": -48270.47,
+    "narrative": "Operations Overview\n\n We ended December with occupancy at 84%.\n\n We had a couple move-outs in December for family and medical reasons.\n\n This week, we signed a 6-month contract with Zillow. This will grant us access to the full Zillow suite of platforms, including Zillow, Redfin,\n Trulia, HotPads, and Apartments.com. Facebook Marketplace and drivebys are producing some leads, but we want to expand our reach even\n further as we work to lease up the vacant units.\n\n\n\n\nFinancial Overview\n\n Net Rental Income for December was $20,238. Total revenue for the month was $21,376, which netted to an NOI of $7,033.",
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-02/monthly-update.pdf",
+    "extraction": {
+      "method": "vision_llm",
+      "confidence": "low"
+    }
+  },
   "2026-01": {
     "month": "2026-01",
-    "occupancyPct": null,
+    "occupancyPct": 87,
     "preLeasedPct": null,
     "income": {
       "rental": 21255,
@@ -22,11 +440,15 @@ export const LEGACY = {
       "total": 25218.01
     },
     "noi": 2536.16,
-    "debtService": 6750.25,
-    "capitalImprovements": 8491.57,
+    "nonOperatingExpense": {
+      "debtService": 6750.25,
+      "otherNonOperating": 0,
+      "capitalImprovements": 8491.57,
+      "total": 15241.82
+    },
     "netIncome": -12705.66,
-    "narrative": null,
-    "sourceFile": "data/raw/legacy/2026-05/monthly-update.pdf",
+    "narrative": "Operations Overview\n\n We ended January with occupancy at 87%.\n\n Most leads still originate from Facebook Marketplace and drive-by traffic, although we are beginning to see some interest from our Zillow\n marketing now as well.\n\n\n\n\nFinancial Overview\n\n Net Rental Income for January was $21,255. Total revenue for the month was $27,754, which netted to an NOI of $2,536.",
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-05/monthly-update.pdf",
     "extraction": {
       "method": "vision_llm",
       "confidence": "high"
@@ -34,7 +456,7 @@ export const LEGACY = {
   },
   "2026-02": {
     "month": "2026-02",
-    "occupancyPct": null,
+    "occupancyPct": 77,
     "preLeasedPct": null,
     "income": {
       "rental": 15173.41,
@@ -45,7 +467,7 @@ export const LEGACY = {
       "Administration Expense": 692,
       "Marketing": 50.32,
       "Salaries & Wages": 2157.8,
-      "Contract Services": 117.4,
+      "Contract Services": 0,
       "Repair/Maintenance Expenses": 0,
       "Make Ready Expense": 0,
       "Utility Expenses": 8784.38,
@@ -54,11 +476,15 @@ export const LEGACY = {
       "total": 17637.01
     },
     "noi": 4807.05,
-    "debtService": 6750.25,
-    "capitalImprovements": 1753.71,
+    "nonOperatingExpense": {
+      "debtService": 6750.25,
+      "otherNonOperating": 0,
+      "capitalImprovements": 1753.71,
+      "total": 8503.96
+    },
     "netIncome": -3696.91,
-    "narrative": null,
-    "sourceFile": "data/raw/legacy/2026-05/monthly-update.pdf",
+    "narrative": "Operations Overview\n\n We ended February with occupancy at 77%. As of today, we are at 84% occupancy.\n\n Most leads still originate from Facebook Marketplace and drive-by traffic.\n\n Over the last couple of weeks, we have began the process of transitioning property management from Golden Group Multifamily to Touchstone\n Property Management. This mirrors our strategy at McNeil Star Apartments in Dallas, where we switched from Golden Group to Touchstone\n earlier this year, and we are already seeing noticeable improvement. Touchstone is a well-established, full-service firm that specializes in this\n market and comes highly recommended by other local multifamily operators. I have also known their CEO, Joel, through Dallas real estate\n networks for a couple of years.\n\n With Touchstone’s local expertise and more sophisticated in-house leasing and operations team, we are confident this change will improve\n leasing momentum and stabilize occupancy moving forward.\n\n Touchstone is set to take over as our property management firm for Legacy effective April 1.\n\n\n\nFinancial Overview\n\n\n Net Rental Income for February was $15,173. Total revenue for the month was $22,444, which netted to an NOI of $4,807.",
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-05/monthly-update.pdf",
     "extraction": {
       "method": "vision_llm",
       "confidence": "high"
@@ -66,7 +492,7 @@ export const LEGACY = {
   },
   "2026-03": {
     "month": "2026-03",
-    "occupancyPct": null,
+    "occupancyPct": 87,
     "preLeasedPct": null,
     "income": {
       "rental": 22814.35,
@@ -77,28 +503,33 @@ export const LEGACY = {
       "Administration Expense": 610.35,
       "Marketing": 120,
       "Salaries & Wages": 3454.42,
-      "Contract Services": 0,
+      "Contract Services": 117.4,
       "Repair/Maintenance Expenses": 674.83,
-      "Make Ready Expense": 264.45,
+      "Make Ready Expense": 0,
       "Utility Expenses": 6906.57,
       "Management Fees": 671.6,
       "Fixed Expenses": 5326.66,
       "total": 18146.28
     },
-    "noi": 9306.48,
-    "debtService": 6532.5,
-    "capitalImprovements": 119.51,
+    "noi": 9309.48,
+    "nonOperatingExpense": {
+      "debtService": 6532.5,
+      "otherNonOperating": 0,
+      "capitalImprovements": 119.51,
+      "total": 6216.51
+    },
     "netIncome": 3143.97,
-    "narrative": null,
-    "sourceFile": "data/raw/legacy/2026-05/monthly-update.pdf",
+    "narrative": "Operations Overview\n\n We ended March with occupancy at 87%, and are off to a great start with Touchstone Property Management.\n\n Touchstone has already hit the ground running - refreshing landscaping, restoring the laundry machines, working with residents on collecting\n delinquent balances, and systematically addressing make-ready units and renovations that were left incomplete by our prior management\n company.\n\n Most leads still originate from Facebook Marketplace and drive-by traffic.\n\n\n\n\nFinancial Overview\n\n March financials are not yet available, as they are currently being finalized by our former property management company, who have been\n difficult to work with during the management transition.\n\n That said, it is very likely that the next financials we see will be for April, when Touchstone has a chance to complete them for their first month\n of management. Thanks for your understanding.",
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-05/monthly-update.pdf",
     "extraction": {
       "method": "vision_llm",
       "confidence": "high"
-    }
+    },
+    "reconciled": false
   },
   "2026-04": {
     "month": "2026-04",
-    "occupancyPct": null,
+    "occupancyPct": 84,
     "preLeasedPct": null,
     "income": {
       "rental": 21135.35,
@@ -111,18 +542,22 @@ export const LEGACY = {
       "Salaries & Wages": 2363.28,
       "Contract Services": 0,
       "Repair/Maintenance Expenses": 149.24,
-      "Make Ready Expense": 0,
+      "Make Ready Expense": 264.45,
       "Utility Expenses": 4917.96,
       "Management Fees": 999.52,
       "Fixed Expenses": 5326.66,
       "total": 14275.1
     },
     "noi": 8721.76,
-    "debtService": 6730.25,
-    "capitalImprovements": 2349.09,
+    "nonOperatingExpense": {
+      "debtService": 6750.25,
+      "otherNonOperating": 0,
+      "capitalImprovements": 2349.09,
+      "total": 9599.34
+    },
     "netIncome": -877.58,
-    "narrative": null,
-    "sourceFile": "data/raw/legacy/2026-05/monthly-update.pdf",
+    "narrative": "Operations Overview\n\n We ended April with occupancy at 84%.\n\n Our Property Manager, Joel, has been busy communicating with the residents about the management change and how they can set up their\n resident portals for online payments, maintence requests, etc. Joel’s biggest priority now is working on collections and lowering the delinquent\n balances.\n\n Unfortunately, we had to fire our part-time maintenance and leasing guy, Aaron, as we confirmed he was not actually working for the complete\n time he was reporting. We had been suspicious for a few weeks with pop-in property visits by our GP team. After installing security cameras\n and having Joel install a property-specific GPS tracker on Aaron’s timecard software on his phone, our suspicion was confirmed.\n\n The good news is that Joel has already found a new part-time leasing manager, Beverly, who is now a couple weeks into her role. We have\n also worked out an arrangement with Joel regarding maintence, where once a week, one of his Touchstone guys will visit Legacy Apt to take\n care of all non-emergecy tickets, essentially batching the maintenance work process to save on multiple separate trips.\n\n\n\n\nFinancial Overview\n\n\n Net Rental Income for April was $22,022. Total revenue for the month was $24,198, which netted to an NOI of $12,286.",
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-05/monthly-update.pdf",
     "extraction": {
       "method": "vision_llm",
       "confidence": "high"
@@ -150,15 +585,20 @@ export const LEGACY = {
       "total": 14309.59
     },
     "noi": 2527.04,
-    "debtService": 6750.25,
-    "capitalImprovements": 2967.26,
+    "nonOperatingExpense": {
+      "debtService": 6750.25,
+      "otherNonOperating": 500,
+      "capitalImprovements": 2967.26,
+      "total": 11784.76
+    },
     "netIncome": -9347.72,
     "narrative": "Operations Overview\n\n We ended May with occupancy at 74%.\n\n Our PM team is currently processing two evictions.\n\n 8 leases are up for renewal in the coming weeks, and all 8 want to stay, with a $50/mo. rent increase on their renewals.\n\n Leasing activity has increased in the recent weeks, with multiple showings and applications. Most leads continue to come through Facebook\n Marketplace.\n\n As of today, we are pre-leased to 90% occupancy.\n\n\n\n\nFinancial Overview\n\n\n Net Rental Income for May was $18,449. Total revenue for the month was $16,837, which netted to an NOI of $2,527.",
-    "sourceFile": "data/raw/legacy/2026-05/monthly-update.pdf",
+    "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/legacy/2026-05/monthly-update.pdf",
     "extraction": {
       "method": "vision_llm",
       "confidence": "high"
-    }
+    },
+    "reconciled": false
   }
 };
 export const MCNEIL = {
@@ -254,7 +694,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 82
   },
   "2024-11": {
     "income": {
@@ -303,7 +744,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 88
   },
   "2024-12": {
     "income": {
@@ -352,7 +794,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 88
   },
   "2025-01": {
     "income": {
@@ -403,7 +846,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 86
   },
   "2025-02": {
     "income": {
@@ -454,7 +898,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 90
   },
   "2025-03": {
     "income": {
@@ -505,7 +950,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 95
   },
   "2025-04": {
     "income": {
@@ -556,7 +1002,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 92
   },
   "2025-05": {
     "income": {
@@ -607,7 +1054,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 95
   },
   "2025-06": {
     "income": {
@@ -658,7 +1106,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 95
   },
   "2025-07": {
     "income": {
@@ -709,7 +1158,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 97
   },
   "2025-08": {
     "income": {
@@ -760,7 +1210,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 95
   },
   "2025-09": {
     "income": {
@@ -812,16 +1263,11 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 90.6,
-    "rentRoll": {
-      "asOfDate": "2025-09-30",
-      "totalUnits": 32,
-      "occupiedUnits": 29,
-      "vacantUnits": 3,
-      "occupancyPct": 90.6
-    }
+    "occupancyPct": 93
   },
   "2025-10": {
+    "month": "2025-10",
+    "occupancyPct": 89,
     "income": {
       "rental": 22970.43,
       "other": 1465.42,
@@ -864,8 +1310,6 @@ export const MCNEIL = {
       "total": 7506.83
     },
     "netIncome": -456.66,
-    "month": "2025-10",
-    "distribution": 0,
     "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/mcneil/2026-01/balance-sheet.pdf",
     "extraction": {
       "method": "deterministic",
@@ -921,7 +1365,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 82
   },
   "2025-12": {
     "income": {
@@ -973,16 +1418,11 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 84.4,
-    "rentRoll": {
-      "asOfDate": "2025-12-31",
-      "totalUnits": 32,
-      "occupiedUnits": 27,
-      "vacantUnits": 5,
-      "occupancyPct": 84.4
-    }
+    "occupancyPct": 88
   },
   "2026-01": {
+    "month": "2026-01",
+    "occupancyPct": 84,
     "income": {
       "rental": 21769.68,
       "other": 1754.85,
@@ -1016,7 +1456,6 @@ export const MCNEIL = {
       "total": 16258.82
     },
     "netIncome": -6671.87,
-    "month": "2026-01",
     "distribution": 118999.45,
     "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/mcneil/2026-06/cashflow-t12.pdf",
     "extraction": {
@@ -1064,7 +1503,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
-    }
+    },
+    "occupancyPct": 85
   },
   "2026-03": {
     "income": {
@@ -1106,7 +1546,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
-    }
+    },
+    "occupancyPct": 85
   },
   "2026-04": {
     "income": {
@@ -1148,7 +1589,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
-    }
+    },
+    "occupancyPct": 85
   },
   "2026-05": {
     "income": {
@@ -1190,7 +1632,8 @@ export const MCNEIL = {
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
-    }
+    },
+    "occupancyPct": 87
   },
   "2026-06": {
     "income": {
@@ -1233,23 +1676,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "high"
     },
-    "occupancyPct": 84.4,
-    "rentRoll": {
-      "asOfDate": "2026-06-30",
-      "totalUnits": 32,
-      "occupiedUnits": 27,
-      "occupancyPct": 84.4,
-      "vacantUnits": 4,
-      "otherStatusUnits": [
-        {
-          "unit": "213",
-          "status": "UE"
-        }
-      ],
-      "avgMarketRent": 1001.11,
-      "avgActualRent": 983.89,
-      "lossToLeaseTotal": 465
-    }
+    "occupancyPct": 90.6
   }
 };
 export const PROJECTIONS = {};
@@ -1327,11 +1754,22 @@ export const DERIVED = {
     "totalRaise": 1100000,
     "totalPropertyDistributed": null,
     "larryDistributed": 365.21,
-    "larryNetIncomeShare": -1067.45,
+    "larryNetIncomeShare": -4871.8,
     "distributionMismatch": true,
     "impliedOwnershipByQuarter": [],
     "capitalRaiseMismatch": false,
     "months": [
+      "2025-02",
+      "2025-03",
+      "2025-04",
+      "2025-05",
+      "2025-06",
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
       "2026-01",
       "2026-02",
       "2026-03",
