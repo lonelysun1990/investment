@@ -221,10 +221,11 @@ export async function extractMcneilDistributions(pdfPath, labelPattern, pageRang
 }
 
 import path from "node:path";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { runGenericExtraction } from "./lib/run-extraction.mjs";
 import { distributionLabel, totalUnits } from "./deals/mcneil.config.mjs";
-import { resolveArchiveRoot } from "./lib/archive-store.mjs";
+import { resolveArchiveRoot, loadManifest } from "./lib/archive-store.mjs";
+import { loadRecords, saveRecords } from "./lib/record-store.mjs";
 import { extractDirectStatement, extractVacantUnitNarrative } from "./extract-mcneil-occupancy-narrative.mjs";
 import { extractOccupancyChart } from "./extract-mcneil-occupancy-chart.mjs";
 import { mergeOccupancySources } from "./lib/merge-occupancy.mjs";
@@ -242,28 +243,54 @@ function findSections(manifest, docTypes) {
   return results;
 }
 
-async function extractMcneilOccupancy(batchDir, manifest, batchMonth, config) {
-  const narrativeSections = findSections(manifest, ["occupancy-narrative"]);
-  const chartSections = findSections(manifest, ["occupancy-chart"]);
-
-  let directStatement = new Map();
-  let vacantNarrative = new Map();
-  if (narrativeSections.length > 0) {
-    const narrativeText = await readFile(path.join(batchDir, narrativeSections[0].fileName), "utf8");
-    const direct = extractDirectStatement(narrativeText, batchMonth);
-    if (direct) directStatement = new Map(Object.entries(direct));
-    const vacant = extractVacantUnitNarrative(narrativeText, batchMonth, totalUnits);
-    if (vacant) vacantNarrative = new Map(Object.entries(vacant));
+// Occupancy is computed globally across ALL batches (see
+// computeMcneilOccupancyAcrossBatches), not per-batch: a single email's
+// chart image reports ~12 trailing months, so if priority were only
+// enforced within one batch's own three sources, a later email's
+// lower-priority chart reading for an old month would silently overwrite
+// an earlier email's higher-priority direct-statement/vacant-unit value
+// for that same month once batches are folded in chronological order.
+// Collecting each source across the whole archive before merging keeps
+// the priority order (direct statement > vacant-unit narrative > chart)
+// correct regardless of which batch a value came from.
+export async function computeMcneilOccupancyAcrossBatches(rawDir, config, opts = {}) {
+  let batchNames;
+  try {
+    batchNames = (await readdir(rawDir, { withFileTypes: true }))
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name)
+      .sort();
+  } catch (err) {
+    if (err.code === "ENOENT") return new Map();
+    throw err;
   }
 
-  let chart = new Map();
-  if (chartSections.length > 0) {
-    const chartResult = await extractOccupancyChart(
-      config,
-      path.join(batchDir, chartSections[0].fileName),
-      batchMonth
-    );
-    if (chartResult) chart = new Map(Object.entries(chartResult));
+  const directStatement = new Map();
+  const vacantNarrative = new Map();
+  const chart = new Map();
+
+  for (const batchName of batchNames) {
+    const batchDir = path.join(rawDir, batchName);
+    const manifest = await loadManifest(batchDir);
+    const narrativeSections = findSections(manifest, ["occupancy-narrative"]);
+    const chartSections = findSections(manifest, ["occupancy-chart"]);
+
+    if (narrativeSections.length > 0) {
+      const narrativeText = await readFile(path.join(batchDir, narrativeSections[0].fileName), "utf8");
+      const direct = extractDirectStatement(narrativeText, batchName);
+      if (direct) for (const [m, v] of Object.entries(direct)) directStatement.set(m, v);
+      const vacant = extractVacantUnitNarrative(narrativeText, batchName, totalUnits);
+      if (vacant) for (const [m, v] of Object.entries(vacant)) vacantNarrative.set(m, v);
+    }
+
+    if (chartSections.length > 0) {
+      try {
+        const chartResult = await extractOccupancyChart(config, path.join(batchDir, chartSections[0].fileName), batchName, opts);
+        if (chartResult) for (const [m, v] of Object.entries(chartResult)) chart.set(m, v);
+      } catch (err) {
+        console.warn(`extract-mcneil: occupancy chart reading failed for batch ${batchName}: ${err.message}`);
+      }
+    }
   }
 
   return mergeOccupancySources(
@@ -272,20 +299,11 @@ async function extractMcneilOccupancy(batchDir, manifest, batchMonth, config) {
   );
 }
 
-export async function extractMcneilBatch(batchDir, manifest, config) {
+export async function extractMcneilBatch(batchDir, manifest) {
   const months = new Map();
-  const batchMonth = path.basename(batchDir);
-
-  const occupancyByMonth = await extractMcneilOccupancy(batchDir, manifest, batchMonth, config);
 
   const pnlSections = findSections(manifest, ["cashflow-t12", "trailing-pnl-detail"]);
-
-  if (pnlSections.length === 0) {
-    for (const [month, occupancyPct] of occupancyByMonth) {
-      months.set(month, { month, occupancyPct });
-    }
-    return months;
-  }
+  if (pnlSections.length === 0) return months;
 
   for (const { fileName, pageRange, docType } of pnlSections) {
     const pdfPath = path.join(batchDir, fileName);
@@ -307,22 +325,26 @@ export async function extractMcneilBatch(batchDir, manifest, config) {
           confidence: expenseIsAggregateOnly ? "low" : "high",
         },
       };
-      if (occupancyByMonth.has(month)) {
-        record.occupancyPct = occupancyByMonth.get(month);
-      }
       months.set(month, record);
     }
-  }
-
-  for (const [month, occupancyPct] of occupancyByMonth) {
-    if (!months.has(month)) months.set(month, { month, occupancyPct });
   }
 
   return months;
 }
 
 export async function runMcneilExtraction(config, rawDir, outputPath) {
-  return runGenericExtraction(rawDir, outputPath, (batchDir, manifest) => extractMcneilBatch(batchDir, manifest, config));
+  const result = await runGenericExtraction(rawDir, outputPath, (batchDir, manifest) => extractMcneilBatch(batchDir, manifest));
+
+  const occupancyByMonth = await computeMcneilOccupancyAcrossBatches(rawDir, config);
+  if (occupancyByMonth.size > 0) {
+    const records = await loadRecords(outputPath);
+    for (const [month, occupancyPct] of occupancyByMonth) {
+      records[month] = records[month] ? { ...records[month], occupancyPct } : { month, occupancyPct };
+    }
+    await saveRecords(outputPath, records);
+  }
+
+  return result;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

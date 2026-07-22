@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile, rm } from "node:fs/promises";
-import { extractMcneilPnl, extractMcneilDistributions, extractMcneilBatch, runMcneilExtraction, parseMonthHeader } from "./extract-mcneil.mjs";
+import { extractMcneilPnl, extractMcneilDistributions, extractMcneilBatch, runMcneilExtraction, computeMcneilOccupancyAcrossBatches, parseMonthHeader } from "./extract-mcneil.mjs";
 
 const FIXTURE = "scripts/__fixtures__/mcneil/2026-06-cashflow-statement.pdf";
 const ANNUAL_FIXTURE = "scripts/__fixtures__/mcneil/2024-annual-cashflow-statement.pdf";
@@ -201,12 +201,12 @@ test("extractMcneilBatch marks aggregate-only months as low confidence and strip
   await rm(TMP_RAW, { recursive: true, force: true });
 });
 
-test("extractMcneilBatch attaches occupancy from a direct-statement narrative even with no PDF in the batch", async () => {
+test("computeMcneilOccupancyAcrossBatches resolves occupancy from a direct-statement narrative even with no PDF in the batch", async () => {
   const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-direct-statement-only";
   await rm(TMP_RAW, { recursive: true, force: true });
 
   const { mkdir, copyFile } = await import("node:fs/promises");
-  const { saveManifest, loadManifest } = await import("./lib/archive-store.mjs");
+  const { saveManifest } = await import("./lib/archive-store.mjs");
 
   await mkdir(`${TMP_RAW}/2024-10`, { recursive: true });
   await copyFile(
@@ -217,22 +217,21 @@ test("extractMcneilBatch attaches occupancy from a direct-statement narrative ev
     files: [{ docType: "occupancy-narrative", fileName: "occupancy-narrative.txt", contentHash: "e1" }],
   });
 
-  const manifest = await loadManifest(`${TMP_RAW}/2024-10`);
-  const months = await extractMcneilBatch(`${TMP_RAW}/2024-10`, manifest, null);
+  const occupancyByMonth = await computeMcneilOccupancyAcrossBatches(TMP_RAW, null);
 
-  assert.equal(months.size, 2);
-  assert.equal(months.get("2024-10").occupancyPct, 87.5);
-  assert.equal(months.get("2024-09").occupancyPct, 90.6);
+  assert.equal(occupancyByMonth.size, 2);
+  assert.equal(occupancyByMonth.get("2024-10"), 87.5);
+  assert.equal(occupancyByMonth.get("2024-09"), 90.6);
 
   await rm(TMP_RAW, { recursive: true, force: true });
 });
 
-test("extractMcneilBatch attaches occupancy from a vacant-unit narrative when no direct statement is present", async () => {
+test("computeMcneilOccupancyAcrossBatches resolves occupancy from a vacant-unit narrative when no direct statement is present", async () => {
   const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-vacant-unit-only";
   await rm(TMP_RAW, { recursive: true, force: true });
 
   const { mkdir, copyFile } = await import("node:fs/promises");
-  const { saveManifest, loadManifest } = await import("./lib/archive-store.mjs");
+  const { saveManifest } = await import("./lib/archive-store.mjs");
 
   await mkdir(`${TMP_RAW}/2026-06`, { recursive: true });
   await copyFile(
@@ -243,11 +242,102 @@ test("extractMcneilBatch attaches occupancy from a vacant-unit narrative when no
     files: [{ docType: "occupancy-narrative", fileName: "occupancy-narrative.txt", contentHash: "e2" }],
   });
 
-  const manifest = await loadManifest(`${TMP_RAW}/2026-06`);
-  const months = await extractMcneilBatch(`${TMP_RAW}/2026-06`, manifest, null);
+  const occupancyByMonth = await computeMcneilOccupancyAcrossBatches(TMP_RAW, null);
 
-  assert.equal(months.size, 1);
-  assert.equal(months.get("2026-06").occupancyPct, 90.6);
+  assert.equal(occupancyByMonth.size, 1);
+  assert.equal(occupancyByMonth.get("2026-06"), 90.6);
+
+  await rm(TMP_RAW, { recursive: true, force: true });
+});
+
+test("computeMcneilOccupancyAcrossBatches keeps an earlier batch's direct-statement value over a later batch's chart reading for the same month", async () => {
+  // Regression test: this is the exact bug the final whole-branch review
+  // caught -- priority (direct statement > vacant-unit narrative > chart)
+  // was only enforced within a single batch's own three sources. Since
+  // each email's chart reports ~12 trailing months, a LATER batch's
+  // lower-priority chart value for an OLD month must not silently win
+  // over an EARLIER batch's higher-priority direct-statement value for
+  // that same month just because batches are visited in chronological
+  // order.
+  const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-cross-batch-priority";
+  await rm(TMP_RAW, { recursive: true, force: true });
+
+  const { mkdir, copyFile } = await import("node:fs/promises");
+  const { saveManifest } = await import("./lib/archive-store.mjs");
+
+  // Earlier batch (2024-10): a real direct-statement narrative reporting
+  // 2024-10 at 87.5%.
+  await mkdir(`${TMP_RAW}/2024-10`, { recursive: true });
+  await copyFile(
+    "scripts/__fixtures__/mcneil-emails/2024-10-narrative.txt",
+    `${TMP_RAW}/2024-10/occupancy-narrative.txt`
+  );
+  await saveManifest(`${TMP_RAW}/2024-10`, {
+    files: [{ docType: "occupancy-narrative", fileName: "occupancy-narrative.txt", contentHash: "e3" }],
+  });
+
+  // Later batch (2026-06): a chart image whose trailing window reaches
+  // all the way back to 2024-10 with a conflicting, lower-priority value.
+  await mkdir(`${TMP_RAW}/2026-06`, { recursive: true });
+  await copyFile(
+    "scripts/__fixtures__/mcneil-emails/2026-06-occupancy-chart.png",
+    `${TMP_RAW}/2026-06/occupancy-chart.png`
+  );
+  await saveManifest(`${TMP_RAW}/2026-06`, {
+    files: [{ docType: "occupancy-chart", fileName: "occupancy-chart.png", contentHash: "e4" }],
+  });
+
+  const fakeConfig = { baseUrl: "https://example.test/v1", apiKey: "x", model: "gpt-4o" };
+  const fakeCallVisionLlm = async () =>
+    JSON.stringify({ months: [{ label: "Oct", occupancyPct: 82 }] });
+
+  const occupancyByMonth = await computeMcneilOccupancyAcrossBatches(TMP_RAW, fakeConfig, {
+    callVisionLlmImpl: fakeCallVisionLlm,
+  });
+
+  assert.equal(
+    occupancyByMonth.get("2024-10"),
+    87.5,
+    "the earlier batch's direct-statement value must survive a later batch's conflicting chart reading"
+  );
+
+  await rm(TMP_RAW, { recursive: true, force: true });
+});
+
+test("computeMcneilOccupancyAcrossBatches skips a batch whose chart reading throws, instead of aborting the whole run", async () => {
+  const TMP_RAW = "scripts/__fixtures__/tmp-mcneil-chart-throws";
+  await rm(TMP_RAW, { recursive: true, force: true });
+
+  const { mkdir, copyFile } = await import("node:fs/promises");
+  const { saveManifest } = await import("./lib/archive-store.mjs");
+
+  await mkdir(`${TMP_RAW}/2026-01`, { recursive: true });
+  await copyFile(
+    "scripts/__fixtures__/mcneil-emails/2026-06-occupancy-chart.png",
+    `${TMP_RAW}/2026-01/occupancy-chart.png`
+  );
+  await saveManifest(`${TMP_RAW}/2026-01`, {
+    files: [{ docType: "occupancy-chart", fileName: "occupancy-chart.png", contentHash: "e5" }],
+  });
+
+  await mkdir(`${TMP_RAW}/2026-06`, { recursive: true });
+  await copyFile(
+    "scripts/__fixtures__/mcneil-emails/2026-06-narrative.txt",
+    `${TMP_RAW}/2026-06/occupancy-narrative.txt`
+  );
+  await saveManifest(`${TMP_RAW}/2026-06`, {
+    files: [{ docType: "occupancy-narrative", fileName: "occupancy-narrative.txt", contentHash: "e6" }],
+  });
+
+  const fakeConfig = { baseUrl: "https://example.test/v1", apiKey: "x", model: "gpt-4o" };
+  const fakeCallVisionLlm = async () => "not valid json";
+
+  const occupancyByMonth = await computeMcneilOccupancyAcrossBatches(TMP_RAW, fakeConfig, {
+    callVisionLlmImpl: fakeCallVisionLlm,
+  });
+
+  assert.equal(occupancyByMonth.get("2026-01"), undefined, "the throwing batch contributes no occupancy data");
+  assert.equal(occupancyByMonth.get("2026-06"), 90.6, "a later batch's valid narrative is still processed");
 
   await rm(TMP_RAW, { recursive: true, force: true });
 });
