@@ -1,10 +1,16 @@
 import { loadRecords, saveRecords } from "./lib/record-store.mjs";
 import { chromium } from "playwright";
-import { mkdir, readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile, unlink } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { archiveFile, resolveArchiveRoot } from "./lib/archive-store.mjs";
 import { resolveBatchDate } from "./lib/batch-date.mjs";
 import { extractPagesFromPdf } from "./lib/pdf-pages.mjs";
+
+const execFileAsync = promisify(execFile);
 
 const MONTH_NAMES = {
   jan: "01", january: "01", feb: "02", february: "02", mar: "03", march: "03",
@@ -50,6 +56,68 @@ export async function saveSeenManifest(path, seen) {
 
 const PORTAL_BASE = "https://whitepagodagroup.cashflowportal.com";
 
+async function downloadOrCaptureAttachment(page, href) {
+  const context = page.context();
+
+  let popupHandler;
+  let popupPageRef = null;
+  const popupPdf = new Promise((resolve, reject) => {
+    popupHandler = (newPage) => {
+      popupPageRef = newPage;
+      newPage.on("response", (r) => {
+        if (r.headers()["content-type"] === "application/pdf") {
+          r.body().then(resolve, reject);
+        }
+      });
+    };
+    context.on("page", popupHandler);
+  });
+  popupPdf.catch(() => {});
+
+  const downloadEvent = page.waitForEvent("download", { timeout: 30000 });
+  downloadEvent.catch(() => {});
+
+  try {
+    const link = page.locator(`a[href="${href}"]`).first();
+    await link.click();
+
+    const winner = await Promise.race([
+      downloadEvent.then((download) => ({ type: "download", download })),
+      popupPdf.then((buffer) => ({ type: "popup", buffer })),
+    ]);
+
+    if (winner.type === "download") {
+      const tmpPath = await winner.download.path();
+      return await readFile(tmpPath);
+    }
+    return winner.buffer;
+  } finally {
+    context.off("page", popupHandler);
+    if (popupPageRef && !popupPageRef.isClosed()) await popupPageRef.close().catch(() => {});
+  }
+}
+
+async function withForegroundRestored(action) {
+  let frontApp = null;
+  try {
+    const { stdout } = await execFileAsync("osascript", [
+      "-e",
+      'tell application "System Events" to get name of first application process whose frontmost is true',
+    ]);
+    frontApp = stdout.trim();
+  } catch {
+    // Not on macOS, or System Events unavailable -- skip silently, don't fail the harvest over this.
+  }
+
+  try {
+    return await action();
+  } finally {
+    if (frontApp) {
+      await execFileAsync("osascript", ["-e", `tell application "${frontApp}" to activate`]).catch(() => {});
+    }
+  }
+}
+
 export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
   const seenPath = path.join(rawDir, "_seen.json");
   const seen = await loadSeenManifest(seenPath);
@@ -84,14 +152,7 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
     await page.waitForTimeout(3000);
 
     const attachmentLinks = await page.evaluate(() => {
-      const overlays = Array.from(document.querySelectorAll("div,section,aside")).filter((el) => {
-        const s = getComputedStyle(el);
-        const r = el.getBoundingClientRect();
-        return (s.position === "fixed" || s.position === "absolute") && r.width > 350 && r.height > 250;
-      });
-      const scope = overlays.sort((a, b) => a.innerText.length - b.innerText.length)[0];
-      if (!scope) return [];
-      return Array.from(scope.querySelectorAll("a"))
+      return Array.from(document.querySelectorAll("a"))
         .map((a) => ({ name: a.innerText.trim(), href: a.href }))
         .filter((a) => a.href && /\.(pdf|xlsx)(\?|$)/i.test(a.href));
     });
@@ -101,15 +162,18 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
     for (const { name, href } of attachmentLinks) {
       const safeName = name.replace(/[^a-zA-Z0-9.\- ]/g, "_");
       try {
-        const link = page.locator(`a[href="${href}"]`).first();
-        const [download] = await Promise.all([
-          page.waitForEvent("download", { timeout: 30000 }),
-          link.click(),
-        ]);
-        const tmpPath = await download.path();
-        const buffer = await readFile(tmpPath);
+        const buffer = await withForegroundRestored(() => downloadOrCaptureAttachment(page, href));
         const ext = path.extname(safeName).replace(".", "");
-        const pages = ext.toLowerCase() === "pdf" ? await extractPagesFromPdf(tmpPath).catch(() => []) : [];
+        let pages = [];
+        if (ext.toLowerCase() === "pdf") {
+          const tmpPath = path.join(tmpdir(), `${randomUUID()}.pdf`);
+          await writeFile(tmpPath, buffer);
+          try {
+            pages = await extractPagesFromPdf(tmpPath).catch(() => []);
+          } finally {
+            await unlink(tmpPath).catch(() => {});
+          }
+        }
         const text = pages.join("\n");
         const rawResult = dealConfig.classifyDoc({ filename: safeName, pages, text });
         const sections = Array.isArray(rawResult) ? rawResult : [{ docType: rawResult, pageRange: null }];
@@ -117,7 +181,8 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
         if (docType === "unknown") {
           console.warn(`harvestDeal: could not classify "${name}" (${dealSlug} ${month}) -- archived as unknown`);
         }
-        const { batchKey, source } = resolveBatchDate({ text, harvestedAt: new Date().toISOString() });
+        const { batchKey: resolvedBatchKey, source } = resolveBatchDate({ text, harvestedAt: new Date().toISOString() });
+        const batchKey = source === "harvest-fallback" ? month : resolvedBatchKey;
         await archiveFile(rawDir, batchKey, docType, ext, buffer, {
           sourceEmailSubject: subject,
           sections,
@@ -129,6 +194,14 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
         console.warn(
           `harvestDeal: download failed for ${dealSlug} ${month} "${name}" (${href}): ${err.message}`
         );
+      }
+    }
+
+    if (dealConfig.capturesEmailOccupancy) {
+      try {
+        await captureOccupancyDocs(page, rawDir, month, subject);
+      } catch (err) {
+        console.warn(`harvestDeal: occupancy capture failed for ${dealSlug} ${month}: ${err.message}`);
       }
     }
 
@@ -148,6 +221,41 @@ export async function harvestDeal(page, dealId, dealSlug, rawDir, dealConfig) {
   }
 
   return { newMonths };
+}
+
+export async function findEmailContentFrame(page) {
+  for (const frame of page.frames()) {
+    if (frame.url() !== "about:blank") continue;
+    const bodyLength = await frame.evaluate(() => document.body?.innerText?.length ?? 0).catch(() => 0);
+    if (bodyLength > 0) return frame;
+  }
+  return null;
+}
+
+export async function captureOccupancyDocs(page, rawDir, month, subject) {
+  const contentFrame = await findEmailContentFrame(page);
+  if (!contentFrame) {
+    console.warn(`captureOccupancyDocs: could not find email content frame for ${month} -- skipping`);
+    return;
+  }
+
+  const narrativeText = await contentFrame.evaluate(() => document.body.innerText);
+  await archiveFile(rawDir, month, "occupancy-narrative", "txt", Buffer.from(narrativeText, "utf8"), {
+    sourceEmailSubject: subject,
+  });
+
+  const chartHandle = await contentFrame.evaluateHandle(() => {
+    return Array.from(document.querySelectorAll("img")).find((img) => /\.png(\?|$)/i.test(img.src)) ?? null;
+  });
+  const chartEl = chartHandle.asElement();
+  if (chartEl) {
+    const chartBuffer = await chartEl.screenshot();
+    await archiveFile(rawDir, month, "occupancy-chart", "png", chartBuffer, {
+      sourceEmailSubject: subject,
+    });
+  } else {
+    console.warn(`captureOccupancyDocs: no occupancy chart image found for ${month}`);
+  }
 }
 
 export async function harvestStaticDocument(page, dealId, docLabel, docType, rawDir, batchKey = "offering") {

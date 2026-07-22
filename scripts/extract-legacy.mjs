@@ -25,18 +25,14 @@ export async function extractNarrative(pdfPath) {
   const financialMatch = text.match(
     /Net Rental Income for \w+ was \$([\d,]+)\. Total revenue for the month was \$([\d,]+), which netted to an NOI of \$([\d,]+)/i
   );
-  if (!financialMatch) {
-    throw new Error(
-      `extract-legacy: could not find Financial Overview summary sentence in ${pdfPath}`
-    );
-  }
 
   return {
     occupancyPct,
     preLeasedPct,
-    statedRentalIncome: parseMoney(financialMatch[1]),
-    statedTotalRevenue: parseMoney(financialMatch[2]),
-    statedNoi: parseMoney(financialMatch[3]),
+    hasFinancials: !!financialMatch,
+    statedRentalIncome: financialMatch ? parseMoney(financialMatch[1]) : null,
+    statedTotalRevenue: financialMatch ? parseMoney(financialMatch[2]) : null,
+    statedNoi: financialMatch ? parseMoney(financialMatch[3]) : null,
     narrative: text.trim(),
   };
 }
@@ -99,6 +95,30 @@ export async function extractPnlTable(config, pdfPath, month, opts = {}) {
 
 export async function extractLegacyMonth(config, pdfPath, month, opts = {}) {
   const narrative = await extractNarrative(pdfPath);
+
+  if (!narrative.hasFinancials) {
+    // The sponsor's own narrative states financials aren't available this
+    // month (e.g. a mid-month acquisition, or a management-company
+    // transition) -- the report's page layout shifts entirely in this case
+    // and there is no P&L table page to render, so skip the vision-LLM call
+    // rather than asking it to read a page that was never a P&L table.
+    return {
+      [month]: {
+        month,
+        occupancyPct: narrative.occupancyPct,
+        preLeasedPct: narrative.preLeasedPct,
+        income: null,
+        expense: null,
+        noi: null,
+        nonOperatingExpense: null,
+        netIncome: null,
+        narrative: narrative.narrative,
+        sourceFile: pdfPath,
+        extraction: { method: "no_financials_reported", confidence: null },
+      },
+    };
+  }
+
   const { tablesByMonth, method, confidence } = await extractPnlTable(config, pdfPath, month, opts);
 
   if (!tablesByMonth) {
