@@ -745,7 +745,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 88
+    "occupancyPct": 87
   },
   "2024-12": {
     "income": {
@@ -795,7 +795,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 88
+    "occupancyPct": 85
   },
   "2025-01": {
     "income": {
@@ -847,7 +847,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 86
+    "occupancyPct": 85
   },
   "2025-02": {
     "income": {
@@ -899,7 +899,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 90
+    "occupancyPct": 78
   },
   "2025-03": {
     "income": {
@@ -951,7 +951,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 95
+    "occupancyPct": 93
   },
   "2025-04": {
     "income": {
@@ -1003,7 +1003,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 92
+    "occupancyPct": 88
   },
   "2025-05": {
     "income": {
@@ -1159,7 +1159,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 97
+    "occupancyPct": 95
   },
   "2025-08": {
     "income": {
@@ -1211,7 +1211,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 95
+    "occupancyPct": 93
   },
   "2025-09": {
     "income": {
@@ -1263,11 +1263,9 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 93
+    "occupancyPct": 90
   },
   "2025-10": {
-    "month": "2025-10",
-    "occupancyPct": 89,
     "income": {
       "rental": 22970.43,
       "other": 1465.42,
@@ -1310,11 +1308,14 @@ export const MCNEIL = {
       "total": 7506.83
     },
     "netIncome": -456.66,
+    "month": "2025-10",
+    "distribution": 0,
     "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/mcneil/2026-01/balance-sheet.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "low"
-    }
+    },
+    "occupancyPct": 83
   },
   "2025-11": {
     "income": {
@@ -1366,7 +1367,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 82
+    "occupancyPct": 75
   },
   "2025-12": {
     "income": {
@@ -1418,11 +1419,9 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "low"
     },
-    "occupancyPct": 88
+    "occupancyPct": 80
   },
   "2026-01": {
-    "month": "2026-01",
-    "occupancyPct": 84,
     "income": {
       "rental": 21769.68,
       "other": 1754.85,
@@ -1456,12 +1455,14 @@ export const MCNEIL = {
       "total": 16258.82
     },
     "netIncome": -6671.87,
+    "month": "2026-01",
     "distribution": 118999.45,
     "sourceFile": "/Users/Larry.Jin/Documents/projects/investment/data/raw/mcneil/2026-06/cashflow-t12.pdf",
     "extraction": {
       "method": "deterministic",
       "confidence": "high"
-    }
+    },
+    "occupancyPct": 78
   },
   "2026-02": {
     "income": {
@@ -1504,7 +1505,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "high"
     },
-    "occupancyPct": 85
+    "occupancyPct": 82
   },
   "2026-03": {
     "income": {
@@ -1633,7 +1634,7 @@ export const MCNEIL = {
       "method": "deterministic",
       "confidence": "high"
     },
-    "occupancyPct": 87
+    "occupancyPct": 88
   },
   "2026-06": {
     "income": {
