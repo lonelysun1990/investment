@@ -24,7 +24,13 @@ function sumField(records, field) {
 }
 
 function sortedMonths(records) {
-  return Object.keys(records).sort();
+  return Object.keys(records).sort().reverse();
+}
+
+function hasData(record) {
+  return (record.income?.total ?? 0) !== 0 ||
+         (record.expense?.total ?? 0) !== 0 ||
+         record.occupancyPct != null;
 }
 
 function quarterFromMonth(m) {
@@ -70,7 +76,7 @@ function moneyBracketed(n, opts = {}) {
 }
 
 function pnlLedgerTable(records) {
-  const months = sortedMonths(records);
+  const months = sortedMonths(records).filter(m => hasData(records[m]));
   if (months.length === 0) return "<p>No monthly records yet.</p>";
   const rows = [
     { label: "Rental income", getter: (m) => records[m].income?.rental },
@@ -133,7 +139,7 @@ function destroyCharts() {
 const CHART_COLORS = ["#16a34a", "#dc2626", "#2563eb", "#eab308", "#8b5cf6", "#f97316", "#06b6d4", "#ec4899", "#84cc16", "#6366f1", "#14b8a6", "#f43f5e"];
 
 function renderExpenseBreakdownChart(canvasId, records) {
-  const months = sortedMonths(records);
+  const months = sortedMonths(records).filter(m => hasData(records[m]));
   const categories = new Set();
   months.forEach((m) => Object.keys(records[m].expense ?? {}).forEach((c) => c !== "total" && categories.add(c)));
   if (categories.size === 0) return;
@@ -162,7 +168,7 @@ function renderExpenseBreakdownChart(canvasId, records) {
 }
 
 function renderOccupancyOverlayChart(canvasId, records) {
-  const months = sortedMonths(records);
+  const months = sortedMonths(records).filter(m => hasData(records[m]));
   const ctx = document.getElementById(canvasId).getContext("2d");
   chartInstances.push(
     new Chart(ctx, {
@@ -230,9 +236,9 @@ function renderDistributionChart(canvasId, records, distData, ownershipPct) {
 function actualVsProjectionTable(dealSlug, records) {
   const projection = PROJECTIONS[dealSlug];
   if (!projection) return `<p>No projection data extracted yet for this deal.</p>`;
-  const months = sortedMonths(records);
+  const months = sortedMonths(records).filter(m => hasData(records[m]));
   if (months.length === 0) return `<p>No monthly records yet.</p>`;
-  const latest = records[months[months.length - 1]];
+  const latest = records[months[0]];
   const rows = [
     ["Occupancy %", pct(latest.occupancyPct), pct(projection.stabilizedOccupancyPct), projection.isDerived],
   ];
@@ -326,8 +332,8 @@ function investorCashFlowCard(dealSlug, records) {
 
 function renderDealView(dealSlug) {
   const records = DEALS[dealSlug];
-  const months = sortedMonths(records);
-  const latestMonth = months[months.length - 1];
+  const months = sortedMonths(records).filter(m => hasData(records[m]));
+  const latestMonth = months[0];
   const latest = latestMonth ? records[latestMonth] : null;
   const breakEven = latest ? breakEvenOccupancy(latest) : null;
   const distData = DISTRIBUTIONS[dealSlug] ?? [];
