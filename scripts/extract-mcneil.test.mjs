@@ -287,14 +287,29 @@ test("computeMcneilOccupancyAcrossBatches keeps an earlier batch's direct-statem
     files: [{ docType: "occupancy-chart", fileName: "occupancy-chart.png", contentHash: "e4" }],
   });
 
+  // A genuine, valid (non-throwing) 21-month consecutive trailing run
+  // ending at the chart batch's own month (2026-06) that reaches all the
+  // way back to 2024-10 with a conflicting value -- if this test only
+  // used a single out-of-order label, resolveTrailingMonths' own
+  // validation would throw before ever producing a competing value,
+  // making the assertion below pass trivially even with the bug back.
   const fakeConfig = { baseUrl: "https://example.test/v1", apiKey: "x", model: "gpt-4o" };
+  const trailingLabels = [
+    "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+    "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  ];
   const fakeCallVisionLlm = async () =>
-    JSON.stringify({ months: [{ label: "Oct", occupancyPct: 82 }] });
+    JSON.stringify({ months: trailingLabels.map((label) => ({ label, occupancyPct: 82 })) });
 
   const occupancyByMonth = await computeMcneilOccupancyAcrossBatches(TMP_RAW, fakeConfig, {
     callVisionLlmImpl: fakeCallVisionLlm,
   });
 
+  assert.equal(
+    occupancyByMonth.get("2024-11"),
+    82,
+    "sanity check: the chart genuinely contributed a value for a month the direct statement doesn't cover"
+  );
   assert.equal(
     occupancyByMonth.get("2024-10"),
     87.5,
