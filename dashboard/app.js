@@ -81,7 +81,14 @@ function pnlLedgerTable(records) {
     { label: "Non-operating expense", getter: (m) => records[m].nonOperatingExpense?.total, alwaysBracket: true },
     { label: "Net income", getter: (m) => records[m].netIncome, highlight: true },
   ];
-  const header = `<tr><th>Account</th>${months.map((m) => `<th>${m}</th>`).join("")}</tr>`;
+  const unreconciledMonths = months.filter((m) => records[m].reconciled === false);
+  const header = `<tr><th>Account</th>${months
+    .map((m) =>
+      unreconciledMonths.includes(m)
+        ? `<th class="flag-low-confidence" title="This month's figures don't fully reconcile (income - expense should equal NOI, and NOI - non-operating expense should equal net income) -- likely a transcription error in the source document. Treat with caution.">${m} ⚠</th>`
+        : `<th>${m}</th>`
+    )
+    .join("")}</tr>`;
   const body = rows
     .map(({ label, getter, highlight, alwaysBracket }) => {
       const cells = months
@@ -90,14 +97,18 @@ function pnlLedgerTable(records) {
           const display = alwaysBracket
             ? value == null ? "—" : moneyBracketed(value, { decimals: 2 })
             : money(value, { decimals: 2 });
-          return `<td>${display}</td>`;
+          const cellClass = unreconciledMonths.includes(m) ? " class=\"flag-low-confidence\"" : "";
+          return `<td${cellClass}>${display}</td>`;
         })
         .join("");
       const rowClass = highlight ? " class=\"row-highlight\"" : "";
       return `<tr${rowClass}><td class="row-label">${label}</td>${cells}</tr>`;
     })
     .join("");
-  return tableScrollWrapper(months.length, `<table>${header}${body}</table>`);
+  const footnote = unreconciledMonths.length
+    ? `<p class="flag-low-confidence" style="font-size:12px;margin-top:8px;">⚠ ${unreconciledMonths.join(", ")}: figures don't fully reconcile in the source document -- likely a transcription error. Treat with caution.</p>`
+    : "";
+  return tableScrollWrapper(months.length, `<table>${header}${body}</table>`) + footnote;
 }
 
 function tableScrollWrapper(colCount, inner) {

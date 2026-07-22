@@ -4,6 +4,8 @@ import { readFile, rm } from "node:fs/promises";
 import { extractNarrative, extractPnlTable, extractLegacyMonth, extractLegacyBatch, runLegacyExtraction } from "./extract-legacy.mjs";
 
 const FIXTURE = "scripts/__fixtures__/legacy/2026-05-investor-update.pdf";
+const NO_FINANCIALS_ACQUISITION_FIXTURE = "scripts/__fixtures__/legacy/2025-11-acquisition-month-no-financials.pdf";
+const NO_FINANCIALS_TRANSITION_FIXTURE = "scripts/__fixtures__/legacy/2026-03-management-transition-no-financials.pdf";
 
 test("extracts occupancy percentage", async () => {
   const result = await extractNarrative(FIXTURE);
@@ -35,6 +37,72 @@ test("preLeasedPct is null when the report has no pre-leased line", async () => 
   // future Legacy report omits the pre-leased line, occupancyPct/statedNoi
   // extraction must still succeed independently (verified by the other
   // four tests using named-capture regexes, not one monolithic regex).
+});
+
+test("extractNarrative sets hasFinancials false and nulls the financial fields for an acquisition month with no Financial Overview sentence", async () => {
+  const result = await extractNarrative(NO_FINANCIALS_ACQUISITION_FIXTURE);
+  assert.equal(result.occupancyPct, 94);
+  assert.equal(result.hasFinancials, false);
+  assert.equal(result.statedRentalIncome, null);
+  assert.equal(result.statedTotalRevenue, null);
+  assert.equal(result.statedNoi, null);
+  assert.match(result.narrative, /do not have a normal, full month of financials/);
+});
+
+test("extractNarrative sets hasFinancials false for a management-transition month with no Financial Overview sentence", async () => {
+  const result = await extractNarrative(NO_FINANCIALS_TRANSITION_FIXTURE);
+  assert.equal(result.occupancyPct, 87);
+  assert.equal(result.hasFinancials, false);
+  assert.equal(result.statedNoi, null);
+});
+
+test("extractNarrative sets hasFinancials true for a normal report", async () => {
+  const result = await extractNarrative(FIXTURE);
+  assert.equal(result.hasFinancials, true);
+});
+
+test("extractLegacyMonth returns a degraded occupancy-only record for a month with no financials, without calling the vision LLM", async () => {
+  let callCount = 0;
+  const fakeCallVisionLlm = async () => {
+    callCount++;
+    return "{}";
+  };
+  const fakeConfig = { baseUrl: "https://example.test/v1", apiKey: "x", model: "gpt-4o" };
+  const records = await extractLegacyMonth(fakeConfig, NO_FINANCIALS_ACQUISITION_FIXTURE, "2025-11", {
+    callVisionLlmImpl: fakeCallVisionLlm,
+  });
+  const nov = records["2025-11"];
+  assert.equal(nov.occupancyPct, 94);
+  assert.equal(nov.income, null);
+  assert.equal(nov.expense, null);
+  assert.equal(nov.noi, null);
+  assert.equal(nov.nonOperatingExpense, null);
+  assert.equal(nov.netIncome, null);
+  assert.equal(nov.extraction.method, "no_financials_reported");
+  assert.equal(callCount, 0, "the vision LLM must not be called when the narrative already says financials aren't available");
+});
+
+test("extractLegacyBatch produces a reconciled degraded record for a real no-financials month via the batch path", async () => {
+  const { reconcilePnlRecord } = await import("./lib/reconcile-pnl.mjs");
+  const { loadManifest, saveManifest } = await import("./lib/archive-store.mjs");
+  const TMP_RAW = "scripts/__fixtures__/tmp-legacy-no-financials";
+  await rm(TMP_RAW, { recursive: true, force: true });
+  const { mkdir, copyFile } = await import("node:fs/promises");
+  await mkdir(`${TMP_RAW}/2025-11`, { recursive: true });
+  await copyFile(NO_FINANCIALS_ACQUISITION_FIXTURE, `${TMP_RAW}/2025-11/monthly-update.pdf`);
+  await saveManifest(`${TMP_RAW}/2025-11`, {
+    files: [{ docType: "monthly-update", fileName: "monthly-update.pdf", contentHash: "no-fin" }],
+  });
+
+  const manifest = await loadManifest(`${TMP_RAW}/2025-11`);
+  const records = await extractLegacyBatch(`${TMP_RAW}/2025-11`, manifest, null);
+  const nov = records.get("2025-11");
+  assert.equal(nov.occupancyPct, 94);
+  assert.equal(nov.noi, null);
+  const { reconciled } = reconcilePnlRecord(nov);
+  assert.equal(reconciled, true, "a record with null noi/netIncome must reconcile cleanly, not false-warn");
+
+  await rm(TMP_RAW, { recursive: true, force: true });
 });
 
 const EXPECTED_TABLE = {
